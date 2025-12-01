@@ -1,6 +1,4 @@
 [build]
-builder = "dockerfile"
-dockerfilePath = "Dockerfile"
-
-[deploy]
-startCommand = "npm start"
+builder = "DOCKERFILE"
+dockerfilePath = "./Dockerfile"
+watchPatterns = ["**"]
