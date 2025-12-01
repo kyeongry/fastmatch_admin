@@ -1,4 +1,4 @@
-const resend = require('../config/email');
+const transporter = require('../config/email');
 
 const generateVerificationCode = () => {
   return Math.random().toString().slice(2, 8); // 6자리 숫자
@@ -6,8 +6,8 @@ const generateVerificationCode = () => {
 
 const sendVerificationEmail = async (email, code) => {
   try {
-    const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'FASTMATCH <onboarding@resend.dev>',
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: '[FASTMATCH] 이메일 인증 코드',
       html: `
@@ -28,14 +28,10 @@ const sendVerificationEmail = async (email, code) => {
           </p>
         </div>
       `
-    });
+    };
 
-    if (error) {
-      console.error('❌ Resend error:', error);
-      throw new Error(error.message);
-    }
-
-    console.log('✅ Email sent via Resend:', data?.id);
+    await transporter.sendMail(mailOptions);
+    console.log('✅ Verification email sent to:', email);
     return true;
   } catch (error) {
     console.error('❌ Email send error:', error);
@@ -45,21 +41,17 @@ const sendVerificationEmail = async (email, code) => {
 
 const sendProposalEmail = async ({ to, cc, replyTo, subject, html }) => {
   try {
-    const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'FASTMATCH <onboarding@resend.dev>',
-      to: Array.isArray(to) ? to : [to],
-      cc: cc && cc.length > 0 ? cc : undefined,
-      reply_to: replyTo,
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to,
+      cc: cc && cc.length > 0 ? cc.join(',') : undefined,
+      replyTo,
       subject,
       html
-    });
+    };
 
-    if (error) {
-      console.error('❌ Resend error:', error);
-      throw new Error(error.message);
-    }
-
-    console.log('✅ Proposal email sent via Resend:', data?.id);
+    await transporter.sendMail(mailOptions);
+    console.log('✅ Proposal email sent to:', to);
     return true;
   } catch (error) {
     console.error('❌ Email send error:', error);
@@ -194,22 +186,18 @@ const sendProposalRequestEmail = async (data, sendType) => {
     </html>
   `;
 
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    to,
+    cc: cc && cc.length > 0 ? cc : undefined,
+    replyTo,
+    subject,
+    html,
+  };
+
   try {
-    const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'FASTMATCH <onboarding@resend.dev>',
-      to: Array.isArray(to) ? to : [to],
-      cc: cc && cc.length > 0 ? cc : undefined,
-      reply_to: replyTo,
-      subject,
-      html,
-    });
-
-    if (error) {
-      console.error('❌ Resend error:', error);
-      throw new Error(error.message);
-    }
-
-    console.log('✅ Proposal request email sent via Resend:', data?.id);
+    await transporter.sendMail(mailOptions);
+    console.log('✅ Proposal request email sent to:', to);
     return true;
   } catch (error) {
     console.error('❌ Proposal email send error:', error);

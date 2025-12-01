@@ -1,13 +1,31 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-// Resend API 설정 (Railway 환경에서 안정적)
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Gmail SMTP 설정 (포트 465 SSL 사용)
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,  // SSL 사용
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD
+  },
+  // 타임아웃 설정
+  connectionTimeout: 30000,
+  greetingTimeout: 30000,
+  socketTimeout: 30000,
+  // TLS 설정
+  tls: {
+    rejectUnauthorized: false
+  }
+});
 
-// 설정 확인
-if (process.env.RESEND_API_KEY) {
-  console.log('✅ Resend API configured');
-} else {
-  console.log('❌ RESEND_API_KEY not set');
-}
+// 연결 테스트
+transporter.verify((error, success) => {
+  if (error) {
+    console.log('❌ Email config error:', error.message);
+  } else {
+    console.log('✅ Gmail SMTP connected (port 465 SSL)');
+  }
+});
 
-module.exports = resend;
+module.exports = transporter;
