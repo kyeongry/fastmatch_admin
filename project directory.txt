@@ -1,0 +1,140 @@
+## 📁 프로젝트 디렉토리 구조
+```
+fastmatch/
+├─ frontend/
+│  ├─ public/
+│  ├─ src/
+│  │  ├─ assets/
+│  │  ├─ components/
+│  │  │  ├─ common/
+│  │  │  │  ├─ Layout.jsx
+│  │  │  │  ├─ Navigation.jsx
+│  │  │  │  ├─ Header.jsx
+│  │  │  │  ├─ Footer.jsx
+│  │  │  │  ├─ Modal.jsx
+│  │  │  │  ├─ Toast.jsx
+│  │  │  │  └─ Loading.jsx
+│  │  │  ├─ main/
+│  │  │  │  ├─ Sidebar.jsx
+│  │  │  │  ├─ BrandListModal.jsx
+│  │  │  │  ├─ ManagerListModal.jsx
+│  │  │  │  ├─ BranchListModal.jsx
+│  │  │  │  ├─ SearchBar.jsx
+│  │  │  │  ├─ FilterBar.jsx
+│  │  │  │  ├─ OptionCard.jsx
+│  │  │  │  ├─ OptionDetailSlide.jsx
+│  │  │  │  └─ Footer.jsx
+│  │  │  └─ admin/
+│  │  │     ├─ StatisticsCard.jsx
+│  │  │     └─ RecentActivities.jsx
+│  │  ├─ pages/
+│  │  │  ├─ auth/
+│  │  │  │  ├─ Login.jsx
+│  │  │  │  ├─ Register.jsx
+│  │  │  │  └─ VerifyEmail.jsx
+│  │  │  ├─ main/
+│  │  │  │  └─ MainPage.jsx
+│  │  │  ├─ options/
+│  │  │  │  ├─ OptionRegister.jsx
+│  │  │  │  ├─ OptionEdit.jsx
+│  │  │  │  └─ OptionDetail.jsx
+│  │  │  ├─ proposals/
+│  │  │  │  ├─ ProposalRequest.jsx
+│  │  │  │  ├─ ProposalRequestList.jsx
+│  │  │  │  ├─ ProposalRequestDetail.jsx
+│  │  │  │  ├─ ProposalRequestAdd.jsx
+│  │  │  │  ├─ ProposalRequestModify.jsx
+│  │  │  │  └─ ProposalCreate.jsx
+│  │  │  └─ admin/
+│  │  │     ├─ Dashboard.jsx
+│  │  │     ├─ brands/
+│  │  │     ├─ managers/
+│  │  │     ├─ branches/
+│  │  │     ├─ options/
+│  │  │     ├─ deleteRequests/
+│  │  │     └─ users/
+│  │  ├─ hooks/
+│  │  │  ├─ useAuth.js
+│  │  │  ├─ useModal.js
+│  │  │  ├─ useToast.js
+│  │  │  └─ useApi.js
+│  │  ├─ context/
+│  │  │  └─ AuthContext.jsx
+│  │  ├─ services/
+│  │  │  └─ api.js
+│  │  ├─ utils/
+│  │  │  ├─ validators.js
+│  │  │  └─ formatters.js
+│  │  ├─ App.jsx
+│  │  └─ main.jsx
+│  ├─ package.json
+│  ├─ tailwind.config.js
+│  └─ vite.config.js
+│
+├─ backend/
+│  ├─ src/
+│  │  ├─ routes/
+│  │  │  ├─ auth.routes.js
+│  │  │  ├─ user.routes.js
+│  │  │  ├─ brand.routes.js
+│  │  │  ├─ manager.routes.js
+│  │  │  ├─ branch.routes.js
+│  │  │  ├─ option.routes.js
+│  │  │  ├─ deleteRequest.routes.js
+│  │  │  ├─ proposalRequest.routes.js
+│  │  │  ├─ proposalDocument.routes.js
+│  │  │  ├─ upload.routes.js
+│  │  │  ├─ external.routes.js
+│  │  │  └─ admin.routes.js
+│  │  ├─ controllers/
+│  │  │  ├─ auth.controller.js
+│  │  │  ├─ user.controller.js
+│  │  │  ├─ brand.controller.js
+│  │  │  ├─ manager.controller.js
+│  │  │  ├─ branch.controller.js
+│  │  │  ├─ option.controller.js
+│  │  │  ├─ deleteRequest.controller.js
+│  │  │  ├─ proposalRequest.controller.js
+│  │  │  ├─ proposalDocument.controller.js
+│  │  │  ├─ upload.controller.js
+│  │  │  ├─ external.controller.js
+│  │  │  └─ admin.controller.js
+│  │  ├─ services/
+│  │  │  ├─ auth.service.js
+│  │  │  ├─ user.service.js
+│  │  │  ├─ brand.service.js
+│  │  │  ├─ manager.service.js
+│  │  │  ├─ branch.service.js
+│  │  │  ├─ option.service.js
+│  │  │  ├─ deleteRequest.service.js
+│  │  │  ├─ proposalRequest.service.js
+│  │  │  ├─ proposalDocument.service.js
+│  │  │  ├─ upload.service.js
+│  │  │  ├─ email.service.js
+│  │  │  ├─ kakaoMap.service.js
+│  │  │  └─ buildingRegistry.service.js
+│  │  ├─ middlewares/
+│  │  │  ├─ auth.middleware.js
+│  │  │  ├─ admin.middleware.js
+│  │  │  ├─ validation.middleware.js
+│  │  │  ├─ error.middleware.js
+│  │  │  └─ rateLimit.middleware.js
+│  │  ├─ utils/
+│  │  │  ├─ logger.js
+│  │  │  ├─ validators.js
+│  │  │  ├─ formatters.js
+│  │  │  ├─ dateUtils.js
+│  │  │  └─ errorHandler.js
+│  │  ├─ config/
+│  │  │  ├─ database.js
+│  │  │  ├─ cloudinary.js
+│  │  │  ├─ email.js
+│  │  │  └─ constants.js
+│  │  ├─ prisma/
+│  │  │  └─ schema.prisma
+│  │  └─ server.js
+│  ├─ package.json
+│  └─ .env
+│
+├─ .gitignore
+└─ README.md

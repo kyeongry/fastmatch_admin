@@ -1,0 +1,245 @@
+FASTMATCH Frontend
+│
+├─ 📁 /public (Public Routes - 비로그인 접근 가능)
+│  ├─ /login
+│  ├─ /verify-email
+│  └─ /register
+│
+├─ 📁 /protected (Protected Routes - 로그인 필수)
+│  │
+│  ├─ 📁 / (Main App)
+│  │  │
+│  │  ├─ / (메인 페이지)
+│  │  │  ├─ components/
+│  │  │  │  ├─ Sidebar.jsx (좌측 사이드바)
+│  │  │  │  ├─ BrandListModal.jsx (브랜드 목록 팝업)
+│  │  │  │  ├─ ManagerListModal.jsx (매니저 목록 팝업)
+│  │  │  │  ├─ BranchListModal.jsx (지점 목록 팝업)
+│  │  │  │  ├─ SearchBar.jsx (검색바)
+│  │  │  │  ├─ FilterBar.jsx (필터바)
+│  │  │  │  ├─ OptionCard.jsx (옵션 카드)
+│  │  │  │  ├─ OptionDetailSlide.jsx (옵션 상세 슬라이드)
+│  │  │  │  └─ Footer.jsx (체크박스 선택시 푸터)
+│  │  │  └─ index.jsx
+│  │  │
+│  │  ├─ 📁 /options
+│  │  │  ├─ /options/register
+│  │  │  │  ├─ components/
+│  │  │  │  │  ├─ BrandSelector.jsx
+│  │  │  │  │  ├─ BranchSelector.jsx
+│  │  │  │  │  ├─ BasicInfoForm.jsx
+│  │  │  │  │  ├─ PriceForm.jsx
+│  │  │  │  │  ├─ ContractForm.jsx
+│  │  │  │  │  └─ AdditionalInfoForm.jsx
+│  │  │  │  └─ index.jsx
+│  │  │  ├─ /options/edit/:id
+│  │  │  └─ /options/:id
+│  │  │
+│  │  ├─ 📁 /proposals
+│  │  │  │
+│  │  │  ├─ 📁 /proposals/request (제안 요청)
+│  │  │  │  ├─ /proposals/request
+│  │  │  │  │  ├─ components/
+│  │  │  │  │  │  ├─ CustomerInfoForm.jsx
+│  │  │  │  │  │  ├─ MoveInConditionForm.jsx
+│  │  │  │  │  │  └─ BrandSelector.jsx
+│  │  │  │  │  └─ index.jsx
+│  │  │  │  │
+│  │  │  │  ├─ /proposals/requests (목록)
+│  │  │  │  │  ├─ components/
+│  │  │  │  │  │  ├─ ProposalRequestCard.jsx
+│  │  │  │  │  │  └─ SearchFilter.jsx
+│  │  │  │  │  └─ index.jsx
+│  │  │  │  │
+│  │  │  │  ├─ /proposals/requests/:id (상세)
+│  │  │  │  │  ├─ components/
+│  │  │  │  │  │  ├─ CustomerInfo.jsx
+│  │  │  │  │  │  ├─ MoveInCondition.jsx
+│  │  │  │  │  │  └─ SendHistory.jsx
+│  │  │  │  │  └─ index.jsx
+│  │  │  │  │
+│  │  │  │  ├─ /proposals/requests/:id/add
+│  │  │  │  │  └─ index.jsx
+│  │  │  │  │
+│  │  │  │  └─ /proposals/requests/:id/modify
+│  │  │  │     └─ index.jsx
+│  │  │  │
+│  │  │  └─ 📁 /proposals/create (제안서 생성)
+│  │  │     ├─ components/
+│  │  │     │  ├─ Step1OptionOrder.jsx
+│  │  │     │  ├─ Step2ProposalName.jsx
+│  │  │     │  └─ Step3PDFExport.jsx
+│  │  │     └─ index.jsx
+│  │  │
+│  │  └─ 📁 /admin (Admin Only)
+│  │     │
+│  │     ├─ /admin (대시보드)
+│  │     │  ├─ components/
+│  │     │  │  ├─ StatisticsCard.jsx
+│  │     │  │  ├─ RecentActivities.jsx
+│  │     │  │  └─ Charts.jsx
+│  │     │  └─ index.jsx
+│  │     │
+│  │     ├─ 📁 /admin/brands
+│  │     │  ├─ /admin/brands (목록)
+│  │     │  ├─ /admin/brands/register
+│  │     │  ├─ /admin/brands/:id (상세)
+│  │     │  └─ /admin/brands/:id/edit
+│  │     │
+│  │     ├─ 📁 /admin/managers
+│  │     │  ├─ /admin/managers (목록)
+│  │     │  ├─ /admin/managers/register
+│  │     │  ├─ /admin/managers/:id (상세)
+│  │     │  └─ /admin/managers/:id/edit
+│  │     │
+│  │     ├─ 📁 /admin/branches
+│  │     │  ├─ /admin/branches (목록)
+│  │     │  ├─ /admin/branches/register
+│  │     │  │  ├─ components/
+│  │     │  │  │  ├─ AddressSearch.jsx (KakaoMap)
+│  │     │  │  │  ├─ BuildingInfo.jsx (건축물대장)
+│  │     │  │  │  └─ ImageUpload.jsx (Cloudinary)
+│  │     │  │  └─ index.jsx
+│  │     │  ├─ /admin/branches/:id (상세)
+│  │     │  └─ /admin/branches/:id/edit
+│  │     │
+│  │     ├─ 📁 /admin/options
+│  │     │  ├─ /admin/options (목록)
+│  │     │  ├─ /admin/options/:id (상세)
+│  │     │  └─ /admin/options/:id/edit
+│  │     │
+│  │     ├─ 📁 /admin/delete-requests
+│  │     │  ├─ /admin/delete-requests (목록)
+│  │     │  ├─ /admin/delete-requests/:id (상세)
+│  │     │  └─ /admin/delete-requests/:id/review
+│  │     │
+│  │     └─ 📁 /admin/users
+│  │        ├─ /admin/users (목록)
+│  │        ├─ /admin/users/:id (상세)
+│  │        └─ /admin/users/:id/edit
+│  │
+│  └─ 📁 /shared (Shared Components)
+│     ├─ /components
+│     │  ├─ Layout.jsx
+│     │  ├─ Navigation.jsx
+│     │  ├─ Header.jsx
+│     │  ├─ Footer.jsx
+│     │  ├─ Modal.jsx
+│     │  ├─ Toast.jsx
+│     │  ├─ Loading.jsx
+│     │  └─ ErrorBoundary.jsx
+│     └─ /hooks
+│        ├─ useAuth.js
+│        ├─ useModal.js
+│        ├─ useToast.js
+│        └─ useApi.js
+
+┌──────────────────────────┬─────────┬─────────┬──────────┐
+│ 페이지/기능               │ 일반User│ Admin   │ 비로그인  │
+├──────────────────────────┼─────────┼─────────┼──────────┤
+│ 로그인                    │    -    │    -    │    ✓     │
+│ 회원가입                  │    -    │    -    │    ✓     │
+│ 이메일 인증               │    -    │    -    │    ✓     │
+├──────────────────────────┼─────────┼─────────┼──────────┤
+│ 메인 (옵션 목록)          │    ✓    │    ✓    │    ✗     │
+│ 브랜드/매니저/지점 조회   │    ✓    │    ✓    │    ✗     │
+│ 옵션 등록                 │    ✓    │    ✓    │    ✗     │
+│ 옵션 수정 (본인 것만)     │    ✓    │    ✓    │    ✗     │
+│ 옵션 삭제요청 (본인 것만) │    ✓    │    ✓    │    ✗     │
+│ 제안서 생성               │    ✓    │    ✓    │    ✗     │
+├──────────────────────────┼─────────┼─────────┼──────────┤
+│ 제안 요청 등록            │    ✓    │    ✓    │    ✗     │
+│ 제안 요청 관리            │    ✓    │    ✓    │    ✗     │
+│ 추가 제안 요청            │    ✓    │    ✓    │    ✗     │
+│ 변경 제안 요청            │    ✓    │    ✓    │    ✗     │
+├──────────────────────────┼─────────┼─────────┼──────────┤
+│ 관리자 대시보드           │    ✗    │    ✓    │    ✗     │
+│ 브랜드 관리 (CRUD)        │    ✗    │    ✓    │    ✗     │
+│ 매니저 관리 (CRUD)        │    ✗    │    ✓    │    ✗     │
+│ 지점 관리 (CRUD)          │    ✗    │    ✓    │    ✗     │
+│ 옵션 관리 (전체)          │    ✗    │    ✓    │    ✗     │
+│ 삭제 요청 승인/거부       │    ✗    │    ✓    │    ✗     │
+│ 사용자 관리               │    ✗    │    ✓    │    ✗     │
+└──────────────────────────┴─────────┴─────────┴──────────┘
+
+
+[일반user 네비게이션]
+┌─────────────────────────────────────────────────┐
+│ FASTMATCH    [메인] [제안요청] [제안서] 👤 홍길동│
+└─────────────────────────────────────────────────┘
+│
+├─ 메인           → /
+├─ 제안 요청      → /proposals/request
+├─ 제안 요청 관리  → /proposals/requests
+├─ 제안서 목록     → /proposals
+└─ 프로필 메뉴
+   ├─ 내 정보
+   ├─ 내가 등록한 옵션
+   └─ 로그아웃
+
+[admin user 네비게이션]
+┌──────────────────────────────────────────────────┐
+│ FASTMATCH [메인] [관리자] [제안요청] 👤 관리자    │
+└──────────────────────────────────────────────────┘
+│
+├─ 메인          → /
+├─ 관리자        → /admin
+│  ├─ 대시보드    → /admin
+│  ├─ 브랜드 관리  → /admin/brands
+│  ├─ 매니저 관리  → /admin/managers
+│  ├─ 지점 관리    → /admin/branches
+│  ├─ 옵션 관리    → /admin/options
+│  ├─ 삭제 요청    → /admin/delete-requests
+│  └─ 사용자 관리  → /admin/users
+├─ 제안 요청     → /proposals/request
+├─ 제안서 목록    → /proposals
+└─ 프로필 메뉴
+   ├─ 내 정보
+   └─ 로그아웃
+
+[주요 플로우]
+[일반 User]
+1. / (메인 페이지)
+2. [+ 옵션 등록] 클릭
+3. /options/register (옵션 등록)
+4. 등록 완료 → / (메인 페이지)
+5. 옵션 체크박스 선택 (여러 개)
+6. 푸터 [제안서 생성] 버튼 클릭
+7. /proposals/create (제안서 생성)
+   └─ Step 1: 옵션 순서/정보 변경
+   └─ Step 2: 제안서명 작성
+   └─ Step 3: PDF 출력
+
+[제안요청 > 추가 > 변경 플로우]
+[일반 User]
+1. /proposals/request (제안 요청 등록)
+2. 브랜드 선택 (패스트파이브, 스파크플러스, 위워크)
+3. 이메일 발송 완료
+4. /proposals/requests (제안 요청 관리)
+5. 특정 제안 클릭 → /proposals/requests/:id (상세)
+
+[추가 제안]
+6. [추가 제안 요청] 클릭
+7. /proposals/requests/:id/add
+8. 새 브랜드 선택 (마이워크스페이스, 헤이그라운드)
+9. 추가 이메일 발송 완료
+
+[변경 제안]
+6. [변경 제안 요청] 클릭
+7. /proposals/requests/:id/modify
+8. 조건 수정 (입주일, 인원 등)
+9. 기존 브랜드에게 변경 이메일 발송 완료
+
+[옵션 삭제 요청 > 관리자 승인/거부 플로우]
+[일반 User]
+1. / (메인 페이지)
+2. 본인이 등록한 옵션 카드에서 [삭제요청] 클릭
+3. 삭제 사유 입력
+4. 옵션 상태 → "삭제요청중"
+
+[Admin]
+5. /admin/delete-requests (삭제 요청 목록)
+6. 특정 요청 클릭
+7. /admin/delete-requests/:id/review
+8-a. [승인] → 옵션 상태 "삭제됨"
+8-b. [거부] → 옵션 상태 "활성" (복구)

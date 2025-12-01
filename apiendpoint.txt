@@ -1,0 +1,273 @@
+## 🔌 API 엔드포인트 명세
+
+### 1. 인증 (Authentication)
+```
+POST   /api/auth/register
+Body: { 이메일, 이름, 전화번호, 비밀번호 }
+Response: { success, message }
+
+POST   /api/auth/verify-email
+Body: { 이메일, 인증코드 }
+Response: { success, message }
+
+POST   /api/auth/login
+Body: { 이메일, 비밀번호 }
+Response: { success, token, user: { id, 이름, 이메일, 역할 } }
+
+POST   /api/auth/logout
+Headers: Authorization: Bearer {token}
+Response: { success, message }
+
+POST   /api/auth/refresh
+Body: { refreshToken }
+Response: { success, token }
+
+GET    /api/auth/me
+Headers: Authorization: Bearer {token}
+Response: { success, user }
+```
+
+### 2. 브랜드 (Brands)
+```
+GET    /api/brands
+Query: ?status=활성&search=패스트
+Headers: Authorization: Bearer {token}
+Response: { success, brands: [] }
+
+POST   /api/brands
+Headers: Authorization: Bearer {token} (Admin Only)
+Body: { 브랜드명, 상태 }
+Response: { success, brand }
+
+GET    /api/brands/:id
+Headers: Authorization: Bearer {token}
+Response: { success, brand, 매니저들: [], 지점들: [] }
+
+PUT    /api/brands/:id
+Headers: Authorization: Bearer {token} (Admin Only)
+Body: { 브랜드명, 상태 }
+Response: { success, brand }
+
+DELETE /api/brands/:id
+Headers: Authorization: Bearer {token} (Admin Only)
+Response: { success, message }
+
+POST   /api/brands/check-duplicate
+Headers: Authorization: Bearer {token}
+Body: { 브랜드명 }
+Response: { available: boolean, message }
+
+GET    /api/brands/available-for-addition
+Query: ?proposal_id=xxx
+Headers: Authorization: Bearer {token}
+Response: { success, brands: [] }
+```
+
+### 3. 매니저 (Managers)
+```
+GET    /api/managers
+Query: ?brand_id=xxx&search=홍길동
+Headers: Authorization: Bearer {token}
+Response: { success, managers: [] }
+
+POST   /api/managers
+Headers: Authorization: Bearer {token} (Admin Only)
+Body: { 브랜드_id, 이름, 직책, 이메일, 참조메일, 연락처 }
+Response: { success, manager }
+
+GET    /api/managers/:id
+Headers: Authorization: Bearer {token}
+Response: { success, manager }
+
+PUT    /api/managers/:id
+Headers: Authorization: Bearer {token} (Admin Only)
+Body: { 이름, 직책, 이메일, 참조메일, 연락처 }
+Response: { success, manager }
+
+DELETE /api/managers/:id
+Headers: Authorization: Bearer {token} (Admin Only)
+Response: { success, message }
+```
+
+### 4. 지점 (Branches)
+```
+GET    /api/branches
+Query: ?brand_id=xxx&status=활성
+Headers: Authorization: Bearer {token}
+Response: { success, branches: [] }
+
+POST   /api/branches
+Headers: Authorization: Bearer {token} (Admin Only)
+Body: { 브랜드_id, 지점명, 주소, 위도, 경도, ... }
+Response: { success, branch }
+
+GET    /api/branches/:id
+Headers: Authorization: Bearer {token}
+Response: { success, branch, 옵션들: [] }
+
+PUT    /api/branches/:id
+Headers: Authorization: Bearer {token} (Admin Only)
+Body: { ... }
+Response: { success, branch }
+
+DELETE /api/branches/:id
+Headers: Authorization: Bearer {token} (Admin Only)
+Response: { success, message }
+```
+
+### 5. 옵션 (Options)
+```
+GET    /api/options
+Query: ?brand_id=xxx&branch_id=xxx&status=활성&sort=최신순&search=강남
+Headers: Authorization: Bearer {token}
+Response: { success, options: [], total, page, pageSize }
+
+POST   /api/options
+Headers: Authorization: Bearer {token}
+Body: { 지점_id, 옵션명, 옵션분류1, 옵션분류2, 인실, 월사용료, 보증금, ... }
+Response: { success, option }
+
+GET    /api/options/:id
+Headers: Authorization: Bearer {token}
+Response: { success, option, 지점, 브랜드, 매니저 }
+
+PUT    /api/options/:id
+Headers: Authorization: Bearer {token} (본인 or Admin)
+Body: { ... }
+Response: { success, option }
+
+DELETE /api/options/:id (삭제 요청)
+Headers: Authorization: Bearer {token} (본인 only)
+Body: { reason }
+Response: { success, message }
+
+GET    /api/options/my
+Headers: Authorization: Bearer {token}
+Response: { success, options: [] }
+```
+
+### 6. 삭제 요청 (Delete Requests)
+```
+GET    /api/delete-requests
+Query: ?status=대기중
+Headers: Authorization: Bearer {token} (Admin Only)
+Response: { success, requests: [] }
+
+GET    /api/delete-requests/:id
+Headers: Authorization: Bearer {token} (Admin Only)
+Response: { success, request, option, 요청자 }
+
+POST   /api/delete-requests/:id/approve
+Headers: Authorization: Bearer {token} (Admin Only)
+Response: { success, message }
+
+POST   /api/delete-requests/:id/reject
+Headers: Authorization: Bearer {token} (Admin Only)
+Body: { reason }
+Response: { success, message }
+```
+
+### 7. 제안 요청 (Proposal Requests)
+```
+GET    /api/proposals/requests
+Query: ?status=발송완료&search=테크스타트업
+Headers: Authorization: Bearer {token}
+Response: { success, requests: [] }
+
+POST   /api/proposals/requests
+Headers: Authorization: Bearer {token}
+Body: { 고객사명, 담당자_이름, 담당자_직책, 담당자_연락처, 담당자_이메일, 
+        희망지하철역, 실사용인원, 희망인실, 입주예정일, 입주희망기간, 
+        임대기간, 추가정보, 선택브랜드: [] }
+Response: { success, proposal_request_id, emails_sent }
+
+GET    /api/proposals/requests/:id
+Headers: Authorization: Bearer {token}
+Response: { success, request, 발송내역: [] }
+
+PUT    /api/proposals/requests/:id
+Headers: Authorization: Bearer {token}
+Body: { ... }
+Response: { success, request }
+
+POST   /api/proposals/requests/:id/add
+Headers: Authorization: Bearer {token}
+Body: { 추가브랜드: [] }
+Response: { success, emails_sent, total_brands }
+
+POST   /api/proposals/requests/:id/modify
+Headers: Authorization: Bearer {token}
+Body: { 고객사명, 담당자_이름, ... }
+Response: { success, emails_sent, brands_updated }
+```
+
+### 8. 제안서 (Proposal Documents)
+```
+GET    /api/proposals/documents
+Headers: Authorization: Bearer {token}
+Response: { success, documents: [] }
+
+POST   /api/proposals/documents
+Headers: Authorization: Bearer {token}
+Body: { 제안서명, 선택옵션: [], 옵션_순서, 옵션_커스텀정보 }
+Response: { success, document }
+
+GET    /api/proposals/documents/:id
+Headers: Authorization: Bearer {token}
+Response: { success, document }
+
+PUT    /api/proposals/documents/:id
+Headers: Authorization: Bearer {token}
+Body: { ... }
+Response: { success, document }
+
+GET    /api/proposals/documents/:id/pdf
+Headers: Authorization: Bearer {token}
+Response: PDF File
+```
+
+### 9. 파일 업로드 (Upload)
+```
+POST   /api/upload/image
+Headers: Authorization: Bearer {token}
+Body: FormData { file } or { url }
+Response: { success, image_url }
+
+POST   /api/upload/pdf
+Headers: Authorization: Bearer {token}
+Body: FormData { file } or { url }
+Response: { success, pdf_url }
+```
+
+### 10. 외부 API (External)
+```
+POST   /api/external/kakao/address
+Headers: Authorization: Bearer {token}
+Body: { address }
+Response: { success, data: { 주소, 위도, 경도, 지하철역, 도보거리 } }
+
+POST   /api/external/building-registry
+Headers: Authorization: Bearer {token}
+Body: { address }
+Response: { success, data: { 사용승인일, 지상층수, 지하층수, 연면적 } }
+
+POST   /api/external/email/send
+Headers: Authorization: Bearer {token}
+Body: { to, cc, subject, html }
+Response: { success, message }
+```
+
+### 11. 관리자 (Admin)
+```
+GET    /api/admin/dashboard
+Headers: Authorization: Bearer {token} (Admin Only)
+Response: { success, statistics: { 총브랜드수, 총지점수, 총옵션수, 활성사용자수, 대기중삭제요청 } }
+
+GET    /api/admin/statistics
+Headers: Authorization: Bearer {token} (Admin Only)
+Response: { success, data: {} }
+
+GET    /api/admin/activities
+Headers: Authorization: Bearer {token} (Admin Only)
+Response: { success, activities: [] }
+```

@@ -1,0 +1,730 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Layout from '../../components/common/Layout';
+import Modal from '../../components/common/Modal';
+import { brandAPI, branchAPI, optionAPI, uploadAPI } from '../../services/api';
+import { useToast } from '../../hooks/useToast';
+import { formatNumberInput, parseNumberInput } from '../../utils/formatters';
+
+const OptionRegister = () => {
+  const navigate = useNavigate();
+  const { success, error, warning } = useToast();
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [brands, setBrands] = useState([]);
+  const [branches, setBranches] = useState([]);
+
+  const [formData, setFormData] = useState({
+    brand_id: '',
+    branch_id: '',
+    name: '',
+    category1: 'exclusive_floor',
+    category2: '',
+    capacity: 1,
+    monthly_fee: 0,
+    deposit: 0,
+    list_price: '',
+    one_time_fees: [],
+    move_in_date_type: 'immediate',
+    move_in_date_value: '',
+    contract_period_type: 'six_months',
+    contract_period_value: '',
+    office_info: '',
+    credits: '',
+    hvac_type: 'central',
+    parking_type: 'self_parking',
+    memo: '',
+    floor_plan_url: '',
+    exclusive_area: '',
+  });
+
+  const [newFee, setNewFee] = useState({ type: '', amount: '', customType: '' });
+  const [floorPlanFile, setFloorPlanFile] = useState(null);
+
+  // 기타 정보 팝업 상태
+  const [showOtherInfoModal, setShowOtherInfoModal] = useState(false);
+
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
+  useEffect(() => {
+    if (formData.brand_id) {
+      fetchBranches();
+    }
+  }, [formData.brand_id]);
+
+  const fetchBrands = async () => {
+    try {
+      const response = await brandAPI.getAll();
+      setBrands(response.data.brands || []);
+    } catch (error) {
+      console.error('브랜드 조회 실패:', error);
+    }
+  };
+
+  const fetchBranches = async () => {
+    try {
+      const response = await branchAPI.getAll({ brand_id: formData.brand_id });
+      setBranches(response.data.branches || []);
+    } catch (error) {
+      console.error('지점 조회 실패:', error);
+    }
+  };
+
+  const handleAddFee = () => {
+    const feeType = newFee.type === 'custom' ? newFee.customType : newFee.type;
+    if (feeType && newFee.amount) {
+      setFormData((prev) => ({
+        ...prev,
+        one_time_fees: [...prev.one_time_fees, { type: feeType, amount: parseFloat(newFee.amount) }],
+      }));
+      setNewFee({ type: '', amount: '', customType: '' });
+    }
+  };
+
+  const handleRemoveFee = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      one_time_fees: prev.one_time_fees.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleFloorPlanUpload = async (file) => {
+    if (!file) return;
+    
+    const uploadLoading = true;
+    try {
+      // 백엔드 API: POST /api/upload/image?type=option
+      const response = await uploadAPI.image(file);
+      if (response.data?.url || response.data?.data?.url) {
+        const imageUrl = response.data?.url || response.data?.data?.url;
+        setFormData((prev) => ({ ...prev, floor_plan_url: imageUrl }));
+        setFloorPlanFile(file);
+        success('평면도 이미지가 업로드되었습니다');
+      }
+    } catch (err) {
+      console.error('평면도 업로드 실패:', err);
+      error('평면도 업로드에 실패했습니다');
+    }
+  };
+
+  const validateStep = () => {
+    if (step === 1) {
+      return formData.brand_id && formData.branch_id;
+    }
+    if (step === 2) {
+      return formData.name && formData.capacity > 0;
+    }
+    if (step === 3) {
+      return formData.monthly_fee > 0 && formData.deposit > 0;
+    }
+    if (step === 4) {
+      return formData.move_in_date_type && formData.contract_period_type;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // 유효성 검사
+    if (!formData.branch_id) {
+      warning('지점을 선택해주세요');
+      return;
+    }
+    if (!formData.name) {
+      warning('옵션명을 입력해주세요');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 숫자 필드 변환 및 brand_id 제거 (백엔드에는 branch_id만 필요)
+      const { brand_id, ...restFormData } = formData;
+      const payload = {
+        ...restFormData,
+        capacity: parseInt(formData.capacity),
+        monthly_fee: parseInt(formData.monthly_fee),
+        deposit: parseInt(formData.deposit),
+        list_price: formData.list_price ? parseInt(formData.list_price) : null,
+        credits: formData.credits ? parseInt(formData.credits) : null,
+        exclusive_area: formData.exclusive_area ? parseFloat(formData.exclusive_area) : null,
+        // 빈 문자열을 null로 변환
+        category2: formData.category2 || null,
+        move_in_date_value: formData.move_in_date_value || null,
+        contract_period_value: formData.contract_period_value || null,
+        office_info: formData.office_info || null,
+        hvac_type: formData.hvac_type || null,
+        parking_type: formData.parking_type || null,
+        memo: formData.memo || null,
+        floor_plan_url: formData.floor_plan_url || null,
+      };
+
+      await optionAPI.create(payload);
+      success('옵션이 성공적으로 등록되었습니다');
+      navigate('/');
+    } catch (err) {
+      console.error('옵션 등록 실패:', err);
+      error('옵션 등록에 실패했습니다');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Layout>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto p-6">
+          {/* Header */}
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">신규 옵션 등록</h1>
+                <p className="text-sm text-gray-500 mt-1">
+                  {step === 1 && '지점 선택'}
+                  {step === 2 && '옵션 정보'}
+                  {step === 3 && '가격 정보'}
+                  {step === 4 && '계약 정보'}
+                  {step === 5 && '추가 정보'}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">진행률</span>
+                <span className="text-lg font-bold text-blue-600">{step}/5</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Step Indicator */}
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="flex items-center justify-between">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <div key={num} className="flex items-center flex-1">
+                  <div className="flex flex-col items-center flex-1">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${step >= num ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                        }`}
+                    >
+                      {num}
+                    </div>
+                    <span
+                      className={`mt-2 text-xs font-medium ${step >= num ? 'text-blue-600' : 'text-gray-400'}`}
+                    >
+                      {num === 1 && '지점'}
+                      {num === 2 && '옵션'}
+                      {num === 3 && '가격'}
+                      {num === 4 && '계약'}
+                      {num === 5 && '추가'}
+                    </span>
+                  </div>
+                  {num < 5 && (
+                    <div
+                      className={`h-0.5 flex-1 mx-2 transition-all ${step > num ? 'bg-blue-600' : 'bg-gray-200'}`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Form Container */}
+          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm">
+            <div className="p-8">
+              {/* Step 1: 브랜드/지점 선택 */}
+              {step === 1 && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold">1단계: 브랜드 & 지점 선택</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">브랜드 *</label>
+                    <select
+                      value={formData.brand_id}
+                      onChange={(e) =>
+                        setFormData({ ...formData, brand_id: e.target.value, branch_id: '' })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">브랜드를 선택해주세요</option>
+                      {brands.map((brand) => (
+                        <option key={brand.id} value={brand.id}>
+                          {brand.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">지점 *</label>
+                    <select
+                      value={formData.branch_id}
+                      onChange={(e) => setFormData({ ...formData, branch_id: e.target.value })}
+                      disabled={!formData.brand_id}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                    >
+                      <option value="">지점을 선택해주세요</option>
+                      {branches.map((branch) => (
+                        <option key={branch.id} value={branch.id}>
+                          {branch.name} - {branch.address}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: 기본 정보 */}
+              {step === 2 && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold">2단계: 기본 정보</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">옵션명 *</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="옵션명을 입력해주세요"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">옵션분류1 *</label>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'exclusive_floor', label: '전용 층' },
+                        { value: 'separate_floor', label: '분리 층' },
+                        { value: 'connected_floor', label: '연결 층' },
+                        { value: 'exclusive_room', label: '전용 룸' },
+                        { value: 'separate_room', label: '분리 룸' },
+                        { value: 'connected_room', label: '연결 룸' },
+                      ].map((option) => (
+                        <label key={option.value} className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="category1"
+                            value={option.value}
+                            checked={formData.category1 === option.value}
+                            onChange={(e) => setFormData({ ...formData, category1: e.target.value })}
+                            className="w-4 h-4"
+                          />
+                          {option.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">옵션분류2</label>
+                    <div className="space-y-2">
+                      {[
+                        { value: '', label: '선택 안 함' },
+                        { value: 'window_side', label: '창측' },
+                        { value: 'inner_side', label: '내측' },
+                      ].map((option) => (
+                        <label key={option.value} className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="category2"
+                            value={option.value}
+                            checked={formData.category2 === option.value}
+                            onChange={(e) => setFormData({ ...formData, category2: e.target.value || null })}
+                            className="w-4 h-4"
+                          />
+                          {option.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">인실 *</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formData.capacity}
+                      onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 1 })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: 가격 정보 */}
+              {step === 3 && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold">3단계: 가격 정보</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">월사용료 *</label>
+                    <input
+                      type="text"
+                      value={formatNumberInput(formData.monthly_fee)}
+                      onChange={(e) => {
+                        const numericValue = parseNumberInput(e.target.value);
+                        setFormData({ ...formData, monthly_fee: numericValue ? parseInt(numericValue) : 0 });
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="월사용료를 입력해주세요"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">보증금 *</label>
+                    <input
+                      type="text"
+                      value={formatNumberInput(formData.deposit)}
+                      onChange={(e) => {
+                        const numericValue = parseNumberInput(e.target.value);
+                        setFormData({ ...formData, deposit: numericValue ? parseInt(numericValue) : 0 });
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="보증금을 입력해주세요"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">정가</label>
+                    <input
+                      type="text"
+                      value={formatNumberInput(formData.list_price)}
+                      onChange={(e) => {
+                        const numericValue = parseNumberInput(e.target.value);
+                        setFormData({ ...formData, list_price: numericValue });
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="정가를 입력해주세요"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-4">일회성비용</label>
+                    <div className="space-y-3 mb-4">
+                      {formData.one_time_fees.map((fee, index) => (
+                        <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                          <span className="flex-1 text-sm font-medium">
+                            {fee.type}: {parseInt(fee.amount).toLocaleString()}원
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFee(index)}
+                            className="px-3 py-1 text-red-600 hover:bg-red-50 rounded text-sm transition"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      ))}
+                      {formData.one_time_fees.length === 0 && (
+                        <p className="text-sm text-gray-500 text-center py-4">등록된 일회성 비용이 없습니다</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <select
+                        value={newFee.type}
+                        onChange={(e) => setNewFee({ ...newFee, type: e.target.value, customType: '' })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      >
+                        <option value="">종류 선택</option>
+                        <option value="셋업비">셋업비</option>
+                        <option value="셋팅비">셋팅비</option>
+                        <option value="퇴실비">퇴실비</option>
+                        <option value="custom">기타 (텍스트 입력)</option>
+                      </select>
+                      {newFee.type === 'custom' && (
+                        <input
+                          type="text"
+                          value={newFee.customType}
+                          onChange={(e) => setNewFee({ ...newFee, customType: e.target.value })}
+                          placeholder="일회성 비용 종류를 입력하세요"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        />
+                      )}
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          value={newFee.amount}
+                          onChange={(e) => setNewFee({ ...newFee, amount: e.target.value })}
+                          placeholder="금액을 입력하세요"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddFee}
+                          className="px-4 py-2 bg-primary-500 text-white rounded-lg text-sm hover:bg-primary-600 transition font-medium"
+                        >
+                          추가
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: 계약 정보 */}
+              {step === 4 && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold">4단계: 계약 정보</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">입주가능일 *</label>
+                    <div className="space-y-2 mb-4">
+                      {[
+                        { value: 'immediate', label: '즉시입주' },
+                        { value: 'negotiable', label: '협의필요' },
+                        { value: 'custom', label: '직접입력' },
+                      ].map((option) => (
+                        <label key={option.value} className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="move_in_date_type"
+                            value={option.value}
+                            checked={formData.move_in_date_type === option.value}
+                            onChange={(e) => setFormData({ ...formData, move_in_date_type: e.target.value, move_in_date_value: '' })}
+                            className="w-4 h-4"
+                          />
+                          {option.label}
+                        </label>
+                      ))}
+                    </div>
+                    {formData.move_in_date_type === 'custom' && (
+                      <input
+                        type="text"
+                        value={formData.move_in_date_value}
+                        onChange={(e) => setFormData({ ...formData, move_in_date_value: e.target.value })}
+                        placeholder="예: 2025년 1월 1일"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">계약기간 *</label>
+                    <div className="space-y-2 mb-4">
+                      {[
+                        { value: 'six_months', label: '6개월' },
+                        { value: 'twelve_months', label: '12개월' },
+                        { value: 'custom', label: '직접입력' },
+                      ].map((option) => (
+                        <label key={option.value} className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="contract_period_type"
+                            value={option.value}
+                            checked={formData.contract_period_type === option.value}
+                            onChange={(e) => setFormData({ ...formData, contract_period_type: e.target.value, contract_period_value: '' })}
+                            className="w-4 h-4"
+                          />
+                          {option.label}
+                        </label>
+                      ))}
+                    </div>
+                    {formData.contract_period_type === 'custom' && (
+                      <input
+                        type="text"
+                        value={formData.contract_period_value}
+                        onChange={(e) => setFormData({ ...formData, contract_period_value: e.target.value })}
+                        placeholder="예: 24개월"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: 추가 정보 */}
+              {step === 5 && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold">5단계: 추가 정보</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">오피스정보</label>
+                    <textarea
+                      value={formData.office_info}
+                      onChange={(e) => setFormData({ ...formData, office_info: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                      rows="3"
+                      placeholder="오피스 정보를 입력해주세요"
+                    />
+                  </div>
+                  
+                  {/* 기타 정보 버튼 */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setShowOtherInfoModal(true)}
+                      className="w-full flex items-center justify-between px-4 py-3 bg-primary-50 hover:bg-primary-100 border-2 border-primary-200 rounded-lg transition text-left"
+                    >
+                      <span className="text-sm font-semibold text-primary-700">기타 정보</span>
+                      <span className="text-primary-600 font-medium">+</span>
+                    </button>
+                    {(formData.exclusive_area || formData.hvac_type || formData.parking_type || formData.credits || floorPlanFile || formData.memo) && (
+                      <div className="mt-2 text-xs text-gray-500">
+                        {formData.exclusive_area && <span className="inline-block mr-2">전용면적</span>}
+                        {formData.hvac_type && <span className="inline-block mr-2">냉난방식</span>}
+                        {formData.parking_type && <span className="inline-block mr-2">주차방식</span>}
+                        {formData.credits && <span className="inline-block mr-2">크레딧</span>}
+                        {floorPlanFile && <span className="inline-block mr-2">평면도</span>}
+                        {formData.memo && <span className="inline-block mr-2">메모</span>}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Navigation Buttons */}
+            <div className="border-t border-gray-200 px-8 py-6 bg-gray-50 flex items-center justify-between rounded-b-lg">
+              {step > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setStep(step - 1)}
+                  className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition"
+                >
+                  ← 이전
+                </button>
+              )}
+              {step < 5 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (validateStep()) {
+                      setStep(step + 1);
+                    } else {
+                      warning('필수 항목을 입력해주세요');
+                    }
+                  }}
+                  className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition"
+                >
+                  다음 →
+                </button>
+              )}
+              {step === 5 && (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {loading ? '등록 중...' : '등록 완료'}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="px-6 py-2.5 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              >
+                취소
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* 기타 정보 팝업 모달 */}
+      <Modal
+        isOpen={showOtherInfoModal}
+        onClose={() => setShowOtherInfoModal(false)}
+        title="기타 정보"
+        size="lg"
+      >
+        <div className="space-y-6">
+          {/* 냉난방식 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">냉난방식</label>
+            <div className="space-y-2">
+              {[
+                { value: 'central', label: '중앙냉난방' },
+                { value: 'individual', label: '개별냉난방' },
+              ].map((option) => (
+                <label key={option.value} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="hvac_type"
+                    value={option.value}
+                    checked={formData.hvac_type === option.value}
+                    onChange={(e) => setFormData({ ...formData, hvac_type: e.target.value })}
+                    className="w-4 h-4 text-primary-500"
+                  />
+                  <span className="text-gray-700">{option.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* 주차방식 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">주차방식</label>
+            <div className="space-y-2">
+              {[
+                { value: 'self_parking', label: '자주식' },
+                { value: 'mechanical', label: '기계식' },
+              ].map((option) => (
+                <label key={option.value} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="parking_type"
+                    value={option.value}
+                    checked={formData.parking_type === option.value}
+                    onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
+                    className="w-4 h-4 text-primary-500"
+                  />
+                  <span className="text-gray-700">{option.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* 전용면적 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">전용면적(㎡)</label>
+            <input
+              type="number"
+              step="0.01"
+              value={formData.exclusive_area}
+              onChange={(e) => setFormData({ ...formData, exclusive_area: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="전용면적을 입력하세요 (예: 85.5)"
+            />
+          </div>
+
+          {/* 크레딧 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">크레딧</label>
+            <input
+              type="number"
+              value={formData.credits}
+              onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="크레딧을 입력하세요"
+            />
+          </div>
+
+          {/* 평면도 이미지 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">평면도 이미지</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFloorPlanUpload(e.target.files[0])}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+            />
+            {floorPlanFile && (
+              <p className="mt-2 text-sm text-gray-600">선택된 파일: {floorPlanFile.name}</p>
+            )}
+          </div>
+
+          {/* 기타메모 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">기타메모</label>
+            <textarea
+              value={formData.memo}
+              onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              rows="4"
+              placeholder="추가 메모를 입력해주세요"
+            />
+          </div>
+
+          {/* 모달 닫기 버튼 */}
+          <div className="flex justify-end pt-4 border-t">
+            <button
+              type="button"
+              onClick={() => setShowOtherInfoModal(false)}
+              className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-medium"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </Layout>
+  );
+};
+
+export default OptionRegister;

@@ -1,0 +1,79 @@
+{
+  "_id": "6921c0136251629b90f6a524",
+  "branch_id": "692127173a3d11bd3a03b587",
+  "name": "20인실",
+  "category1": "connected_floor",
+  "category2": "inner_side",
+  "capacity": 25,
+  "monthly_fee": 1500000,
+  "deposit": 2000000,
+  "list_price": 5000000,
+  "one_time_fees": [
+    {
+      "type": "셋팅비",
+      "amount": 1000000
+    }
+  ],
+  "move_in_date_type": "immediate",
+  "move_in_date_value": null,
+  "contract_period_type": "twelve_months",
+  "contract_period_value": null,
+  "office_info": "15층 전용층",
+  "credits": null,
+  "hvac_type": "individual",
+  "parking_type": "self_parking",
+  "parking_note": null,
+  "memo": null,
+  "floor_plan_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8_wjAZIawdF6lpe5O0oSRoNCQHr_u0CbuPzjKnpj6tLFRlUp99jK0azWTnY16rwt9dCdRVOX4hYXX185aCvL7T-g0xwlRFMYzq3f5Mg&s=10",
+  "exclusive_area": {
+    "value": 50,
+    "unit": "pyeong"
+  },
+  "status": "active",
+  "creator_id": "691fc42e76a9fce2614af242",
+  "created_at": "2025-11-22T13:52:19.089Z",
+  "updated_at": "2025-11-22T13:52:19.089Z",
+  "id": "6921c0136251629b90f6a524",
+  "branch": {
+    "_id": "692127173a3d11bd3a03b587",
+    "name": "123",
+    "address": "서울 강남구 테헤란로 508",
+    "brand_id": "69201df457d311a799d31105",
+    "status": "active",
+    "creator_id": "691fc42e76a9fce2614af242",
+    "created_at": "2025-11-22T02:59:35.207Z",
+    "updated_at": "2025-11-22T02:59:35.207Z",
+    "latitude": 37.5068166240241,
+    "longitude": 127.057978287882,
+    "nearest_subway": "2호선 삼성역역",
+    "walking_distance": 8,
+    "exterior_image_url": "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTA5MjRfMjQ2%2FMDAxNzU4NjkzMDE2NjQ4.ihaDLmpTd-lNkisTRlugtGfP3j1hUuYsL1HWGCQLZicg.1bf3nVhRtiEBaETLImgZ2upMgcNG2hTW1HF-HSEBMaAg.JPEG%2F20250923_163052.jpg",
+    "interior_image_urls": [
+      "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTA5MjRfMjQ2%2FMDAxNzU4NjkzMDE2NjQ4.ihaDLmpTd-lNkisTRlugtGfP3j1hUuYsL1HWGCQLZicg.1bf3nVhRtiEBaETLImgZ2upMgcNG2hTW1HF-HSEBMaAg.JPEG%2F20250923_163052.jpg",
+      "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTA5MjRfMjQ2%2FMDAxNzU4NjkzMDE2NjQ4.ihaDLmpTd-lNkisTRlugtGfP3j1hUuYsL1HWGCQLZicg.1bf3nVhRtiEBaETLImgZ2upMgcNG2hTW1HF-HSEBMaAg.JPEG%2F20250923_163052.jpg",
+      "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTA5MjRfMjQ2%2FMDAxNzU4NjkzMDE2NjQ4.ihaDLmpTd-lNkisTRlugtGfP3j1hUuYsL1HWGCQLZicg.1bf3nVhRtiEBaETLImgZ2upMgcNG2hTW1HF-HSEBMaAg.JPEG%2F20250923_163052.jpg",
+      "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTA5MjRfMjQ2%2FMDAxNzU4NjkzMDE2NjQ4.ihaDLmpTd-lNkisTRlugtGfP3j1hUuYsL1HWGCQLZicg.1bf3nVhRtiEBaETLImgZ2upMgcNG2hTW1HF-HSEBMaAg.JPEG%2F20250923_163052.jpg"
+    ],
+    "branch_info": "dddd",
+    "approval_year": 1995,
+    "floors_above": 18,
+    "floors_below": 6,
+    "total_area": 37531.98,
+    "id": "692127173a3d11bd3a03b587",
+    "brand": {
+      "_id": "69201df457d311a799d31105",
+      "name": "dkdkdk",
+      "status": "active",
+      "creator_id": "691fc42e76a9fce2614af242",
+      "created_at": "2025-11-21T08:08:20.941Z",
+      "updated_at": "2025-11-22T03:40:23.658Z",
+      "updater_id": "691fc42e76a9fce2614af242",
+      "id": "69201df457d311a799d31105"
+    }
+  },
+  "creator": {
+    "id": "691fc42e76a9fce2614af242",
+    "name": "이경룡",
+    "email": "kyeongryong.lee@smatch.kr"
+  }
+}

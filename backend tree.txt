@@ -1,0 +1,204 @@
+FASTMATCH Backend
+│
+├─ 📁 /api
+│  │
+│  ├─ 📁 /auth (인증)
+│  │  ├─ POST   /api/auth/verify-email          이메일 인증
+│  │  ├─ POST   /api/auth/register              회원가입
+│  │  ├─ POST   /api/auth/login                 로그인
+│  │  ├─ POST   /api/auth/logout                로그아웃
+│  │  ├─ POST   /api/auth/refresh               토큰 갱신
+│  │  └─ GET    /api/auth/me                    현재 사용자 정보
+│  │
+│  ├─ 📁 /users (사용자)
+│  │  ├─ GET    /api/users                      사용자 목록 (Admin)
+│  │  ├─ GET    /api/users/:id                  사용자 상세
+│  │  ├─ PUT    /api/users/:id                  사용자 수정
+│  │  └─ DELETE /api/users/:id                  사용자 삭제 (Admin)
+│  │
+│  ├─ 📁 /brands (브랜드)
+│  │  ├─ GET    /api/brands                     브랜드 목록
+│  │  │  └─ Query: ?status=활성&search=패스트
+│  │  ├─ POST   /api/brands                     브랜드 생성 (Admin)
+│  │  ├─ GET    /api/brands/:id                 브랜드 상세
+│  │  ├─ PUT    /api/brands/:id                 브랜드 수정 (Admin)
+│  │  ├─ DELETE /api/brands/:id                 브랜드 삭제 (Admin)
+│  │  ├─ POST   /api/brands/check-duplicate     중복 확인
+│  │  └─ GET    /api/brands/available-for-addition  추가 가능 브랜드
+│  │     └─ Query: ?proposal_id=xxx
+│  │
+│  ├─ 📁 /managers (매니저)
+│  │  ├─ GET    /api/managers                   매니저 목록
+│  │  │  └─ Query: ?brand_id=xxx&search=홍길동
+│  │  ├─ POST   /api/managers                   매니저 생성 (Admin)
+│  │  ├─ GET    /api/managers/:id               매니저 상세
+│  │  ├─ PUT    /api/managers/:id               매니저 수정 (Admin)
+│  │  └─ DELETE /api/managers/:id               매니저 삭제 (Admin)
+│  │
+│  ├─ 📁 /branches (지점)
+│  │  ├─ GET    /api/branches                   지점 목록
+│  │  │  └─ Query: ?brand_id=xxx&status=활성
+│  │  ├─ POST   /api/branches                   지점 생성 (Admin)
+│  │  ├─ GET    /api/branches/:id               지점 상세
+│  │  ├─ PUT    /api/branches/:id               지점 수정 (Admin)
+│  │  └─ DELETE /api/branches/:id               지점 삭제 (Admin)
+│  │
+│  ├─ 📁 /options (옵션)
+│  │  ├─ GET    /api/options                    옵션 목록
+│  │  │  └─ Query: ?brand_id=xxx&branch_id=xxx&status=활성
+│  │  │           &sort=최신순&search=강남
+│  │  ├─ POST   /api/options                    옵션 생성
+│  │  ├─ GET    /api/options/:id                옵션 상세
+│  │  ├─ PUT    /api/options/:id                옵션 수정 (본인 or Admin)
+│  │  ├─ DELETE /api/options/:id                옵션 삭제 요청
+│  │  │  └─ Body: { reason: "사유" }
+│  │  └─ GET    /api/options/my                 내가 등록한 옵션
+│  │
+│  ├─ 📁 /delete-requests (삭제 요청)
+│  │  ├─ GET    /api/delete-requests            삭제 요청 목록 (Admin)
+│  │  │  └─ Query: ?status=대기중
+│  │  ├─ GET    /api/delete-requests/:id        삭제 요청 상세 (Admin)
+│  │  ├─ POST   /api/delete-requests/:id/approve  승인 (Admin)
+│  │  └─ POST   /api/delete-requests/:id/reject   거부 (Admin)
+│  │     └─ Body: { reason: "거부 사유" }
+│  │
+│  ├─ 📁 /proposals (제안)
+│  │  │
+│  │  ├─ 📁 /proposals/requests (제안 요청)
+│  │  │  ├─ GET    /api/proposals/requests      제안 요청 목록
+│  │  │  │  └─ Query: ?status=발송완료&search=테크스타트업
+│  │  │  ├─ POST   /api/proposals/requests      제안 요청 생성
+│  │  │  │  └─ Body: { 고객사명, 담당자_이름, ... }
+│  │  │  ├─ GET    /api/proposals/requests/:id  제안 요청 상세
+│  │  │  ├─ PUT    /api/proposals/requests/:id  제안 요청 수정
+│  │  │  ├─ POST   /api/proposals/requests/:id/add     추가 제안 요청
+│  │  │  │  └─ Body: { 추가브랜드: [brand_id] }
+│  │  │  └─ POST   /api/proposals/requests/:id/modify  변경 제안 요청
+│  │  │     └─ Body: { 고객사명, 입주예정일, ... }
+│  │  │
+│  │  └─ 📁 /proposals/documents (제안서)
+│  │     ├─ GET    /api/proposals/documents     제안서 목록
+│  │     ├─ POST   /api/proposals/documents     제안서 생성
+│  │     │  └─ Body: { 제안서명, 선택옵션[], ... }
+│  │     ├─ GET    /api/proposals/documents/:id 제안서 상세
+│  │     ├─ PUT    /api/proposals/documents/:id 제안서 수정
+│  │     └─ GET    /api/proposals/documents/:id/pdf  PDF 다운로드
+│  │
+│  ├─ 📁 /upload (파일 업로드)
+│  │  ├─ POST   /api/upload/image               이미지 업로드 (Cloudinary)
+│  │  │  └─ Body: FormData or { url: "..." }
+│  │  └─ POST   /api/upload/pdf                 PDF 업로드 (Cloudinary)
+│  │
+│  ├─ 📁 /external (외부 API 연동)
+│  │  ├─ POST   /api/external/kakao/address     KakaoMap 주소 검색
+│  │  │  └─ Body: { address: "서울시 강남구..." }
+│  │  │  └─ Response: { 주소, 위도, 경도, 지하철역, 도보거리 }
+│  │  ├─ POST   /api/external/building-registry 건축물대장 조회
+│  │  │  └─ Body: { address: "서울시 강남구..." }
+│  │  │  └─ Response: { 사용승인일, 지상층수, 지하층수, 연면적 }
+│  │  └─ POST   /api/external/email/send        이메일 발송
+│  │     └─ Body: { to, cc, subject, html }
+│  │
+│  └─ 📁 /admin (관리자)
+│     ├─ GET    /api/admin/dashboard            대시보드 통계
+│     │  └─ Response: { 
+│     │      총브랜드수, 총지점수, 총옵션수, 
+│     │      활성사용자수, 대기중삭제요청 
+│     │    }
+│     ├─ GET    /api/admin/statistics           각종 지표
+│     └─ GET    /api/admin/activities           최근 활동 내역
+│
+├─ 📁 /services (비즈니스 로직)
+│  ├─ authService.js
+│  │  ├─ register()
+│  │  ├─ verifyEmail()
+│  │  ├─ login()
+│  │  └─ generateToken()
+│  │
+│  ├─ userService.js
+│  │  ├─ getUsers()
+│  │  ├─ getUserById()
+│  │  ├─ updateUser()
+│  │  └─ deleteUser()
+│  │
+│  ├─ brandService.js
+│  │  ├─ getBrands()
+│  │  ├─ createBrand()
+│  │  ├─ checkDuplicate()
+│  │  └─ getAvailableBrandsForAddition()
+│  │
+│  ├─ managerService.js
+│  ├─ branchService.js
+│  ├─ optionService.js
+│  │  ├─ getOptions()
+│  │  ├─ createOption()
+│  │  ├─ updateOption()
+│  │  ├─ requestDelete()
+│  │  └─ getMyOptions()
+│  │
+│  ├─ deleteRequestService.js
+│  │  ├─ getDeleteRequests()
+│  │  ├─ approveDeleteRequest()
+│  │  └─ rejectDeleteRequest()
+│  │
+│  ├─ proposalRequestService.js
+│  │  ├─ createProposalRequest()
+│  │  ├─ addProposalRequest()
+│  │  ├─ modifyProposalRequest()
+│  │  └─ sendProposalEmails()
+│  │
+│  ├─ proposalDocumentService.js
+│  │  ├─ createProposalDocument()
+│  │  ├─ generatePDF()
+│  │  └─ getProposalDocuments()
+│  │
+│  ├─ uploadService.js
+│  │  ├─ uploadToCloudinary()
+│  │  └─ uploadFromUrl()
+│  │
+│  └─ emailService.js
+│     ├─ sendEmail()
+│     ├─ generateEmailTemplate()
+│     └─ generateSignature()
+│
+├─ 📁 /middlewares
+│  ├─ authMiddleware.js              JWT 인증
+│  ├─ adminMiddleware.js             Admin 권한 확인
+│  ├─ validationMiddleware.js        입력 검증
+│  ├─ errorMiddleware.js             에러 핸들링
+│  └─ rateLimitMiddleware.js         요청 제한
+│
+├─ 📁 /models (Prisma Schema)
+│  └─ schema.prisma
+│     ├─ model User
+│     ├─ model EmailVerification
+│     ├─ model Brand
+│     ├─ model Manager
+│     ├─ model Branch
+│     ├─ model Option
+│     ├─ model DeleteRequest
+│     ├─ model ProposalRequest
+│     ├─ model ProposalSendHistory
+│     └─ model ProposalDocument
+│
+├─ 📁 /utils
+│  ├─ logger.js                      로깅
+│  ├─ validators.js                  검증 함수
+│  ├─ formatters.js                  포맷팅
+│  ├─ dateUtils.js                   날짜 처리
+│  └─ errorHandler.js                에러 처리
+│
+├─ 📁 /config
+│  ├─ database.js                    DB 설정
+│  ├─ cloudinary.js                  Cloudinary 설정
+│  ├─ email.js                       이메일 설정
+│  └─ constants.js                   상수 정의
+│
+└─ 📁 /tests
+   ├─ /unit
+   │  ├─ auth.test.js
+   │  ├─ brand.test.js
+   │  └─ option.test.js
+   └─ /integration
+      ├─ proposal.test.js
+      └─ admin.test.js

@@ -1,0 +1,350 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ===== 사용자 관리 =====
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  email_verified    Boolean   @default(false)
+  is_smatch_domain  Boolean   @default(false)
+  name              String
+  phone             String
+  password_hash     String
+  role              Role      @default(user)
+  status            UserStatus @default(active)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  last_login        DateTime?
+
+  // Relations
+  created_brands           Brand[]              @relation("BrandCreator")
+  updated_brands           Brand[]              @relation("BrandUpdater")
+  created_managers         Manager[]            @relation("ManagerCreator")
+  updated_managers         Manager[]            @relation("ManagerUpdater")
+  created_branches         Branch[]             @relation("BranchCreator")
+  updated_branches         Branch[]             @relation("BranchUpdater")
+  created_options          Option[]             @relation("OptionCreator")
+  updated_options          Option[]             @relation("OptionUpdater")
+  processed_options         Option[]             @relation("DeleteProcessor")
+  delete_requests          DeleteRequest[]      @relation("DeleteRequester")
+  processed_delete_requests DeleteRequest[]     @relation("DeleteProcessor")
+  proposal_requests        ProposalRequest[]
+  proposal_documents       ProposalDocument[]
+
+  @@map("users")
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum UserStatus {
+  active
+  suspended
+  deleted
+}
+
+model EmailVerification {
+  id            String    @id @default(uuid())
+  email         String
+  code          String
+  expires_at    DateTime
+  verified      Boolean   @default(false)
+  created_at    DateTime  @default(now())
+
+  @@map("email_verifications")
+}
+
+// ===== 브랜드 관리 =====
+
+model Brand {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  status        BrandStatus @default(active)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  creator_id    String
+  updater_id    String?
+
+  // Relations
+  creator       User      @relation("BrandCreator", fields: [creator_id], references: [id])
+  updater       User?     @relation("BrandUpdater", fields: [updater_id], references: [id])
+  managers      Manager[]
+  branches      Branch[]
+  send_histories ProposalSendHistory[]
+
+  @@map("brands")
+}
+
+enum BrandStatus {
+  active
+  inactive
+}
+
+model Manager {
+  id            String    @id @default(uuid())
+  brand_id      String
+  name          String
+  position      String
+  email         String
+  cc_email      String?
+  phone         String
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  creator_id    String
+  updater_id    String?
+
+  // Relations
+  brand         Brand     @relation(fields: [brand_id], references: [id], onDelete: Cascade)
+  creator       User      @relation("ManagerCreator", fields: [creator_id], references: [id])
+  updater       User?     @relation("ManagerUpdater", fields: [updater_id], references: [id])
+
+  @@map("managers")
+}
+
+model Branch {
+  id                    String    @id @default(uuid())
+  brand_id              String
+  name                  String
+  address               String
+  latitude              Decimal   @db.Decimal(10, 8)
+  longitude             Decimal   @db.Decimal(11, 8)
+  nearest_subway        String
+  walking_distance      Int
+  exterior_image_url    String?
+  interior_image_urls   Json      @default("[]")
+  branch_info           String?
+  approval_year         Int?
+  floors_above          Int?
+  floors_below          Int?
+  total_area            Decimal?  @db.Decimal(10, 2)
+  status                BranchStatus @default(active)
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  creator_id            String
+  updater_id            String?
+
+  // Relations
+  brand         Brand     @relation(fields: [brand_id], references: [id], onDelete: Cascade)
+  creator       User      @relation("BranchCreator", fields: [creator_id], references: [id])
+  updater       User?     @relation("BranchUpdater", fields: [updater_id], references: [id])
+  options       Option[]
+
+  @@map("branches")
+}
+
+enum BranchStatus {
+  active
+  inactive
+}
+
+// ===== 옵션 관리 =====
+
+model Option {
+  id                        String    @id @default(uuid())
+  branch_id                 String
+  name                      String
+  category1                 OptionCategory1
+  category2                 OptionCategory2?
+  capacity                  Int
+  monthly_fee               Decimal   @db.Decimal(12, 2)
+  deposit                   Decimal   @db.Decimal(12, 2)
+  list_price                Decimal?  @db.Decimal(12, 2)
+  one_time_fees             Json      @default("[]")
+  move_in_date_type         MoveInDateType
+  move_in_date_value        String?
+  contract_period_type      ContractPeriodType
+  contract_period_value     String?
+  office_info               String?
+  credits                   Int?
+  hvac_type                 HVACType?
+  parking_type              ParkingType?
+  memo                      String?
+  floor_plan_url            String?
+  status                    OptionStatus @default(active)
+  delete_request_at         DateTime?
+  delete_request_reason     String?
+  delete_processed_at       DateTime?
+  delete_result             DeleteResult?
+  delete_process_reason     String?
+  processor_admin_id        String?
+  created_at                DateTime  @default(now())
+  updated_at                DateTime  @updatedAt
+  creator_id                String
+  updater_id                String?
+
+  // Relations
+  branch                    Branch    @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  creator                   User      @relation("OptionCreator", fields: [creator_id], references: [id])
+  updater                   User?     @relation("OptionUpdater", fields: [updater_id], references: [id])
+  processor_admin           User?     @relation("DeleteProcessor", fields: [processor_admin_id], references: [id])
+  delete_request            DeleteRequest?
+
+  @@map("options")
+}
+
+enum OptionCategory1 {
+  exclusive_floor
+  separate_floor
+  connected_floor
+  exclusive_room
+  separate_room
+  connected_room
+}
+
+enum OptionCategory2 {
+  window_side
+  inner_side
+}
+
+enum MoveInDateType {
+  immediate
+  negotiable
+  custom
+}
+
+enum ContractPeriodType {
+  six_months
+  twelve_months
+  custom
+}
+
+enum HVACType {
+  central
+  individual
+}
+
+enum ParkingType {
+  self_parking
+  mechanical
+}
+
+enum OptionStatus {
+  active
+  delete_requested
+  deleted
+}
+
+enum DeleteResult {
+  approved
+  rejected
+}
+
+model DeleteRequest {
+  id              String    @id @default(uuid())
+  option_id       String    @unique
+  requester_id    String
+  request_at      DateTime  @default(now())
+  request_reason  String
+  status          DeleteRequestStatus @default(pending)
+  processed_at    DateTime?
+  processor_id    String?
+  process_reason  String?
+
+  // Relations
+  option          Option    @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  requester       User      @relation("DeleteRequester", fields: [requester_id], references: [id])
+  processor       User?     @relation("DeleteProcessor", fields: [processor_id], references: [id])
+
+  @@map("delete_requests")
+}
+
+enum DeleteRequestStatus {
+  pending
+  approved
+  rejected
+}
+
+// ===== 제안 요청 =====
+
+model ProposalRequest {
+  id                      String    @id @default(uuid())
+  requester_id            String
+  company_name            String
+  contact_name            String
+  contact_position        String
+  contact_phone           String
+  contact_email           String
+  preferred_subway        String
+  actual_users            Int
+  preferred_capacity      Int?
+  move_in_date            DateTime
+  move_in_period          MoveInPeriod
+  lease_period            Int
+  additional_info         String?
+  selected_brands         Json      @default("[]")
+  send_status             SendStatus @default(sending)
+  sent_at                 DateTime?
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+
+  // Relations
+  requester               User      @relation(fields: [requester_id], references: [id])
+  send_histories          ProposalSendHistory[]
+
+  @@map("proposal_requests")
+}
+
+enum MoveInPeriod {
+  early
+  mid
+  late
+  whole
+}
+
+enum SendStatus {
+  sending
+  sent
+  failed
+}
+
+model ProposalSendHistory {
+  id                    String    @id @default(uuid())
+  proposal_request_id   String
+  brand_id              String
+  send_type             SendType
+  sent_at               DateTime  @default(now())
+  send_success          Boolean   @default(true)
+
+  // Relations
+  proposal_request      ProposalRequest @relation(fields: [proposal_request_id], references: [id], onDelete: Cascade)
+  brand                 Brand     @relation(fields: [brand_id], references: [id])
+
+  @@map("proposal_send_histories")
+}
+
+enum SendType {
+  initial
+  additional
+  modified
+}
+
+// ===== 제안서 =====
+
+model ProposalDocument {
+  id                  String    @id @default(uuid())
+  creator_id          String
+  document_name       String
+  selected_options    Json      @default("[]")
+  option_order        Json      @default("[]")
+  option_custom_info  Json      @default("{}")
+  pdf_url             String?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  // Relations
+  creator             User      @relation(fields: [creator_id], references: [id])
+
+  @@map("proposal_documents")
+}

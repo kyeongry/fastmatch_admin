@@ -1,0 +1,65 @@
+﻿import React from 'react';
+import { Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+
+const styles = StyleSheet.create({
+  page: { flexDirection: 'column', backgroundColor: '#FFFFFF', padding: 20 },
+  header: { fontSize: 20, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' },
+  table: { display: 'table', width: 'auto', borderStyle: 'solid', borderWidth: 1, borderRightWidth: 0, borderBottomWidth: 0 },
+  tableRow: { margin: 'auto', flexDirection: 'row' },
+  tableColHeader: { width: '16.66%', borderStyle: 'solid', borderWidth: 1, borderLeftWidth: 0, borderTopWidth: 0, backgroundColor: '#E0E0E0' },
+  tableCol: { width: '16.66%', borderStyle: 'solid', borderWidth: 1, borderLeftWidth: 0, borderTopWidth: 0 },
+  tableCellHeader: { margin: 5, fontSize: 10, fontWeight: 'bold', textAlign: 'center' },
+  tableCell: { margin: 5, fontSize: 9, textAlign: 'center' },
+});
+
+const chunkArray = (array, size) => {
+  const result = [];
+  for (let i = 0; i < array.length; i += size) result.push(array.slice(i, i + size));
+  return result;
+};
+
+const ComparisonTablePage = ({ options }) => {
+  const optionChunks = chunkArray(options, 5);
+  return (
+    <>
+      {optionChunks.map((chunk, pageIndex) => {
+        const filledChunk = [...chunk];
+        while (filledChunk.length < 5) filledChunk.push(null);
+        return (
+          <Page key={pageIndex} size="A4" orientation="landscape" style={styles.page}>
+            <Text style={styles.header}>매물 비교표 ({pageIndex + 1}/{optionChunks.length})</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <View style={styles.tableColHeader}><Text style={styles.tableCellHeader}>구분</Text></View>
+                {filledChunk.map((opt, i) => (
+                  <View key={i} style={styles.tableCol}>
+                    <Text style={styles.tableCellHeader}>
+                      {opt ? `${opt.branch?.brand?.alias || opt.branch?.brand?.name || ''} ${opt.branch?.name || ''}` : ''}
+                    </Text>
+                    <Text style={{ ...styles.tableCell, textAlign: 'left', paddingLeft: 5 }}>
+                      {opt ? `옵션${i + 1 + (pageIndex * 5)}. ${opt.name}` : ''}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              {[
+                { label: '월 임대료', key: 'monthly_fee', format: (val) => val ? `${val.toLocaleString()}원` : '-' },
+                { label: '보증금', key: 'deposit', format: (val) => val ? `${val.toLocaleString()}원` : '-' },
+                { label: '인실', key: 'capacity', format: (val) => val ? `${val}인실` : '-' },
+              ].map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.tableRow}>
+                  <View style={styles.tableColHeader}><Text style={styles.tableCellHeader}>{row.label}</Text></View>
+                  {filledChunk.map((opt, i) => (
+                    <View key={i} style={styles.tableCol}><Text style={styles.tableCell}>{opt ? row.format(opt[row.key]) : ''}</Text></View>
+                  ))}
+                </View>
+              ))}
+            </View>
+          </Page>
+        );
+      })}
+    </>
+  );
+};
+
+export default ComparisonTablePage;

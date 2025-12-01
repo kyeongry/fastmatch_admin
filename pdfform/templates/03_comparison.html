@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>옵션 비교표 - FastMatch 임차가능옵션 제안서</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --header-height: 38px;
+            --header-title-size: 11pt;
+            --header-info-size: 8pt;
+            --header-logo-height: 13px;
+            --color-primary: #FF6B35;
+            --table-padding: 10px;
+            --table-font-size: 8pt;
+            --table-header-padding: 9px;
+            --table-cell-padding: 5px;
+            --table-cat-width: 32px;
+            --table-sub-width: 45px;
+            --table-sub-font-size: 7pt;
+            --table-photo-height: 140px;
+            --table-notes-height: 138px;
+            --table-notes-font-size: 7pt;
+            --footer-height: 40px;
+            --footer-top-margin: 10px;
+            --footer-font-size: 7pt;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #c0c0c0;
+            color: #333;
+            font-size: 8pt;
+            line-height: 1.5;
+        }
+
+        .page {
+            width: 297mm;
+            height: 210mm;
+            background: white;
+            margin: 12px auto;
+            position: relative;
+            overflow: hidden;
+            page-break-after: always;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .page {
+                margin: 0;
+                box-shadow: none;
+            }
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            border-bottom: 1px solid #e5e5e5;
+            height: var(--header-height);
+            background: white;
+        }
+
+        .page-title {
+            font-size: var(--header-title-size);
+            font-weight: 600;
+            color: #222;
+            line-height: var(--header-height);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            height: 100%;
+            padding-bottom: 8px;
+        }
+
+        .manager-info {
+            font-size: var(--header-info-size);
+            color: #666;
+            line-height: 1;
+        }
+
+        .manager-info span {
+            margin-left: 12px;
+        }
+
+        .manager-info .label {
+            color: #888;
+            margin-left: 0;
+        }
+
+        .header-logo {
+            height: var(--header-logo-height);
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .header-logo img {
+            height: 100%;
+        }
+
+        .comparison-page .page-content {
+            padding: var(--table-padding) 16px;
+            padding-bottom: 16px;
+            height: calc(100% - var(--header-height) - var(--footer-height) - var(--footer-top-margin));
+            overflow: visible;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--table-font-size);
+            table-layout: fixed;
+            border: 1px solid #d0d0d0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #d0d0d0;
+            padding: var(--table-cell-padding) 6px;
+            text-align: center;
+            vertical-align: middle;
+            background: white;
+            overflow: hidden;
+            word-break: break-word;
+        }
+
+        /* 데이터 셀 고정 높이 */
+        .comparison-table tbody td:not(.col-cat):not(.col-sub):not(.photo-cell):not(.notes-cell) {
+            height: 24px;
+            max-height: 24px;
+            font-size: 7pt;
+            line-height: 1.2;
+        }
+
+        .comparison-table thead tr {
+            background: #444;
+        }
+
+        .comparison-table thead th {
+            color: white;
+            font-weight: 600;
+            padding: var(--table-header-padding) 6px;
+            background: #444;
+        }
+
+        .comparison-table .col-cat {
+            background: #f5f5f5;
+            text-align: left;
+            font-weight: 500;
+            padding-left: 8px;
+            white-space: nowrap;
+        }
+
+        .comparison-table .col-sub {
+            background: #fafafa;
+            text-align: left;
+            font-weight: 400;
+            color: #555;
+            padding-left: 8px;
+            font-size: var(--table-sub-font-size);
+            white-space: nowrap;
+        }
+
+        .comparison-table .photo-cell {
+            height: var(--table-photo-height);
+            max-height: var(--table-photo-height);
+            min-height: var(--table-photo-height);
+            background: white;
+            padding: 4px;
+            overflow: hidden;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: calc(var(--table-photo-height) - 8px);
+            max-height: calc(var(--table-photo-height) - 8px);
+            background: white;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #bbb;
+            font-size: 7pt;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .photo-placeholder img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            position: absolute;
+        }
+
+        .brand-orange {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .highlight-orange {
+            color: var(--color-primary) !important;
+            font-weight: 700 !important;
+            background: #FFF5E6 !important;
+        }
+
+        /* 강조 행의 라벨 스타일 */
+        .highlight-row .col-sub {
+            font-weight: 700;
+        }
+
+        .highlight-row .col-cat {
+            font-weight: 700;
+        }
+
+        .notes-cell {
+            height: var(--table-notes-height);
+            max-height: var(--table-notes-height);
+            min-height: var(--table-notes-height);
+            text-align: left;
+            font-size: var(--table-notes-font-size);
+            color: #666;
+            line-height: 1.4;
+            padding: 6px !important;
+            vertical-align: top;
+            white-space: pre-line;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-wrap: break-word;
+        }
+
+        /* 푸터 */
+        .page-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--footer-height);
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: var(--footer-font-size);
+            color: #888;
+            background: white;
+        }
+
+        .footer-company {
+            display: flex;
+            gap: 16px;
+        }
+
+        .footer-company span {
+            color: #666;
+        }
+
+        .footer-copyright {
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page comparison-page">
+        <div class="page-header">
+            <div class="page-title">임차가능옵션 비교표</div>
+            <div class="header-right">
+                <div class="manager-info">
+                    <span class="label">담당 매니저</span>
+                    <span>{{담당자명}}</span>
+                    <span>{{담당자 연락처}}</span>
+                    <span>{{담당자 이메일}}</span>
+                </div>
+                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png" alt="FastMatch"></div>
+            </div>
+        </div>
+        <div class="page-content">
+            <table class="comparison-table">
+                <colgroup>
+                    <col style="width: 7%;">
+                    <col style="width: 12%;">
+                    <col style="width: 16.2%;">
+                    <col style="width: 16.2%;">
+                    <col style="width: 16.2%;">
+                    <col style="width: 16.2%;">
+                    <col style="width: 16.2%;">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th colspan="2" style="text-align:left; padding-left:8px;">옵션 명</th>
+                        <th style="text-align:left; padding-left:8px;">{{옵션명1}}</th>
+                        <th style="text-align:left; padding-left:8px;">{{옵션명2}}</th>
+                        <th style="text-align:left; padding-left:8px;">{{옵션명3}}</th>
+                        <th style="text-align:left; padding-left:8px;">{{옵션명4}}</th>
+                        <th style="text-align:left; padding-left:8px;">{{옵션명5}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="col-cat" colspan="2">외관 사진</td>
+                        <td class="photo-cell">
+                            <div class="photo-placeholder">{{외관사진1}}</div>
+                        </td>
+                        <td class="photo-cell">
+                            <div class="photo-placeholder">{{외관사진2}}</div>
+                        </td>
+                        <td class="photo-cell">
+                            <div class="photo-placeholder">{{외관사진3}}</div>
+                        </td>
+                        <td class="photo-cell">
+                            <div class="photo-placeholder">{{외관사진4}}</div>
+                        </td>
+                        <td class="photo-cell">
+                            <div class="photo-placeholder">{{외관사진5}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-cat" colspan="2">주소</td>
+                        <td>{{주소1}}</td>
+                        <td>{{주소2}}</td>
+                        <td>{{주소3}}</td>
+                        <td>{{주소4}}</td>
+                        <td>{{주소5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-cat" colspan="2">사용승인일</td>
+                        <td>{{사용승인일1}}</td>
+                        <td>{{사용승인일2}}</td>
+                        <td>{{사용승인일3}}</td>
+                        <td>{{사용승인일4}}</td>
+                        <td>{{사용승인일5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-cat" colspan="2">규모</td>
+                        <td>{{규모1}}</td>
+                        <td>{{규모2}}</td>
+                        <td>{{규모3}}</td>
+                        <td>{{규모4}}</td>
+                        <td>{{규모5}}</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td class="col-cat" colspan="2">제안 인실</td>
+                        <td class="highlight-orange">{{인실1}}</td>
+                        <td class="highlight-orange">{{인실2}}</td>
+                        <td class="highlight-orange">{{인실3}}</td>
+                        <td class="highlight-orange">{{인실4}}</td>
+                        <td class="highlight-orange">{{인실5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-cat" rowspan="3">면적 현황</td>
+                        <td class="col-sub">전용면적(평)</td>
+                        <td>{{전용면적1}}</td>
+                        <td>{{전용면적2}}</td>
+                        <td>{{전용면적3}}</td>
+                        <td>{{전용면적4}}</td>
+                        <td>{{전용면적5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-sub">전용면적(㎡)</td>
+                        <td>{{전용면적㎡1}}</td>
+                        <td>{{전용면적㎡2}}</td>
+                        <td>{{전용면적㎡3}}</td>
+                        <td>{{전용면적㎡4}}</td>
+                        <td>{{전용면적㎡5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-sub">인당 제공 면적<br>(평/인)</td>
+                        <td>{{인당면적1}}</td>
+                        <td>{{인당면적2}}</td>
+                        <td>{{인당면적3}}</td>
+                        <td>{{인당면적4}}</td>
+                        <td>{{인당면적5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-cat" colspan="2">계약기간</td>
+                        <td>{{계약기간1}}</td>
+                        <td>{{계약기간2}}</td>
+                        <td>{{계약기간3}}</td>
+                        <td>{{계약기간4}}</td>
+                        <td>{{계약기간5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-cat" colspan="2">입주 가능 시기</td>
+                        <td>{{입주가능일1}}</td>
+                        <td>{{입주가능일2}}</td>
+                        <td>{{입주가능일3}}</td>
+                        <td>{{입주가능일4}}</td>
+                        <td>{{입주가능일5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-cat" rowspan="5">임차 비용<br><small style="font-size:6pt;color:#888">(VAT
+                                별도)</small></td>
+                        <td class="col-sub">보증금</td>
+                        <td>{{보증금1}}</td>
+                        <td>{{보증금2}}</td>
+                        <td>{{보증금3}}</td>
+                        <td>{{보증금4}}</td>
+                        <td>{{보증금5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-sub">정가(월)</td>
+                        <td>{{정가1}}</td>
+                        <td>{{정가2}}</td>
+                        <td>{{정가3}}</td>
+                        <td>{{정가4}}</td>
+                        <td>{{정가5}}</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td class="col-sub">할인가(월)</td>
+                        <td class="highlight-orange">{{할인가1}}</td>
+                        <td class="highlight-orange">{{할인가2}}</td>
+                        <td class="highlight-orange">{{할인가3}}</td>
+                        <td class="highlight-orange">{{할인가4}}</td>
+                        <td class="highlight-orange">{{할인가5}}</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td class="col-sub">할인률</td>
+                        <td class="highlight-orange">{{할인률1}}</td>
+                        <td class="highlight-orange">{{할인률2}}</td>
+                        <td class="highlight-orange">{{할인률3}}</td>
+                        <td class="highlight-orange">{{할인률4}}</td>
+                        <td class="highlight-orange">{{할인률5}}</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td class="col-sub">인단가(인)</td>
+                        <td class="highlight-orange">{{인단가1}}</td>
+                        <td class="highlight-orange">{{인단가2}}</td>
+                        <td class="highlight-orange">{{인단가3}}</td>
+                        <td class="highlight-orange">{{인단가4}}</td>
+                        <td class="highlight-orange">{{인단가5}}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-cat" colspan="2">특이사항</td>
+                        <!-- 냉난방식, 주차방식, 크레딧 3개 항목이 모두 포함되어야 함 -->
+                        <!-- 예: "중앙 냉난방식 제공\n자주식 주차 제공\n월별 미팅룸 크레딧 : 30크레딧" -->
+                        <td class="notes-cell">{{기타1}}</td>
+                        <td class="notes-cell">{{기타2}}</td>
+                        <td class="notes-cell">{{기타3}}</td>
+                        <td class="notes-cell">{{기타4}}</td>
+                        <td class="notes-cell">{{기타5}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="page-footer">
+            <div class="footer-company">
+                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+            </div>
+            <div class="footer-copyright">
+                Copyright 2025. smatch. all rights reserved.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

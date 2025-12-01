@@ -1,0 +1,368 @@
+[제안요청 로직]
+// API: POST /api/proposals/request
+
+async function sendProposalRequest(requestData) {
+  const { 선택브랜드, ...proposalInfo } = requestData;
+  
+  // 1. 현재 User 정보 조회
+  const currentUser = await db.users.findUnique({
+    where: { id: currentUserId }
+  });
+  
+  // 2. ProposalRequest DB에 저장
+  const proposalRequest = await db.proposalRequests.create({
+    ...proposalInfo,
+    선택브랜드: 선택브랜드,
+    요청자_id: currentUser.id,
+    발송상태: "발송중"
+  });
+  
+  // 3. 각 브랜드의 매니저 정보 조회
+  const managers = await db.managers.findMany({
+    where: {
+      브랜드_id: { in: 선택브랜드 }
+    },
+    include: {
+      brand: true
+    }
+  });
+  
+  // 4. 이메일 템플릿 생성 및 발송
+  const emailsSent = [];
+  
+  for (const manager of managers) {
+    const subject = `[패스트매치] 공실 문의의 건 [${proposalInfo.고객사명} : ${proposalInfo.희망지하철역}역 / ${proposalInfo.실사용인원}인실]`;
+    
+    // 인실 표시 로직
+    let roomSizeText = "";
+    if (proposalInfo.희망인실) {
+      roomSizeText = `${proposalInfo.실사용인원} ~ ${proposalInfo.희망인실}인실 (실사용 인원: ${proposalInfo.실사용인원}명)`;
+    } else {
+      roomSizeText = `${proposalInfo.실사용인원}인실`;
+    }
+    
+    // 이메일 본문 생성
+    const emailBody = generateEmailTemplate({
+      manager: manager,
+      proposal: proposalInfo,
+      roomSizeText: roomSizeText,
+      requester: currentUser
+    });
+    
+    // 이메일 발송
+    try {
+      await sendEmail({
+        to: manager.이메일,
+        cc: [
+          manager.참조메일, 
+          currentUser.이메일,        // ✅ User의 이메일로 회신 받음
+          "official@fastmatch.kr"
+        ].filter(Boolean),
+        replyTo: currentUser.이메일,  // ✅ 답장은 User의 이메일로
+        subject: subject,
+        html: emailBody
+      });
+      
+      emailsSent.push(manager.브랜드_id);
+    } catch (error) {
+      console.error(`Email send failed for ${manager.이메일}:`, error);
+    }
+  }
+  
+  // 5. 발송 상태 업데이트
+  await db.proposalRequests.update({
+    where: { id: proposalRequest.id },
+    data: {
+      발송상태: emailsSent.length > 0 ? "발송완료" : "발송실패",
+      발송일시: new Date()
+    }
+  });
+  
+  return {
+    success: true,
+    emails_sent: emailsSent.length,
+    total_managers: managers.length
+  };
+}
+```
+
+---
+
+## 이메일 구조 (수정)
+```
+From: noreply@fastmatch.kr
+To: fastfive.manager@example.com (브랜드 매니저)
+Cc: fastfive.cc@example.com (매니저 참조메일)
+    hong@smatch.kr (요청한 User 이메일) ✅
+    official@fastmatch.kr (고정 참조)
+Reply-To: hong@smatch.kr (요청한 User 이메일) ✅
+
+Subject: [패스트매치] 공실 문의의 건 [(주)테크스타트업 : 강남역 / 10인실]
+
+Body:
+안녕하십니까, 패스트파이브 홍길동 매니저님.
+패스트매치 홍길동입니다.
+
+신규 고객사가 있어 문의드립니다.
+
+[고객사 정보 테이블]
+
+제안 가능한 공실 있으면 피드백 부탁드립니다.
+감사합니다.
+패스트매치 홍길동 드림.
+
+--
+[서명]
+```
+
+**중요:**
+- `Reply-To: hong@smatch.kr` 설정으로 브랜드 매니저가 "답장" 버튼을 누르면 자동으로 User의 이메일로 답장됨
+- `Cc`에 User 이메일 포함으로 User도 발송된 이메일 내용 확인 가능
+- 고객사 담당자 이메일(`kim@techstartup.com`)은 DB에만 저장되고 이메일 발송에는 사용되지 않음
+
+---
+
+## 제안 요청 성공 메시지 수정
+```
+┌─────────────────────────────────────────────────────────────┐
+│                                                               │
+│              ✓ 제안 요청이 발송되었습니다                      │
+│                                                               │
+│  발송 완료: 3개 브랜드 (패스트파이브, 스파크플러스, 위워크)     │
+│                                                               │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│                                                               │
+│  📧 브랜드 답변은 내 이메일로 직접 전달됩니다                  │
+│     (hong@smatch.kr)                                         │
+│                                                               │
+│  📋 발송된 이메일은 참조로 받으실 수 있습니다                  │
+│                                                               │
+│  📋 요청 내역은 [제안 요청 관리]에서 확인하실 수 있습니다      │
+│                                                               │
+│                                                               │
+│                              [제안 요청 관리]  [메인으로]      │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+
+
+[추가제안요청로직]
+
+// API: POST /api/proposals/requests/{proposal_id}/add
+
+async function addProposalRequest(proposalId, additionalBrands) {
+  // 1. 기존 제안 요청 정보 조회
+  const originalProposal = await db.proposalRequests.findUnique({
+    where: { id: proposalId },
+    include: {
+      발송내역: true
+    }
+  });
+  
+  // 2. 기존 발송 브랜드 추출
+  const existingBrandIds = originalProposal.선택브랜드;
+  
+  // 3. 중복 체크: 추가하려는 브랜드가 이미 발송된 브랜드에 포함되어 있는지
+  const duplicateBrands = additionalBrands.filter(
+    brandId => existingBrandIds.includes(brandId)
+  );
+  
+  if (duplicateBrands.length > 0) {
+    throw new Error("이미 발송한 브랜드가 포함되어 있습니다");
+  }
+  
+  // 4. 추가 브랜드의 매니저 정보 조회
+  const newManagers = await db.managers.findMany({
+    where: {
+      브랜드_id: { in: additionalBrands }
+    },
+    include: {
+      brand: true
+    }
+  });
+  
+  // 5. 이메일 발송
+  const currentUser = await db.users.findUnique({
+    where: { id: originalProposal.요청자_id }
+  });
+  
+  const emailsSent = [];
+  
+  for (const manager of newManagers) {
+    const subject = `[패스트매치] 공실 문의의 건 [${originalProposal.고객사명} : ${originalProposal.희망지하철역}역 / ${originalProposal.실사용인원}인실]`;
+    
+    let roomSizeText = originalProposal.희망인실
+      ? `${originalProposal.실사용인원} ~ ${originalProposal.희망인실}인실 (실사용 인원: ${originalProposal.실사용인원}명)`
+      : `${originalProposal.실사용인원}인실`;
+    
+    const emailBody = generateEmailTemplate({
+      manager: manager,
+      proposal: originalProposal,
+      roomSizeText: roomSizeText,
+      requester: currentUser
+    });
+    
+    try {
+      await sendEmail({
+        to: manager.이메일,
+        cc: [manager.참조메일, currentUser.이메일, "official@fastmatch.kr"].filter(Boolean),
+        replyTo: currentUser.이메일,
+        subject: subject,
+        html: emailBody
+      });
+      
+      emailsSent.push(manager.브랜드_id);
+    } catch (error) {
+      console.error(`Email send failed for ${manager.이메일}:`, error);
+    }
+  }
+  
+  // 6. DB 업데이트: 브랜드 목록에 추가
+  await db.proposalRequests.update({
+    where: { id: proposalId },
+    data: {
+      선택브랜드: [...existingBrandIds, ...emailsSent],
+      수정일시: new Date()
+    }
+  });
+  
+  // 7. 발송 내역 기록
+  await db.proposalSendHistory.createMany({
+    data: emailsSent.map(brandId => ({
+      proposal_request_id: proposalId,
+      브랜드_id: brandId,
+      발송유형: "추가발송",
+      발송일시: new Date()
+    }))
+  });
+  
+  return {
+    success: true,
+    emails_sent: emailsSent.length,
+    total_brands: originalProposal.선택브랜드.length + emailsSent.length
+  };
+}
+
+[변경제안요청 로직]
+// API: POST /api/proposals/requests/{proposal_id}/modify
+
+async function modifyProposalRequest(proposalId, updatedData) {
+  // 1. 기존 제안 요청 정보 조회
+  const originalProposal = await db.proposalRequests.findUnique({
+    where: { id: proposalId }
+  });
+  
+  // 2. 기존 발송했던 브랜드의 매니저 정보 조회
+  const managers = await db.managers.findMany({
+    where: {
+      브랜드_id: { in: originalProposal.선택브랜드 }
+    },
+    include: {
+      brand: true
+    }
+  });
+  
+  // 3. 현재 User 정보 조회
+  const currentUser = await db.users.findUnique({
+    where: { id: originalProposal.요청자_id }
+  });
+  
+  // 4. 변경된 내용으로 이메일 발송
+  const emailsSent = [];
+  
+  for (const manager of managers) {
+    // ✅ 제목에 [변경] 표시
+    const subject = `[패스트매치] [변경] 공실 문의의 건 [${updatedData.고객사명} : ${updatedData.희망지하철역}역 / ${updatedData.실사용인원}인실]`;
+    
+    let roomSizeText = updatedData.희망인실
+      ? `${updatedData.실사용인원} ~ ${updatedData.희망인실}인실 (실사용 인원: ${updatedData.실사용인원}명)`
+      : `${updatedData.실사용인원}인실`;
+    
+    // ✅ 이메일 본문에 변경 안내 추가
+    const changeNotice = `
+      <p style="color: #d32f2f; font-weight: bold;">
+      ⚠️ 이전에 문의드린 조건이 변경되어 재발송드립니다.
+      </p>
+    `;
+    
+    const emailBody = changeNotice + generateEmailTemplate({
+      manager: manager,
+      proposal: updatedData,
+      roomSizeText: roomSizeText,
+      requester: currentUser
+    });
+    
+    try {
+      await sendEmail({
+        to: manager.이메일,
+        cc: [manager.참조메일, currentUser.이메일, "official@fastmatch.kr"].filter(Boolean),
+        replyTo: currentUser.이메일,
+        subject: subject,
+        html: emailBody
+      });
+      
+      emailsSent.push(manager.브랜드_id);
+    } catch (error) {
+      console.error(`Email send failed for ${manager.이메일}:`, error);
+    }
+  }
+  
+  // 5. DB 업데이트: 제안 요청 정보 갱신
+  await db.proposalRequests.update({
+    where: { id: proposalId },
+    data: {
+      ...updatedData,
+      수정일시: new Date()
+    }
+  });
+  
+  // 6. 발송 내역 기록
+  await db.proposalSendHistory.createMany({
+    data: emailsSent.map(brandId => ({
+      proposal_request_id: proposalId,
+      브랜드_id: brandId,
+      발송유형: "변경발송",
+      발송일시: new Date()
+    }))
+  });
+  
+  return {
+    success: true,
+    emails_sent: emailsSent.length,
+    brands_updated: emailsSent.length
+  };
+}
+```
+
+---
+
+## DB 구조 추가: ProposalSendHistory
+```
+[ProposalSendHistory] (발송 내역 추적)
+└[id] : PK, UUID
+└[proposal_request_id] : FK → ProposalRequest.id, required
+└[브랜드_id] : FK → Brand.id, required
+└[발송유형] : enum, required / "최초발송", "추가발송", "변경발송"
+└[발송일시] : timestamp, required
+└[발송성공여부] : boolean, default=true
+
+[브랜드 선택 드롭다운]
+// API: GET /api/brands/available-for-addition?proposal_id={proposal_id}
+
+async function getAvailableBrandsForAddition(proposalId) {
+  // 1. 기존 제안 요청 정보 조회
+  const proposal = await db.proposalRequests.findUnique({
+    where: { id: proposalId }
+  });
+  
+  // 2. 전체 활성 브랜드 조회
+  const allBrands = await db.brands.findMany({
+    where: { 상태: "활성" }
+  });
+  
+  // 3. 이미 발송한 브랜드 제외
+  const availableBrands = allBrands.filter(
+    brand => !proposal.선택브랜드.includes(brand.id)
+  );
+  
+  return availableBrands;
+}
