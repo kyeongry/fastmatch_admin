@@ -68,7 +68,8 @@
       "Bash(git remote set-url:*)",
       "Bash(git commit:*)",
       "Bash(git -C \"C:\\fastmatch-02\" status --short)",
-      "Bash(git -C:*)"
+      "Bash(git -C:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

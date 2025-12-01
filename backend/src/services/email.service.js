@@ -1,4 +1,9 @@
-const transporter = require('../config/email');
+/**
+ * 이메일 서비스 - Gmail API 사용
+ * Railway에서 SMTP가 차단되어 있어 Gmail API (HTTPS)를 사용
+ */
+
+const gmailService = require('./gmail.service');
 
 const generateVerificationCode = () => {
   return Math.random().toString().slice(2, 8); // 6자리 숫자
@@ -6,8 +11,7 @@ const generateVerificationCode = () => {
 
 const sendVerificationEmail = async (email, code) => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    await gmailService.sendEmail({
       to: email,
       subject: '[FASTMATCH] 이메일 인증 코드',
       html: `
@@ -28,9 +32,7 @@ const sendVerificationEmail = async (email, code) => {
           </p>
         </div>
       `
-    };
-
-    await transporter.sendMail(mailOptions);
+    });
     console.log('✅ Verification email sent to:', email);
     return true;
   } catch (error) {
@@ -41,16 +43,13 @@ const sendVerificationEmail = async (email, code) => {
 
 const sendProposalEmail = async ({ to, cc, replyTo, subject, html }) => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    await gmailService.sendEmail({
       to,
-      cc: cc && cc.length > 0 ? cc.join(',') : undefined,
+      cc,
       replyTo,
       subject,
       html
-    };
-
-    await transporter.sendMail(mailOptions);
+    });
     console.log('✅ Proposal email sent to:', to);
     return true;
   } catch (error) {
@@ -186,17 +185,14 @@ const sendProposalRequestEmail = async (data, sendType) => {
     </html>
   `;
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-    to,
-    cc: cc && cc.length > 0 ? cc : undefined,
-    replyTo,
-    subject,
-    html,
-  };
-
   try {
-    await transporter.sendMail(mailOptions);
+    await gmailService.sendEmail({
+      to,
+      cc,
+      replyTo,
+      subject,
+      html,
+    });
     console.log('✅ Proposal request email sent to:', to);
     return true;
   } catch (error) {

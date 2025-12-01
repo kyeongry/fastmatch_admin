@@ -9,7 +9,17 @@ require('dotenv').config();
 
 // 디버깅: 폴더 구조 확인
 console.log('');
-console.log('🚀🚀🚀 SERVER VERSION: 2025-12-01-v2 🚀🚀🚀');
+console.log('🚀🚀🚀 SERVER VERSION: 2025-12-01-v3 (Gmail API) 🚀🚀🚀');
+
+// Gmail API 연결 테스트
+const gmailService = require('./services/gmail.service');
+gmailService.testConnection().then(result => {
+  if (result.success) {
+    console.log('✅ Gmail API ready:', result.email);
+  } else {
+    console.log('❌ Gmail API not configured:', result.error);
+  }
+});
 console.log('========== DIRECTORY DEBUG START ==========');
 console.log('📁 Current working directory:', process.cwd());
 console.log('📁 __dirname:', __dirname);
