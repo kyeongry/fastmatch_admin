@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카카오 맵 테스트</title>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e49531a9c9c06917c090cc7c5daec197"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 20px;
+        }
+        #map {
+            width: 400px;
+            height: 300px;
+            border: 1px solid #e0e0e0;
+        }
+        .info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>카카오 맵 SDK 테스트</h1>
+    <div class="info">
+        <p>테스트 좌표: 서울 강남역 (37.497952, 127.027619)</p>
+    </div>
+    <div id="map" data-lat="37.497952" data-lng="127.027619"></div>
+
+    <script>
+        // 카카오 지도 초기화
+        var mapContainer = document.getElementById('map');
+        if (mapContainer) {
+            var lat = parseFloat(mapContainer.dataset.lat);
+            var lng = parseFloat(mapContainer.dataset.lng);
+
+            console.log('좌표:', lat, lng);
+
+            if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+                var mapOption = {
+                    center: new kakao.maps.LatLng(lat, lng),
+                    level: 3
+                };
+                var map = new kakao.maps.Map(mapContainer, mapOption);
+
+                // 마커 추가
+                var marker = new kakao.maps.Marker({
+                    position: new kakao.maps.LatLng(lat, lng)
+                });
+                marker.setMap(map);
+                console.log('지도 생성 완료');
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서비스 안내 - FastMatch 임차가능매물 제안서</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --header-height: 38px;
+            --header-title-size: 11pt;
+            --header-info-size: 8pt;
+            --header-logo-height: 13px;
+            --color-primary: #FF6B35;
+            --service-padding-x: 56px;
+            --service-padding-y: 44px;
+            --service-title-size: 20pt;
+            --service-title-line-height: 1.6;
+            --service-title-margin: 100px;
+            --service-flow-gap: 20px;
+            --service-flow-padding-x: 32px;
+            --service-flow-padding-y: 24px;
+            --service-flow-font-size: 10pt;
+            --service-flow-margin: 100px;
+            --service-desc-size: 9pt;
+            --service-desc-line-height: 2.0;
+            --footer-height: 40px;
+            --footer-font-size: 7pt;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #c0c0c0;
+            color: #333;
+            font-size: 8pt;
+            line-height: 1.5;
+        }
+
+        .page {
+            width: 297mm;
+            height: 210mm;
+            background: white;
+            margin: 12px auto;
+            position: relative;
+            overflow: hidden;
+            page-break-after: always;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .page {
+                margin: 0;
+                box-shadow: none;
+            }
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            border-bottom: 1px solid #e5e5e5;
+            height: var(--header-height);
+            background: white;
+        }
+
+        .page-title {
+            font-size: var(--header-title-size);
+            font-weight: 600;
+            color: #222;
+            line-height: var(--header-height);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            height: 100%;
+            padding-bottom: 8px;
+        }
+
+        .manager-info {
+            font-size: var(--header-info-size);
+            color: #666;
+            line-height: 1;
+        }
+
+        .manager-info span {
+            margin-left: 12px;
+        }
+
+        .manager-info .label {
+            color: #888;
+            margin-left: 0;
+        }
+
+        .header-logo {
+            height: var(--header-logo-height);
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .header-logo img {
+            height: 100%;
+        }
+
+        .service-page .page-content {
+            padding: 80px var(--service-padding-x) 20px;
+            /* 상단 80px, 하단 20px */
+            height: calc(100% - var(--header-height) - var(--footer-height));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .service-title {
+            font-size: var(--service-title-size);
+            font-weight: 600;
+            color: #333;
+            line-height: var(--service-title-line-height);
+            margin-bottom: var(--service-title-margin);
+        }
+
+        .service-title .underline {
+            text-decoration: underline;
+            text-decoration-color: var(--color-primary);
+            text-underline-offset: 5px;
+            text-decoration-thickness: 2px;
+        }
+
+        .service-title .orange {
+            color: var(--color-primary);
+        }
+
+        .service-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--service-flow-gap);
+            margin-bottom: var(--service-flow-margin);
+        }
+
+        .flow-box {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: var(--service-flow-padding-y) var(--service-flow-padding-x);
+            text-align: center;
+            min-width: 180px;
+        }
+
+        .flow-box.active {
+            background: white;
+            border: 2px solid var(--color-primary);
+        }
+
+        .flow-box p {
+            font-size: var(--service-flow-font-size);
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .flow-box.active p {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            font-size: 18pt;
+            color: #ccc;
+        }
+
+        .service-description {
+            font-size: var(--service-desc-size);
+            color: #666;
+            line-height: var(--service-desc-line-height);
+        }
+
+        .service-description p {
+            margin-bottom: 4px;
+        }
+
+        /* 푸터 */
+        .page-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--footer-height);
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: var(--footer-font-size);
+            color: #888;
+            background: white;
+        }
+
+        .footer-company {
+            display: flex;
+            gap: 16px;
+        }
+
+        .footer-company span {
+            color: #666;
+        }
+
+        .footer-copyright {
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page service-page">
+        <div class="page-header">
+            <div class="page-title">서비스 개요</div>
+            <div class="header-right">
+                <div class="manager-info">
+                    <span class="label">담당 매니저</span>
+                    <span>{{담당자명}}</span>
+                    <span>{{담당자 연락처}}</span>
+                    <span>{{담당자 이메일}}</span>
+                </div>
+                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png" alt="FastMatch"></div>
+            </div>
+        </div>
+        <div class="page-content">
+            <h2 class="service-title">패스트매치는 여러 공유오피스를 <span class="underline">대리하여 협상</span>하는 서비스로,<br>투어부터 계약까지 대행하며
+                <span class="orange">다양한 할인혜택</span>을 제공합니다.
+            </h2>
+            <div class="service-flow">
+                <div class="flow-box">
+                    <p>여러 공유오피스를 비교한<br>맞춤 제안서 받기</p>
+                </div>
+                <div class="flow-arrow">▶</div>
+                <div class="flow-box">
+                    <p>한명의 담당자로<br>여러 공유오피스<br>현장 투어</p>
+                </div>
+                <div class="flow-arrow">▶</div>
+                <div class="flow-box active">
+                    <p>패스트 매치를 통한<br>할인된 금액 제안/계약</p>
+                </div>
+            </div>
+            <div class="service-description">
+                <p>패스트매치는 21년 출시 후 약 3만 여 업체가 이용한 서비스로 서울권 총 56개의 공유오피스와 제휴되어 있습니다.</p>
+                <p>메이저 공유오피스부터, 작은 공유오피스까지 모든 공실을 한 번에 받아볼 수 있다는 장점이 있으며,</p>
+                <p>금액·주차·이용기간 등 세부적인 내용까지 모두 대리하여 협상을 진행하기 때문에</p>
+                <p>각각 별도로 알아보시는 금액보다 더 저렴하고 다양한 혜택을 제안 받으실 수 있습니다.</p>
+            </div>
+        </div>
+        <div class="page-footer">
+            <div class="footer-company">
+                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+            </div>
+            <div class="footer-copyright">
+                Copyright 2025. smatch. all rights reserved.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
