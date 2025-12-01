@@ -1,9 +1,25 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 // Auto-restart trigger
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
+
+// 디버깅: 폴더 구조 확인
+console.log('📁 Current working directory:', process.cwd());
+console.log('📁 __dirname:', __dirname);
+const pdfformPath = path.join(process.cwd(), 'pdfform');
+console.log('📁 pdfform path:', pdfformPath);
+console.log('📁 pdfform exists:', fs.existsSync(pdfformPath));
+if (fs.existsSync(pdfformPath)) {
+  console.log('📁 pdfform contents:', fs.readdirSync(pdfformPath));
+  const templatesPath = path.join(pdfformPath, 'templates');
+  if (fs.existsSync(templatesPath)) {
+    console.log('📁 templates contents:', fs.readdirSync(templatesPath));
+  }
+}
 
 const app = express();
 
