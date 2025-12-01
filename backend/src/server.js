@@ -8,6 +8,8 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 // 디버깅: 폴더 구조 확인
+console.log('');
+console.log('🚀🚀🚀 SERVER VERSION: 2025-12-01-v2 🚀🚀🚀');
 console.log('========== DIRECTORY DEBUG START ==========');
 console.log('📁 Current working directory:', process.cwd());
 console.log('📁 __dirname:', __dirname);

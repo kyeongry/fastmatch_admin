@@ -6,7 +6,13 @@ aptPkgs = ["chromium", "libnss3", "libatk1.0-0", "libatk-bridge2.0-0", "libcups2
 cmds = ["npm install"]
 
 [phases.build]
-cmds = ["echo '📁 Listing all files in current directory:' && ls -la", "echo '📁 Checking pdfform folder:' && ls -la pdfform/ || echo 'pdfform folder not found'", "echo '📁 Checking pdfform/templates:' && ls -la pdfform/templates/ || echo 'templates folder not found'"]
+cmds = [
+  "echo '=== RAILPACK BUILD DEBUG ==='",
+  "echo 'Current directory:' && pwd",
+  "echo 'All files:' && ls -la",
+  "echo 'pdfform check:' && ls -la pdfform/ 2>/dev/null || echo 'pdfform NOT FOUND'",
+  "echo 'templates check:' && ls -la pdfform/templates/ 2>/dev/null || echo 'templates NOT FOUND'"
+]
 
 [start]
 cmd = "npm start"
@@ -14,3 +20,7 @@ cmd = "npm start"
 [variables]
 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
 PUPPETEER_EXECUTABLE_PATH = "/usr/bin/chromium"
+
+# Railpack에게 모든 파일을 포함하도록 지시
+[paths]
+include = ["*", "**/*"]
