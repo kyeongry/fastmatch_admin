@@ -5,6 +5,7 @@
 
 const puppeteer = require('puppeteer');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const path = require('path');
 const { PDFDocument } = require('pdf-lib');
 const axios = require('axios');
@@ -31,9 +32,30 @@ const getPuppeteerOptions = () => {
   return options;
 };
 
-// 템플릿 경로 (backend/pdfform 안에 위치)
-const TEMPLATE_DIR = path.join(__dirname, '../../pdfform/templates');
-const IMAGE_ASSET_DIR = path.join(__dirname, '../../pdfform/image-asset');
+// 템플릿 경로 동적 탐지 (Railway/Docker/로컬 환경 모두 지원)
+const findPdfformPath = () => {
+  const possiblePaths = [
+    path.join(__dirname, '../../pdfform'),           // backend/src/services -> backend/pdfform
+    path.join(__dirname, '../pdfform'),              // 다른 가능한 위치
+    path.join(process.cwd(), 'pdfform'),             // CWD 기준
+    '/app/pdfform',                                   // Docker/Railway 절대경로
+  ];
+
+  for (const p of possiblePaths) {
+    if (fsSync.existsSync(p)) {
+      console.log(`✅ pdfform found at: ${p}`);
+      return p;
+    }
+  }
+
+  console.error('❌ pdfform folder not found in any of:', possiblePaths);
+  // 기본값 반환 (에러 메시지를 위해)
+  return path.join(__dirname, '../../pdfform');
+};
+
+const PDFFORM_DIR = findPdfformPath();
+const TEMPLATE_DIR = path.join(PDFFORM_DIR, 'templates');
+const IMAGE_ASSET_DIR = path.join(PDFFORM_DIR, 'image-asset');
 
 // 카카오 맵 API 키
 const KAKAO_REST_API_KEY = process.env.KAKAO_REST_API_KEY;

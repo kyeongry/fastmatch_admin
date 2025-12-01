@@ -8,18 +8,45 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 // 디버깅: 폴더 구조 확인
+console.log('========== DIRECTORY DEBUG START ==========');
 console.log('📁 Current working directory:', process.cwd());
 console.log('📁 __dirname:', __dirname);
-const pdfformPath = path.join(process.cwd(), 'pdfform');
-console.log('📁 pdfform path:', pdfformPath);
-console.log('📁 pdfform exists:', fs.existsSync(pdfformPath));
-if (fs.existsSync(pdfformPath)) {
-  console.log('📁 pdfform contents:', fs.readdirSync(pdfformPath));
-  const templatesPath = path.join(pdfformPath, 'templates');
-  if (fs.existsSync(templatesPath)) {
-    console.log('📁 templates contents:', fs.readdirSync(templatesPath));
+
+// 현재 디렉토리의 모든 파일/폴더 나열
+try {
+  const cwdContents = fs.readdirSync(process.cwd());
+  console.log('📁 CWD contents:', cwdContents);
+} catch (e) {
+  console.log('❌ Cannot read CWD:', e.message);
+}
+
+// pdfform 경로 체크 (여러 가능한 위치)
+const possiblePaths = [
+  path.join(process.cwd(), 'pdfform'),
+  path.join(__dirname, '../pdfform'),
+  path.join(__dirname, '../../pdfform'),
+  '/app/pdfform',
+];
+
+console.log('📁 Checking possible pdfform paths:');
+let foundPdfformPath = null;
+for (const p of possiblePaths) {
+  const exists = fs.existsSync(p);
+  console.log(`  - ${p}: ${exists ? '✅ EXISTS' : '❌ NOT FOUND'}`);
+  if (exists && !foundPdfformPath) {
+    foundPdfformPath = p;
+    try {
+      console.log(`    Contents: ${fs.readdirSync(p).join(', ')}`);
+      const templatesPath = path.join(p, 'templates');
+      if (fs.existsSync(templatesPath)) {
+        console.log(`    Templates: ${fs.readdirSync(templatesPath).join(', ')}`);
+      }
+    } catch (e) {
+      console.log(`    Error reading: ${e.message}`);
+    }
   }
 }
+console.log('========== DIRECTORY DEBUG END ============');
 
 const app = express();
 

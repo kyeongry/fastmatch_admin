@@ -1,9 +1,12 @@
 [phases.setup]
 nixPkgs = ["nodejs_18", "chromium", "libuuid"]
-aptPkgs = ["chromium", "libnss3", "libatk1.0-0", "libatk-bridge2.0-0", "libcups2", "libdrm2", "libxkbcommon0", "libxcomposite1", "libxdamage1", "libxrandr2", "libgbm1", "libasound2"]
+aptPkgs = ["chromium", "libnss3", "libatk1.0-0", "libatk-bridge2.0-0", "libcups2", "libdrm2", "libxkbcommon0", "libxcomposite1", "libxdamage1", "libxrandr2", "libgbm1", "libasound2", "fonts-noto-cjk"]
 
 [phases.install]
 cmds = ["npm install"]
+
+[phases.build]
+cmds = ["echo '📁 Listing all files in current directory:' && ls -la", "echo '📁 Checking pdfform folder:' && ls -la pdfform/ || echo 'pdfform folder not found'", "echo '📁 Checking pdfform/templates:' && ls -la pdfform/templates/ || echo 'templates folder not found'"]
 
 [start]
 cmd = "npm start"
