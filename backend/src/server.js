@@ -9,7 +9,34 @@ const app = express();
 
 // Middlewares
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
+
+// CORS 설정 - 여러 도메인 허용
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  process.env.CORS_ORIGIN,
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // origin이 없는 경우 (서버 간 요청, Postman 등) 허용
+    if (!origin) return callback(null, true);
+
+    // Vercel 프리뷰 URL 패턴 허용
+    if (origin.includes('vercel.app') || origin.includes('fastmatch')) {
+      return callback(null, true);
+    }
+
+    // 허용된 origin 체크
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
