@@ -9,6 +9,28 @@ const path = require('path');
 const { PDFDocument } = require('pdf-lib');
 const axios = require('axios');
 
+// Puppeteer 실행 옵션 (Railway/Docker 환경 지원)
+const getPuppeteerOptions = () => {
+  const options = {
+    headless: 'new',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--disable-software-rasterizer',
+      '--disable-extensions',
+    ],
+  };
+
+  // Railway/Docker 환경에서 Chromium 경로 설정
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    options.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+
+  return options;
+};
+
 // 템플릿 경로
 const TEMPLATE_DIR = path.join(__dirname, '../../../pdfform/templates');
 const IMAGE_ASSET_DIR = path.join(__dirname, '../../../pdfform/image-asset');
@@ -330,10 +352,7 @@ const fetchKakaoMapImage = async (latitude, longitude) => {
       </html>
     `;
 
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    browser = await puppeteer.launch(getPuppeteerOptions());
 
     const page = await browser.newPage();
 
@@ -577,15 +596,7 @@ const htmlToPdf = async (html, options = {}) => {
   let browser = null;
 
   try {
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-      ],
-    });
+    browser = await puppeteer.launch(getPuppeteerOptions());
 
     const page = await browser.newPage();
 
