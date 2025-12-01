@@ -25,11 +25,14 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 WORKDIR /app
 
 # 패키지 파일 복사 및 설치
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm install --production
 
-# 소스 코드 복사
-COPY . .
+# 백엔드 소스 코드 복사
+COPY backend/ ./
+
+# PDF 템플릿 복사 (pdfform 폴더)
+COPY pdfform/ ./pdfform/
 
 # 포트 노출
 EXPOSE 5000

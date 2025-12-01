@@ -31,9 +31,13 @@ const getPuppeteerOptions = () => {
   return options;
 };
 
-// 템플릿 경로
-const TEMPLATE_DIR = path.join(__dirname, '../../../pdfform/templates');
-const IMAGE_ASSET_DIR = path.join(__dirname, '../../../pdfform/image-asset');
+// 템플릿 경로 (로컬: ../../../pdfform, Docker: ./pdfform)
+const TEMPLATE_DIR = process.env.NODE_ENV === 'production'
+  ? path.join(process.cwd(), 'pdfform/templates')
+  : path.join(__dirname, '../../../pdfform/templates');
+const IMAGE_ASSET_DIR = process.env.NODE_ENV === 'production'
+  ? path.join(process.cwd(), 'pdfform/image-asset')
+  : path.join(__dirname, '../../../pdfform/image-asset');
 
 // 카카오 맵 API 키
 const KAKAO_REST_API_KEY = process.env.KAKAO_REST_API_KEY;
