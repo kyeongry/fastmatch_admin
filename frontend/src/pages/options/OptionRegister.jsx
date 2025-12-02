@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/common/Layout';
 import Modal from '../../components/common/Modal';
@@ -59,6 +59,9 @@ const OptionRegister = () => {
   const [showOtherInfoModal, setShowOtherInfoModal] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
 
+  // 업로드 중복 방지를 위한 ref
+  const uploadInProgressRef = useRef(false);
+
   useEffect(() => {
     fetchBrands();
   }, []);
@@ -72,6 +75,13 @@ const OptionRegister = () => {
   // 평면도 입력 필드에 paste 이벤트 리스너 추가
   useEffect(() => {
     const handlePaste = async (e) => {
+      // 업로드 중이면 무시
+      if (uploadInProgressRef.current) {
+        e.preventDefault();
+        warning('이미지 업로드 중입니다. 완료 후 다시 시도해주세요.');
+        return;
+      }
+
       const items = e.clipboardData?.items;
       if (!items) return;
 
@@ -81,9 +91,15 @@ const OptionRegister = () => {
         // 이미지 파일인 경우
         if (item.type.indexOf('image') !== -1) {
           e.preventDefault();
+          e.stopPropagation();
           const blob = item.getAsFile();
           if (blob) {
-            await handleFloorPlanUpload(blob);
+            uploadInProgressRef.current = true;
+            try {
+              await handleFloorPlanUpload(blob);
+            } finally {
+              uploadInProgressRef.current = false;
+            }
           }
           return;
         }
