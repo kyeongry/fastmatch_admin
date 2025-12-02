@@ -69,7 +69,8 @@
       "Bash(git commit:*)",
       "Bash(git -C \"C:\\fastmatch-02\" status --short)",
       "Bash(git -C:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(timeout /t 1)"
     ],
     "deny": [],
     "ask": []
