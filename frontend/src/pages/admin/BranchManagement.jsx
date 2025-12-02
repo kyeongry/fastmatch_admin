@@ -273,117 +273,11 @@ const BranchManagement = () => {
     }
   }, [newBranch.latitude, newBranch.longitude, showAddModal]);
 
-// 클립보드 붙여넣기 핸들러를 위한 ref (상태 변경 시 리스너 재등록 방지)
-  const pasteStateRef = useRef({
-    showEditModal: false,
-    newBranch: null,
-    editBranch: null,
-    hoveredSection: null,
+// 업로드 중복 방지를 위한 ref
+  const uploadInProgressRef = useRef({
+    exterior: false,
+    interior: false,
   });
-
-  // ref 업데이트 (리렌더링 시마다)
-  useEffect(() => {
-    pasteStateRef.current = {
-      showEditModal,
-      newBranch,
-      editBranch,
-      hoveredSection,
-    };
-  }, [showEditModal, newBranch, editBranch, hoveredSection]);
-
-  // 클립보드 붙여넣기 핸들러
-  useEffect(() => {
-    const handlePaste = async (e) => {
-      // 모달이 열려있을 때만 처리
-      if (!showAddModal && !showEditModal) return;
-
-      // ref에서 최신 상태 읽기
-      const { showEditModal: isEditMode, newBranch: currentNewBranch, editBranch: currentEditBranch, hoveredSection: currentHoveredSection } = pasteStateRef.current;
-
-      const branch = isEditMode ? currentEditBranch : currentNewBranch;
-      const setBranch = isEditMode ? setEditBranch : setNewBranch;
-
-      const items = e.clipboardData?.items;
-      if (!items) return;
-
-      // 이미지 파일 하나만 처리 (중복 방지)
-      let imageFile = null;
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        if (item.type.indexOf('image') !== -1) {
-          imageFile = item.getAsFile();
-          break; // 첫 번째 이미지만 처리
-        }
-      }
-
-      if (!imageFile) return;
-
-      e.preventDefault();
-
-      // 마우스가 올라가 있는 섹션에 우선적으로 붙여넣기
-      let type = currentHoveredSection;
-
-      // 마우스가 올라가 있지 않다면 기존 로직(빈 곳 채우기) 유지하지 않고, 명시적으로 경고
-      if (!type) {
-        warning('이미지를 붙여넣으려면 해당 영역(외관 또는 내부) 위에 마우스를 올려주세요.');
-        return;
-      }
-
-      // 외관 이미지가 이미 있는데 외관에 붙여넣으려 할 때
-      if (type === 'exterior' && branch.exterior_image_url) {
-        if (!window.confirm('이미 외관 이미지가 있습니다. 덮어쓰시겠습니까?')) {
-          return;
-        }
-      }
-
-      // 내부 이미지가 꽉 찼는데 내부에 붙여넣으려 할 때
-      if (type === 'interior' && branch.interior_image_urls.length >= 4) {
-        warning('내부 이미지는 최대 4장까지만 등록 가능합니다.');
-        return;
-      }
-
-      if (type === 'exterior') {
-        setUploadingExterior(true);
-      } else {
-        setUploadingInterior(prev => [...prev, imageFile.name]);
-      }
-
-      try {
-        const response = await uploadAPI.image(imageFile);
-        const imageUrl = response.data?.image?.url || response.data?.url;
-        if (imageUrl) {
-          if (type === 'exterior') {
-            setBranch(prev => ({ ...prev, exterior_image_url: imageUrl }));
-            success('외관 이미지가 업로드되었습니다');
-          } else {
-            setBranch(prev => ({
-              ...prev,
-              interior_image_urls: [...prev.interior_image_urls, imageUrl],
-            }));
-            success('내부 이미지가 업로드되었습니다');
-          }
-        } else {
-          error('이미지 URL을 가져올 수 없습니다');
-        }
-      } catch (err) {
-        console.error('이미지 업로드 실패:', err);
-        error(err.response?.data?.message || '이미지 업로드에 실패했습니다');
-      } finally {
-        if (type === 'exterior') {
-          setUploadingExterior(false);
-        } else {
-          setUploadingInterior(prev => prev.filter(name => name !== imageFile.name));
-        }
-      }
-    };
-
-    if (showAddModal || showEditModal) {
-      window.addEventListener('paste', handlePaste);
-      return () => {
-        window.removeEventListener('paste', handlePaste);
-      };
-    }
-  }, [showAddModal, showEditModal]); // 의존성에서 newBranch, editBranch, hoveredSection 제거
 
 
   const fetchBranches = async () => {
@@ -1105,14 +999,29 @@ const BranchManagement = () => {
               }
             }}
             onPaste={async (e) => {
+              // 업로드 중이면 무시
+              if (uploadInProgressRef.current.exterior) {
+                e.preventDefault();
+                warning('외관 이미지 업로드 중입니다. 완료 후 다시 시도해주세요.');
+                return;
+              }
+
               const items = e.clipboardData?.items;
               if (!items) return;
               for (let i = 0; i < items.length; i++) {
                 const item = items[i];
                 if (item.type.startsWith('image/')) {
                   e.preventDefault();
+                  e.stopPropagation();
                   const blob = item.getAsFile();
-                  if (blob) await handleImageUpload(blob, 'exterior');
+                  if (blob) {
+                    uploadInProgressRef.current.exterior = true;
+                    try {
+                      await handleImageUpload(blob, 'exterior');
+                    } finally {
+                      uploadInProgressRef.current.exterior = false;
+                    }
+                  }
                   return;
                 }
                 if (item.type === 'text/plain') {
@@ -1220,18 +1129,33 @@ const BranchManagement = () => {
               }
             }}
             onPaste={async (e) => {
+              // 업로드 중이면 무시
+              if (uploadInProgressRef.current.interior) {
+                e.preventDefault();
+                warning('내부 이미지 업로드 중입니다. 완료 후 다시 시도해주세요.');
+                return;
+              }
+
               const items = e.clipboardData?.items;
               if (!items) return;
               for (let i = 0; i < items.length; i++) {
                 const item = items[i];
                 if (item.type.startsWith('image/')) {
                   e.preventDefault();
+                  e.stopPropagation();
                   if (branch.interior_image_urls.length >= 4) {
                     warning('내부 이미지는 최대 4장까지만 등록 가능합니다.');
                     return;
                   }
                   const blob = item.getAsFile();
-                  if (blob) await handleImageUpload(blob, 'interior');
+                  if (blob) {
+                    uploadInProgressRef.current.interior = true;
+                    try {
+                      await handleImageUpload(blob, 'interior');
+                    } finally {
+                      uploadInProgressRef.current.interior = false;
+                    }
+                  }
                   return;
                 }
                 if (item.type === 'text/plain') {

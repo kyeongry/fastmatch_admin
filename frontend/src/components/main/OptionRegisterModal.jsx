@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Modal from '../common/Modal';
 import { brandAPI, branchAPI, optionAPI, uploadAPI } from '../../services/api';
 import { useToast } from '../../hooks/useToast';
@@ -58,6 +58,9 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
   // 기타 정보 팝업 상태
   const [showOtherInfoModal, setShowOtherInfoModal] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
+
+  // 업로드 중복 방지를 위한 ref
+  const uploadInProgressRef = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -124,59 +127,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
     }
   }, [formData.brand_id]);
 
-  // 클립보드 붙여넣기 핸들러 (모달이 열려있을 때만 동작)
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handlePaste = async (e) => {
-      // input, textarea 등에서의 붙여넣기는 기본 동작 허용
-      const activeEl = document.activeElement;
-      const isInputFocused = activeEl && (
-        activeEl.tagName === 'INPUT' ||
-        activeEl.tagName === 'TEXTAREA' ||
-        activeEl.isContentEditable
-      );
-
-      // 이미지 업로드 영역에 포커스가 있거나, 일반 영역에서 붙여넣기한 경우에만 처리
-      const items = e.clipboardData?.items;
-      if (!items) return;
-
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-
-        // 이미지 파일인 경우 (input에 포커스가 없을 때만)
-        if (item.type.startsWith('image/') && !isInputFocused) {
-          e.preventDefault();
-          const blob = item.getAsFile();
-          if (blob) {
-            try {
-              await handleFloorPlanUpload(blob);
-              success('클립보드 이미지가 업로드되었습니다');
-            } catch (err) {
-              console.error('Upload failed:', err);
-              error('이미지 업로드에 실패했습니다');
-            }
-          }
-          return;
-        }
-
-        // URL 텍스트인 경우 (input에 포커스가 없을 때만)
-        if (item.type === 'text/plain' && !isInputFocused) {
-          item.getAsString((text) => {
-            if (text && (text.startsWith('http://') || text.startsWith('https://')) &&
-                (text.match(/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i) || text.includes('image'))) {
-              e.preventDefault();
-              setFormData(prev => ({ ...prev, floor_plan_url: text.trim() }));
-              success('이미지 URL이 입력되었습니다');
-            }
-          });
-        }
-      }
-    };
-
-    window.addEventListener('paste', handlePaste);
-    return () => window.removeEventListener('paste', handlePaste);
-  }, [isOpen]);
+  // 전역 클립보드 붙여넣기 핸들러 제거됨 - 개별 영역의 onPaste 핸들러만 사용
 
   const fetchBrands = async () => {
     try {
@@ -1203,6 +1154,13 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       }
                     }}
                     onPaste={async (e) => {
+                      // 업로드 중이면 무시
+                      if (uploadInProgressRef.current) {
+                        e.preventDefault();
+                        warning('이미지 업로드 중입니다. 완료 후 다시 시도해주세요.');
+                        return;
+                      }
+
                       const items = e.clipboardData?.items;
                       if (!items) return;
 
@@ -1211,9 +1169,15 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                         // 이미지 파일인 경우
                         if (item.type.startsWith('image/')) {
                           e.preventDefault();
+                          e.stopPropagation();
                           const blob = item.getAsFile();
                           if (blob) {
-                            await handleFloorPlanUpload(blob);
+                            uploadInProgressRef.current = true;
+                            try {
+                              await handleFloorPlanUpload(blob);
+                            } finally {
+                              uploadInProgressRef.current = false;
+                            }
                           }
                           return;
                         }
