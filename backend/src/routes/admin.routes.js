@@ -9,6 +9,10 @@ const {
   getOptionData,
   getProposalData,
   getActivities,
+  getUsage,
+  getUserList,
+  getUserDetail,
+  updateUserInfo,
 } = require('../controllers/admin.controller');
 
 // 모든 라우트에 인증 + Admin 권한 필요
@@ -38,5 +42,18 @@ router.get('/stats/proposals', getProposalData);
 // GET /api/admin/activities?limit=10 - 최근 활동
 // 기본값: 10개, 최대: 50개
 router.get('/activities', getActivities);
+
+// GET /api/admin/usage - 서비스 사용량 조회
+// Cloudinary, MongoDB, Railway, Vercel 사용량
+router.get('/usage', getUsage);
+
+// GET /api/admin/users - 사용자 목록 조회
+router.get('/users', getUserList);
+
+// GET /api/admin/users/:id - 사용자 상세 조회
+router.get('/users/:id', getUserDetail);
+
+// PUT /api/admin/users/:id - 사용자 정보 업데이트
+router.put('/users/:id', updateUserInfo);
 
 module.exports = router;

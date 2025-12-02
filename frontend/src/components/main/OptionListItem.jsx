@@ -92,13 +92,18 @@ const OptionListItem = ({
           </div>
 
           {/* 가격 정보 */}
-          <div className="w-28 lg:w-32 flex-shrink-0 text-right">
+          <div className="w-32 lg:w-40 flex-shrink-0 text-right">
             <div className="text-sm font-semibold text-blue-600">
               {formatPrice(option.monthly_fee)}
             </div>
             <div className="text-xs text-gray-500">
               보증금 {formatPrice(option.deposit)}
             </div>
+            {option.capacity > 0 && (
+              <div className="text-xs text-gray-400">
+                인당 {formatPrice(Math.round(option.monthly_fee / option.capacity))}
+              </div>
+            )}
           </div>
 
           {/* 입주일/계약기간 */}

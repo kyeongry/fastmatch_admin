@@ -218,6 +218,11 @@ export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
   getStatistics: () => api.get('/admin/statistics'),
   getActivities: () => api.get('/admin/activities'),
+  getUsageStats: () => api.get('/admin/usage'),
+  // 사용자 관리
+  getUsers: (params) => api.get('/admin/users', { params }),
+  getUserById: (id) => api.get(`/admin/users/${id}`),
+  updateUser: (id, data) => api.put(`/admin/users/${id}`, data),
 };
 
 export default api;

@@ -512,6 +512,8 @@ const FilterBar = ({ filters, onFilterChange }) => {
             <option value="oldest">오래된순</option>
             <option value="price_low">가격 낮은순</option>
             <option value="price_high">가격 높은순</option>
+            <option value="price_per_person_low">인당 평단가 낮은순</option>
+            <option value="price_per_person_high">인당 평단가 높은순</option>
           </select>
         </div>
       </div>

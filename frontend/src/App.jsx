@@ -33,6 +33,7 @@ import BrandManagement from './pages/admin/BrandManagement';
 import ManagerManagement from './pages/admin/ManagerManagement';
 import BranchManagement from './pages/admin/BranchManagement';
 import DeleteRequestManagement from './pages/admin/DeleteRequestManagement';
+import UserManagement from './pages/admin/UserManagement';
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
               <Route path="/admin/managers" element={<ManagerManagement />} />
               <Route path="/admin/branches" element={<BranchManagement />} />
               <Route path="/admin/delete-requests" element={<DeleteRequestManagement />} />
+              <Route path="/admin/users" element={<UserManagement />} />
             </Route>
 
             {/* Fallback */}

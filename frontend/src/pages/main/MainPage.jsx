@@ -22,6 +22,7 @@ const MainPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteReason, setDeleteReason] = useState('');
   const [deletingOptionId, setDeletingOptionId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingOption, setEditingOption] = useState(null);
@@ -121,6 +122,7 @@ const MainPage = () => {
   };
 
   const handleDeleteRequest = (optionId) => {
+    if (deleteModalOpen || isDeleting) return; // 중복 클릭 방지
     setDeletingOptionId(optionId);
     setDeleteModalOpen(true);
   };
@@ -135,6 +137,9 @@ const MainPage = () => {
       return;
     }
 
+    if (isDeleting) return; // 중복 클릭 방지
+
+    setIsDeleting(true);
     try {
       await optionAPI.requestDelete(deletingOptionId, { reason: deleteReason });
       success('삭제 요청이 완료되었습니다');
@@ -145,6 +150,8 @@ const MainPage = () => {
     } catch (err) {
       console.error('삭제 요청 실패:', err);
       error(err.response?.data?.message || '삭제 요청에 실패했습니다');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -358,6 +365,8 @@ const MainPage = () => {
         onComplete={handleComplete}
         onReactivate={handleReactivate}
         onCancelDeleteRequest={handleCancelDeleteRequest}
+        onDelete={handleDeleteRequest}
+        onUpdate={fetchOptions}
       />
 
       {/* 삭제 요청 모달 */}
@@ -413,9 +422,17 @@ const MainPage = () => {
               variant="danger"
               fullWidth
               onClick={submitDeleteRequest}
-              disabled={!deleteReason.trim()}
+              disabled={!deleteReason.trim() || isDeleting}
             >
-              삭제 요청
+              {isDeleting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  삭제 요청 중...
+                </span>
+              ) : '삭제 요청'}
             </Button>
           </div>
         </div>

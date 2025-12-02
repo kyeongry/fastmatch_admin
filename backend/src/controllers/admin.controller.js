@@ -5,6 +5,10 @@ const {
   getOptionStats,
   getProposalStats,
   getRecentActivities,
+  getUsageStats,
+  getUsers,
+  getUserById,
+  updateUser,
 } = require('../services/admin.service');
 
 /**
@@ -114,12 +118,100 @@ const getActivities = async (req, res, next) => {
       });
     }
 
-    const activities = await getRecentActivities(activityLimit);
+    const result = await getRecentActivities(activityLimit);
 
     res.json({
       success: true,
-      count: activities.length,
-      activities,
+      count: result.activities.length,
+      activities: result.activities,
+      recentOptions: result.recentOptions,
+      recentDeleteRequests: result.recentDeleteRequests,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * 서비스 사용량 조회
+ */
+const getUsage = async (req, res, next) => {
+  try {
+    const usage = await getUsageStats();
+
+    res.json({
+      success: true,
+      usage,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * 사용자 목록 조회
+ */
+const getUserList = async (req, res, next) => {
+  try {
+    const { page, pageSize, search, status } = req.query;
+    const filters = {
+      page: page ? parseInt(page) : 1,
+      pageSize: pageSize ? parseInt(pageSize) : 20,
+      search,
+      status,
+    };
+
+    const result = await getUsers(filters);
+
+    res.json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * 사용자 상세 조회
+ */
+const getUserDetail = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await getUserById(id);
+
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * 사용자 정보 업데이트 (관리자 권한 등)
+ */
+const updateUserInfo = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // 허용된 필드만 업데이트
+    const allowedFields = ['role', 'status', 'name', 'phone'];
+    const filteredData = {};
+    for (const field of allowedFields) {
+      if (updateData[field] !== undefined) {
+        filteredData[field] = updateData[field];
+      }
+    }
+
+    const user = await updateUser(id, filteredData);
+
+    res.json({
+      success: true,
+      user,
+      message: '사용자 정보가 업데이트되었습니다',
     });
   } catch (error) {
     next(error);
@@ -133,4 +225,8 @@ module.exports = {
   getOptionData,
   getProposalData,
   getActivities,
+  getUsage,
+  getUserList,
+  getUserDetail,
+  updateUserInfo,
 };

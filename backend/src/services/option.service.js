@@ -63,6 +63,9 @@ const getOptions = async (filters = {}) => {
     ];
   }
 
+  // 인당 평단가 정렬을 위한 플래그
+  const needsPricePerPerson = sort === 'price_per_person_low' || sort === 'price_per_person_high';
+
   const sortBy =
     sort === 'latest'
       ? { created_at: -1 }
@@ -70,49 +73,74 @@ const getOptions = async (filters = {}) => {
         ? { created_at: 1 }
         : sort === 'price_low'
           ? { monthly_fee: 1 }
-          : { monthly_fee: -1 };
+          : sort === 'price_high'
+            ? { monthly_fee: -1 }
+            : sort === 'price_per_person_low'
+              ? { price_per_person: 1 }
+              : sort === 'price_per_person_high'
+                ? { price_per_person: -1 }
+                : { created_at: -1 };
 
-  const [options, total] = await Promise.all([
-    db.collection('options')
-      .aggregate([
-        { $match: query },
-        {
-          $lookup: {
-            from: 'branches',
-            localField: 'branch_id',
-            foreignField: '_id',
-            as: 'branch'
-          }
-        },
-        { $unwind: { path: '$branch', preserveNullAndEmptyArrays: true } },
-        {
-          $lookup: {
-            from: 'brands',
-            localField: 'branch.brand_id',
-            foreignField: '_id',
-            as: 'branch.brand'
-          }
-        },
-        { $unwind: { path: '$branch.brand', preserveNullAndEmptyArrays: true } },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'creator_id',
-            foreignField: '_id',
-            as: 'creator'
-          }
-        },
-        { $unwind: { path: '$creator', preserveNullAndEmptyArrays: true } },
-        { $sort: sortBy },
-        { $skip: skip },
-        { $limit: pageSize },
-        {
-          $project: {
-            'creator.password': 0
+  // aggregation 파이프라인 구성
+  const pipeline = [
+    { $match: query },
+    {
+      $lookup: {
+        from: 'branches',
+        localField: 'branch_id',
+        foreignField: '_id',
+        as: 'branch'
+      }
+    },
+    { $unwind: { path: '$branch', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'brands',
+        localField: 'branch.brand_id',
+        foreignField: '_id',
+        as: 'branch.brand'
+      }
+    },
+    { $unwind: { path: '$branch.brand', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'creator_id',
+        foreignField: '_id',
+        as: 'creator'
+      }
+    },
+    { $unwind: { path: '$creator', preserveNullAndEmptyArrays: true } },
+  ];
+
+  // 인당 평단가 계산 필드 추가 (정렬에 필요한 경우)
+  if (needsPricePerPerson) {
+    pipeline.push({
+      $addFields: {
+        price_per_person: {
+          $cond: {
+            if: { $gt: ['$capacity', 0] },
+            then: { $divide: ['$monthly_fee', '$capacity'] },
+            else: '$monthly_fee'
           }
         }
-      ])
-      .toArray(),
+      }
+    });
+  }
+
+  pipeline.push(
+    { $sort: sortBy },
+    { $skip: skip },
+    { $limit: pageSize },
+    {
+      $project: {
+        'creator.password': 0
+      }
+    }
+  );
+
+  const [options, total] = await Promise.all([
+    db.collection('options').aggregate(pipeline).toArray(),
     db.collection('options').countDocuments(query)
   ]);
 
@@ -434,19 +462,10 @@ const cancelDeleteRequest = async (id, userId, userRole) => {
     { returnDocument: 'after' }
   );
 
-  // 해당 옵션의 pending 상태 삭제 요청 레코드 삭제 또는 취소 처리
-  await db.collection('delete_requests').updateMany(
-    {
-      option_id: new ObjectId(id),
-      status: 'pending'
-    },
-    {
-      $set: {
-        status: 'cancelled',
-        updated_at: new Date()
-      }
-    }
-  );
+  // 해당 옵션의 삭제 요청 레코드 삭제
+  await db.collection('delete_requests').deleteMany({
+    option_id: new ObjectId(id)
+  });
 
   return updatedOption.value;
 };
