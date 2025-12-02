@@ -311,20 +311,28 @@ const sendProposalEmails = async (proposalRequest, user, brandIds, sendType) => 
       }
 
       try {
+        // CC 이메일 목록 구성 (사용자 이메일 필수 포함)
+        const ccEmails = [];
+        if (manager?.cc_email) ccEmails.push(manager.cc_email);
+        ccEmails.push('official@fastmatch.kr');
+        if (user?.email) ccEmails.push(user.email);
+
+        console.log(`📧 이메일 발송 준비: to=${toEmail}, cc=${ccEmails.join(', ')}, user.email=${user?.email}`);
+
         await sendProposalRequestEmail(
           {
             to: toEmail,
-            cc: [manager?.cc_email, 'official@fastmatch.kr'].filter(Boolean),
-            replyTo: user.email,
+            cc: ccEmails,
+            replyTo: user?.email || 'official@fastmatch.kr',
             subject: generateEmailSubject(sendType, proposalRequest.company_name),
             brand: brand.name,
             manager: manager?.name || '', // 담당자가 없으면 빈 문자열
             ...proposalRequest,
-            requester_name: user.name,
-            requester_name_en: user.name_en,
-            requester_position: user.position,
-            requester_phone: user.phone,
-            requester_email: user.email,
+            requester_name: user?.name || '',
+            requester_name_en: user?.name_en || '',
+            requester_position: user?.position || '',
+            requester_phone: user?.phone || '',
+            requester_email: user?.email || '',
           },
           sendType
         );
