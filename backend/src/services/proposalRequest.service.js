@@ -311,10 +311,10 @@ const sendProposalEmails = async (proposalRequest, user, brandIds, sendType) => 
       }
 
       try {
-        // CC 이메일 목록 구성 (사용자 이메일 필수 포함)
+        // CC 이메일 목록 구성
         const ccEmails = [];
         if (manager?.cc_email) ccEmails.push(manager.cc_email);
-        if (user?.email) ccEmails.push(user.email);
+        ccEmails.push('lm@fastmatch.kr');
 
         console.log(`📧 이메일 발송 준비: to=${toEmail}, cc=${ccEmails.join(', ')}, user.email=${user?.email}`);
 
