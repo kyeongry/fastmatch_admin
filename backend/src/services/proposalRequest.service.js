@@ -314,7 +314,6 @@ const sendProposalEmails = async (proposalRequest, user, brandIds, sendType) => 
         // CC 이메일 목록 구성 (사용자 이메일 필수 포함)
         const ccEmails = [];
         if (manager?.cc_email) ccEmails.push(manager.cc_email);
-        ccEmails.push('official@fastmatch.kr');
         if (user?.email) ccEmails.push(user.email);
 
         console.log(`📧 이메일 발송 준비: to=${toEmail}, cc=${ccEmails.join(', ')}, user.email=${user?.email}`);
