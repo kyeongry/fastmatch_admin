@@ -24,6 +24,8 @@ const list = async (req, res, next) => {
       creator_ids: Array.isArray(creatorIds) ? creatorIds : creatorIds ? [creatorIds] : undefined,
       status: req.query.status,
       search: req.query.search,
+      min_capacity: req.query.min_capacity,
+      max_capacity: req.query.max_capacity,
       sort: req.query.sort || 'latest',
       page: parseInt(req.query.page) || 1,
       pageSize: parseInt(req.query.pageSize) || 20,
