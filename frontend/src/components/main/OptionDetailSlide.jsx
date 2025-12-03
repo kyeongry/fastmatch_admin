@@ -691,11 +691,11 @@ const OptionDetailSlide = ({
               {renderEditableField('주차메모', 'parking_note')}
 
               {/* 크레딧 표시 */}
-              {option.credits && option.credits.length > 0 && (
-                <div className="flex">
-                  <span className="text-gray-600 w-32">크레딧:</span>
-                  <div className="flex-1">
-                    {option.credits.map((credit, idx) => (
+              <div className="flex">
+                <span className="text-gray-600 w-32">크레딧:</span>
+                <div className="flex-1">
+                  {option.credits && Array.isArray(option.credits) && option.credits.length > 0 ? (
+                    option.credits.map((credit, idx) => (
                       <div key={idx} className="font-semibold">
                         {credit.type === 'monthly' && '월별 제공'}
                         {credit.type === 'printing' && '프린팅'}
@@ -704,10 +704,12 @@ const OptionDetailSlide = ({
                         : {credit.amount?.toLocaleString()}
                         {credit.note && ` (${credit.note})`}
                       </div>
-                    ))}
-                  </div>
+                    ))
+                  ) : (
+                    <span className="font-semibold">-</span>
+                  )}
                 </div>
-              )}
+              </div>
 
               {renderEditableField('오피스정보', 'office_info', 'textarea')}
             </div>

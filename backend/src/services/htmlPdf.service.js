@@ -798,46 +798,46 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0) => 
         }
       }
 
-      // 비고/특이사항 항목 - 최대 3개 항목을 줄바꿈으로 표시
+      // 비고/특이사항 항목 - 최대 4개 항목을 줄바꿈으로 표시
       const remarkItems = [];
 
-      // 텍스트(memo)가 있으면 최우선
-      if (option.memo && option.memo.trim()) {
-        remarkItems.push(option.memo.trim());
-      }
-
-      // 냉난방식 - 간단한 형식
+      // 1. 냉난방식
       if (option.hvac_type) {
         const hvacMap = {
-          'central': '중앙냉난방 제공',
-          'individual': '개별냉난방 제공',
+          'central': '• 중앙냉난방',
+          'individual': '• 개별냉난방',
         };
         if (hvacMap[option.hvac_type]) {
           remarkItems.push(hvacMap[option.hvac_type]);
         }
       }
 
-      // 주차방식 - 간단한 형식
+      // 2. 주차방식
       if (option.parking_type) {
         const parkingMap = {
-          'self_parking': '자주식 주차 제공',
-          'mechanical': '기계식 주차 제공',
+          'self_parking': '• 자주식 주차',
+          'mechanical': '• 기계식 주차',
         };
         if (parkingMap[option.parking_type]) {
           remarkItems.push(parkingMap[option.parking_type]);
         }
       }
 
-      // 크레딧 - formatters.credits 사용
-      if (option.credits && (Array.isArray(option.credits) ? option.credits.length > 0 : true)) {
+      // 3. 크레딧
+      if (option.credits && Array.isArray(option.credits) && option.credits.length > 0) {
         const creditText = formatters.credits(option.credits);
         if (creditText) {
-          remarkItems.push(creditText);
+          remarkItems.push(`• ${creditText}`);
         }
       }
 
-      // 최대 3개 항목을 줄바꿈으로 연결
-      const remarkText = remarkItems.slice(0, 3).join('\n');
+      // 4. 메모 (있으면 마지막에 추가)
+      if (option.memo && option.memo.trim()) {
+        remarkItems.push(`• ${option.memo.trim()}`);
+      }
+
+      // 최대 4개 항목을 줄바꿈으로 연결
+      const remarkText = remarkItems.slice(0, 4).join('\n');
 
       // 브랜드 약어 생성
       const brandName = option.branch?.brand?.name || '';
@@ -946,15 +946,10 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
   const latitude = option.branch?.latitude || '';
   const longitude = option.branch?.longitude || '';
 
-  // 비고 항목 우선순위 적용 (텍스트 → 냉난방식 → 주차방식 → 크레딧)
+  // 비고 항목 (냉난방식 → 주차방식 → 크레딧 → 메모 순서)
   const remarkItems = [];
 
-  // 텍스트(memo)가 있으면 최우선
-  if (option.memo && option.memo.trim()) {
-    remarkItems.push(option.memo.trim());
-  }
-
-  // 냉난방식 - 상세 설명 포함
+  // 1. 냉난방식 - 상세 설명 포함
   if (option.hvac_type) {
     const hvacMap = {
       'central': '중앙 냉난방식 제공으로 건물 운영시간 외 냉난방 사용 협의 필요',
@@ -965,7 +960,7 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
     }
   }
 
-  // 주차방식 - 상세 설명 포함
+  // 2. 주차방식 - 상세 설명 포함
   if (option.parking_type) {
     const parkingMap = {
       'self_parking': '자주식 주차 제공으로 편리한 주차환경 제공',
@@ -976,12 +971,17 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
     }
   }
 
-  // 크레딧 - formatters.credits 사용
-  if (option.credits && (Array.isArray(option.credits) ? option.credits.length > 0 : true)) {
+  // 3. 크레딧
+  if (option.credits && Array.isArray(option.credits) && option.credits.length > 0) {
     const creditText = formatters.credits(option.credits);
     if (creditText) {
       remarkItems.push(creditText);
     }
+  }
+
+  // 4. 메모 (있으면 마지막에 추가, 3번째 슬롯에)
+  if (option.memo && option.memo.trim() && remarkItems.length < 3) {
+    remarkItems.push(option.memo.trim());
   }
 
   // 브랜드 약어 생성
