@@ -276,11 +276,13 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
 
   const handleAddCredit = () => {
     if (newCredit.type && newCredit.amount) {
+      const creditToAdd = { type: newCredit.type, amount: parseInt(newCredit.amount), note: newCredit.note };
       setFormData((prev) => ({
         ...prev,
-        credits: [...prev.credits, { type: newCredit.type, amount: parseInt(newCredit.amount), note: newCredit.note }],
+        credits: [...prev.credits, creditToAdd],
       }));
       setNewCredit({ type: 'monthly', amount: '', note: '' });
+      setActiveSection(null); // 크레딧 추가 후 기타옵션 메뉴로 돌아감
     }
   };
 
