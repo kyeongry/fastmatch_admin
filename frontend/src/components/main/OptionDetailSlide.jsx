@@ -38,6 +38,9 @@ const OptionDetailSlide = ({
   const [hasChanges, setHasChanges] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  // 크레딧 추가용 상태
+  const [newCredit, setNewCredit] = useState({ type: 'monthly', amount: '', note: '' });
+
   // 권한 확인
   const isOwner = user && option && user.id === option.creator_id;
   const isAdmin = user && user.role === 'admin';
@@ -259,6 +262,26 @@ const OptionDetailSlide = ({
 
   const handleInputChange = (field, value) => {
     setEditData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // 크레딧 추가 핸들러
+  const handleAddCredit = () => {
+    if (newCredit.type && newCredit.amount) {
+      const creditToAdd = { type: newCredit.type, amount: parseInt(newCredit.amount), note: newCredit.note };
+      setEditData(prev => ({
+        ...prev,
+        credits: [...(prev.credits || []), creditToAdd],
+      }));
+      setNewCredit({ type: 'monthly', amount: '', note: '' });
+    }
+  };
+
+  // 크레딧 삭제 핸들러
+  const handleRemoveCredit = (index) => {
+    setEditData(prev => ({
+      ...prev,
+      credits: (prev.credits || []).filter((_, i) => i !== index),
+    }));
   };
 
   // 가격 입력 핸들러 (쉼표 자동 추가)
@@ -690,23 +713,86 @@ const OptionDetailSlide = ({
               {renderEditableField('주차', 'parking_type', 'select', parkingOptions)}
               {renderEditableField('주차메모', 'parking_note')}
 
-              {/* 크레딧 표시 */}
+              {/* 크레딧 표시/수정 */}
               <div className="flex">
                 <span className="text-gray-600 w-32">크레딧:</span>
                 <div className="flex-1">
-                  {option.credits && Array.isArray(option.credits) && option.credits.length > 0 ? (
-                    option.credits.map((credit, idx) => (
-                      <div key={idx} className="font-semibold">
-                        {credit.type === 'monthly' && '월별 제공'}
-                        {credit.type === 'printing' && '프린팅'}
-                        {credit.type === 'meeting_room' && '미팅룸'}
-                        {credit.type === 'other' && '기타'}
-                        : {credit.amount?.toLocaleString()}
-                        {credit.note && ` (${credit.note})`}
+                  {isEditMode ? (
+                    <div className="space-y-2">
+                      {/* 등록된 크레딧 목록 */}
+                      {editData.credits && editData.credits.length > 0 && (
+                        <div className="space-y-1">
+                          {editData.credits.map((credit, idx) => (
+                            <div key={idx} className="flex items-center justify-between bg-yellow-50 px-2 py-1 rounded text-sm">
+                              <span>
+                                {credit.type === 'monthly' && '월별 제공'}
+                                {credit.type === 'printing' && '프린팅'}
+                                {credit.type === 'meeting_room' && '미팅룸'}
+                                {credit.type === 'other' && '기타'}
+                                : {credit.amount?.toLocaleString()}
+                                {credit.note && ` (${credit.note})`}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveCredit(idx)}
+                                className="text-red-500 hover:text-red-700 ml-2"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* 새 크레딧 추가 */}
+                      <div className="flex gap-2 items-center flex-wrap">
+                        <select
+                          value={newCredit.type}
+                          onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
+                          className="px-2 py-1 border border-gray-300 rounded text-sm"
+                        >
+                          <option value="monthly">월별 제공</option>
+                          <option value="printing">프린팅</option>
+                          <option value="meeting_room">미팅룸</option>
+                          <option value="other">기타</option>
+                        </select>
+                        <input
+                          type="number"
+                          value={newCredit.amount}
+                          onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
+                          placeholder="수량"
+                          className="w-24 px-2 py-1 border border-gray-300 rounded text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={newCredit.note}
+                          onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
+                          placeholder="메모(선택)"
+                          className="flex-1 min-w-[80px] px-2 py-1 border border-gray-300 rounded text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddCredit}
+                          className="px-3 py-1 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600"
+                        >
+                          추가
+                        </button>
                       </div>
-                    ))
+                    </div>
                   ) : (
-                    <span className="font-semibold">-</span>
+                    option.credits && Array.isArray(option.credits) && option.credits.length > 0 ? (
+                      option.credits.map((credit, idx) => (
+                        <div key={idx} className="font-semibold">
+                          {credit.type === 'monthly' && '월별 제공'}
+                          {credit.type === 'printing' && '프린팅'}
+                          {credit.type === 'meeting_room' && '미팅룸'}
+                          {credit.type === 'other' && '기타'}
+                          : {credit.amount?.toLocaleString()}
+                          {credit.note && ` (${credit.note})`}
+                        </div>
+                      ))
+                    ) : (
+                      <span className="font-semibold">-</span>
+                    )
                   )}
                 </div>
               </div>
