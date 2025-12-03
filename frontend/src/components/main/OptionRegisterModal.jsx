@@ -242,8 +242,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
     }
 
     const filtered = branches.filter(branch =>
-      branch.name.toLowerCase().includes(query.toLowerCase()) ||
-      branch.address.toLowerCase().includes(query.toLowerCase())
+      branch.name.toLowerCase().includes(query.toLowerCase())
     );
     setFilteredBranches(filtered);
   };
