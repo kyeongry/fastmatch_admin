@@ -9,6 +9,8 @@ const getOptions = async (filters = {}) => {
     creator_ids,
     status,
     search,
+    min_capacity,
+    max_capacity,
     sort = 'latest',
     page = 1,
     pageSize = 20,
@@ -61,6 +63,17 @@ const getOptions = async (filters = {}) => {
       { name: new RegExp(search, 'i') },
       { 'branch.name': new RegExp(search, 'i') }
     ];
+  }
+
+  // 인원 범위 필터링
+  if (min_capacity || max_capacity) {
+    query.capacity = {};
+    if (min_capacity) {
+      query.capacity.$gte = parseInt(min_capacity, 10);
+    }
+    if (max_capacity) {
+      query.capacity.$lte = parseInt(max_capacity, 10);
+    }
   }
 
   // 인당 평단가 정렬을 위한 플래그

@@ -16,6 +16,10 @@ const FilterBar = ({ filters, onFilterChange }) => {
   const [branchNames, setBranchNames] = useState({});
   const [creatorNames, setCreatorNames] = useState({});
 
+  // 인원 범위 필터 상태
+  const [minCapacity, setMinCapacity] = useState(filters.minCapacity || '');
+  const [maxCapacity, setMaxCapacity] = useState(filters.maxCapacity || '');
+
   // 검색 상태
   const [searchText, setSearchText] = useState('');
   const [filteredItems, setFilteredItems] = useState([]);
@@ -259,6 +263,8 @@ const FilterBar = ({ filters, onFilterChange }) => {
       creators: [],
       search: '',
       sort: sortBy,
+      minCapacity: null,
+      maxCapacity: null,
       refresh: Date.now(),
     };
 
@@ -270,6 +276,10 @@ const FilterBar = ({ filters, onFilterChange }) => {
     setBranchNames({});
     setCreatorNames({});
 
+    // 인원 범위 초기화
+    setMinCapacity('');
+    setMaxCapacity('');
+
     // 활성 필터 타입 닫기
     setActiveFilterType(null);
     setSearchText('');
@@ -279,6 +289,30 @@ const FilterBar = ({ filters, onFilterChange }) => {
       onFilterChange(resetFilters);
     }
   };
+
+  // 인원 범위 필터 적용 (디바운스)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const min = minCapacity ? parseInt(minCapacity, 10) : null;
+      const max = maxCapacity ? parseInt(maxCapacity, 10) : null;
+
+      if (min !== filters.minCapacity || max !== filters.maxCapacity) {
+        onFilterChange({
+          ...filters,
+          minCapacity: min,
+          maxCapacity: max,
+        });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [minCapacity, maxCapacity]);
+
+  // 필터 상태가 외부에서 변경되면 로컬 상태도 업데이트
+  useEffect(() => {
+    setMinCapacity(filters.minCapacity || '');
+    setMaxCapacity(filters.maxCapacity || '');
+  }, [filters.minCapacity, filters.maxCapacity]);
 
   const handleSortChange = (newSort) => {
     setSortBy(newSort);
@@ -449,6 +483,52 @@ const FilterBar = ({ filters, onFilterChange }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
         </button>
+
+        {/* 인원 범위 필터 */}
+        <div className="flex items-center gap-2 ml-2">
+          <span className="text-sm text-gray-600 whitespace-nowrap">인원 범위:</span>
+          <div className="relative">
+            <input
+              type="number"
+              value={minCapacity}
+              onChange={(e) => setMinCapacity(e.target.value)}
+              placeholder="최소"
+              min="1"
+              className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center"
+            />
+            {minCapacity && (
+              <button
+                onClick={() => setMinCapacity('')}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+          <span className="text-gray-400">~</span>
+          <div className="relative">
+            <input
+              type="number"
+              value={maxCapacity}
+              onChange={(e) => setMaxCapacity(e.target.value)}
+              placeholder="최대"
+              min="1"
+              className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center"
+            />
+            {maxCapacity && (
+              <button
+                onClick={() => setMaxCapacity('')}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
 
         {/* 필터 태그들 */}
         {hasFilters && (

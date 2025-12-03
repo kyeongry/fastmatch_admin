@@ -47,6 +47,8 @@ const MainPage = () => {
           creators: parsed.creators || [],
           search: parsed.search || '',
           sort: savedSort || parsed.sort || 'latest',
+          minCapacity: parsed.minCapacity || null,
+          maxCapacity: parsed.maxCapacity || null,
         };
       } catch (e) {
         console.error('필터 상태 복원 실패:', e);
@@ -59,6 +61,8 @@ const MainPage = () => {
       creators: [],
       search: '',
       sort: savedSort || 'latest',
+      minCapacity: null,
+      maxCapacity: null,
     };
   });
 
@@ -73,6 +77,8 @@ const MainPage = () => {
     filters.search,
     filters.sort,
     filters.refresh,
+    filters.minCapacity,
+    filters.maxCapacity,
   ]);
 
   const fetchOptions = async () => {
@@ -83,6 +89,8 @@ const MainPage = () => {
         ...(filters.branches?.length > 0 && { branch_ids: filters.branches }),
         ...(filters.creators?.length > 0 && { creator_ids: filters.creators }),
         ...(filters.search && { search: filters.search }),
+        ...(filters.minCapacity && { min_capacity: filters.minCapacity }),
+        ...(filters.maxCapacity && { max_capacity: filters.maxCapacity }),
         sort: filters.sort || 'latest',
       };
 
