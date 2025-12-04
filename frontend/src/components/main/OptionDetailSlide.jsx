@@ -76,6 +76,8 @@ const OptionDetailSlide = ({
         contract_period_value: option.contract_period_value || '',
         hvac_type: option.hvac_type || '',
         parking_type: option.parking_type || '',
+        parking_count: option.parking_count || '',
+        parking_cost: option.parking_cost || '',
         parking_note: option.parking_note || '',
         office_info: option.office_info || '',
         memo: option.memo || '',
@@ -711,6 +713,8 @@ const OptionDetailSlide = ({
 
               {renderEditableField('냉난방', 'hvac_type', 'select', hvacOptions)}
               {renderEditableField('주차', 'parking_type', 'select', parkingOptions)}
+              {renderEditableField('주차 대수', 'parking_count', 'number')}
+              {renderEditableField('주차 비용', 'parking_cost', 'currency')}
               {renderEditableField('주차메모', 'parking_note')}
 
               {/* 크레딧 표시/수정 */}
