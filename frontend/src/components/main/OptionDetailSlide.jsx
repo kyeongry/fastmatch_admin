@@ -960,14 +960,22 @@ const OptionDetailSlide = ({
                   </div>
                 ) : (
                   <div
-                    className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+                    className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:bg-blue-50 transition-colors outline-none cursor-pointer"
+                    onClick={(e) => e.currentTarget.focus()}
                     onDragOver={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      e.currentTarget.classList.add('border-blue-500', 'bg-blue-50');
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
                     }}
                     onDrop={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
                       const files = e.dataTransfer.files;
                       if (files && files[0] && files[0].type.startsWith('image/')) {
                         const fakeEvent = { target: { files: [files[0]] } };
@@ -975,6 +983,11 @@ const OptionDetailSlide = ({
                       }
                     }}
                     onPaste={async (e) => {
+                      if (isUploading) {
+                        e.preventDefault();
+                        showError('업로드 중입니다. 잠시 후 다시 시도해주세요.');
+                        return;
+                      }
                       const items = e.clipboardData?.items;
                       if (!items) return;
                       for (let i = 0; i < items.length; i++) {
@@ -1028,7 +1041,7 @@ const OptionDetailSlide = ({
                       </div>
                     </div>
                     <p className="mt-2 text-xs text-gray-500">
-                      이미지를 드래그하거나, Ctrl+V로 붙여넣기하거나, 버튼을 클릭하세요
+                      이미지를 드래그하거나, 이 영역 클릭 후 Ctrl+V로 붙여넣기하거나, 버튼을 클릭하세요
                     </p>
                   </div>
                 )}
