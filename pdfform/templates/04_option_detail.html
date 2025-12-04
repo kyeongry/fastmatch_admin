@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>옵션 상세 - FastMatch 임차가능매물 제안서</title>
+    <title>?�션 ?�세 - FastMatch ?�차가?�매�??�안??/title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-    <!-- 카카오맵은 서버 사이드에서 정적 이미지로 삽입되므로 JavaScript SDK 불필요 -->
+    <!-- 카카?�맵?� ?�버 ?�이?�에???�적 ?��?지�??�입?��?�?JavaScript SDK 불필??-->
     <style>
         :root {
             --header-height: 38px;
@@ -26,22 +26,22 @@
             --photo-box-height: 314px;
             --map-box-height: 309px;
 
-            /* ===== 헤더 ===== */
+            /* ===== ?�더 ===== */
             --header-title-size: 11pt;
             --header-info-size: 8pt;
             --header-logo-height: 13px;
 
-            /* ===== 폰트 ===== */
+            /* ===== ?�트 ===== */
             --label-font-size: 9pt;
             --table-font-size: 8pt;
             --footer-font-size: 7pt;
 
-            /* ===== 기타 페이지 ===== */
+            /* ===== 기�? ?�이지 ===== */
             --photos-padding: 20px;
             --photos-gap: 10px;
             --floor-padding: 20px;
 
-            /* ===== 기존 변수 (호환성 유지) ===== */
+            /* ===== 기존 변??(?�환???��?) ===== */
             --color-primary: #FF6B35;
             --option-padding-x: 24px;
             --option-padding-y: 10px;
@@ -148,7 +148,7 @@
             height: 100%;
         }
 
-        /* === 옵션상세 === */
+        /* === ?�션?�세 === */
         .option-page .page-content {
             padding: var(--option-padding-y) var(--option-padding-x) 20px var(--option-padding-x);
             height: calc(100% - var(--header-height) - var(--footer-height));
@@ -185,10 +185,10 @@
             flex-direction: column;
         }
 
-        /* 좌측/우측 영역의 고정 크기 - 박스와 테이블 정확한 정렬 */
-        /* top-section: 건물정보(100px) + 임대정보(214px) + gap(16px) = 330px */
-        /* 건물정보: label(24px) + 2행(38px×2=76px) = 100px */
-        /* 임대정보: label(24px) + 5행(38px×5=190px) = 214px */
+        /* 좌측/?�측 ?�역??고정 ?�기 - 박스?� ?�이�??�확???�렬 */
+        /* top-section: 건물?�보(100px) + ?��??�보(214px) + gap(16px) = 330px */
+        /* 건물?�보: label(24px) + 2??38px×2=76px) = 100px */
+        /* ?��??�보: label(24px) + 5??38px×5=190px) = 214px */
         .option-left .option-top-section,
         .option-right .option-top-section {
             flex: 0 0 330px;
@@ -213,7 +213,7 @@
 
         .option-bottom-section .option-table-wrap .info-table {
             flex: none;
-            /* 테이블 크기 고정 - 8행(224px) */
+            /* ?�이�??�기 고정 - 8??224px) */
         }
 
         .option-info-group {
@@ -229,22 +229,22 @@
             flex-direction: column;
         }
 
-        /* 건물 정보와 임대 정보의 고정 크기 */
+        /* 건물 ?�보?� ?��? ?�보??고정 ?�기 */
         .option-info-group>div:first-child {
             flex: 0 0 100px;
-            /* 건물 정보: label(24px) + 2행(38px×2=76px) = 100px */
+            /* 건물 ?�보: label(24px) + 2??38px×2=76px) = 100px */
             max-height: 100px;
         }
 
         .option-info-group>div:last-child {
             flex: 0 0 214px;
-            /* 임대 정보: label(24px) + 5행(38px×5=190px) = 214px */
+            /* ?��? ?�보: label(24px) + 5??38px×5=190px) = 214px */
             max-height: 214px;
         }
 
         .option-info-group .info-table {
             flex: none;
-            /* 테이블 크기 고정 */
+            /* ?�이�??�기 고정 */
         }
 
         .section-label {
@@ -340,17 +340,17 @@
             background: white;
         }
 
-        /* 강조 행 - 데이터 셀만 배경색 적용 */
+        /* 강조 ??- ?�이???��?배경???�용 */
         .info-table .highlight-bg td {
             background: #FFF5E6;
         }
 
-        /* 강조 행 라벨 - 볼드체 */
+        /* 강조 ???�벨 - 볼드�?*/
         .info-table .highlight-bg th {
             font-weight: 700;
         }
 
-        /* 할인가 데이터 - 볼드체 + 주황색 */
+        /* ?�인가 ?�이??- 볼드�?+ 주황??*/
         .info-table .discount-row td {
             font-weight: 700;
             color: #FF6B35;
@@ -368,11 +368,22 @@
         }
 
         .info-table .remark-cell {
-            padding: 0 10px !important;
+            padding: 3px 8px !important;
             vertical-align: middle;
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.25;
+            font-size: 6.5pt;
+            height: 38px;
+            max-height: 38px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
 
-        /* ===== 상단 테이블 셀 높이 ===== */
+        /* ===== ?�단 ?�이�??� ?�이 ===== */
         .option-top-section .info-table th,
         .option-top-section .info-table td {
             height: var(--top-cell-height);
@@ -380,7 +391,7 @@
             vertical-align: middle;
         }
 
-        /* ===== 하단 테이블 셀 높이 ===== */
+        /* ===== ?�단 ?�이�??� ?�이 ===== */
         .option-bottom-section .info-table th,
         .option-bottom-section .info-table td {
             height: var(--bottom-cell-height);
@@ -388,7 +399,7 @@
             vertical-align: middle;
         }
 
-        /* === 평면도 === */
+        /* === ?�면??=== */
         .floorplan-page .page-content {
             padding: var(--floor-padding) 24px;
             height: calc(100% - var(--header-height) - var(--footer-height));
@@ -413,7 +424,7 @@
             object-fit: contain;
         }
 
-        /* === 내부사진 === */
+        /* === ?��??�진 === */
         .photos-page .page-content {
             padding: var(--photos-padding) 24px;
             height: calc(100% - var(--header-height) - var(--footer-height));
@@ -446,7 +457,7 @@
             object-fit: contain;
         }
 
-        /* 푸터 */
+        /* ?�터 */
         .page-footer {
             position: absolute;
             bottom: 0;
@@ -478,38 +489,38 @@
 </head>
 
 <body>
-    <!-- 옵션 상세 페이지 -->
+    <!-- ?�션 ?�세 ?�이지 -->
     <div class="page option-page">
         <div class="page-header">
-            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 상세안내</div>
+            <div class="page-title">?�션{{?�션번호}}. {{브랜??} {{지??} {{?�실}} - ?�세?�내</div>
             <div class="header-right">
                 <div class="manager-info">
-                    <span class="label">담당 매니저</span>
-                    <span>{{담당자명}}</span>
-                    <span>{{담당자 연락처}}</span>
-                    <span>{{담당자 이메일}}</span>
+                    <span class="label">?�당 매니?�</span>
+                    <span>{{?�당?�명}}</span>
+                    <span>{{?�당???�락�?}</span>
+                    <span>{{?�당???�메??}</span>
                 </div>
-                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png" alt="FastMatch"></div>
+                <div class="header-logo"><img src="../image-asset/?�스?�매�?wordmark_가로형_black.png" alt="FastMatch"></div>
             </div>
         </div>
         <div class="page-content">
             <div class="option-left">
                 <div class="option-top-section">
-                    <div class="section-label">외관 사진</div>
+                    <div class="section-label">?��? ?�진</div>
                     <div class="option-photo-box">
-                        <img src="" alt="지점 외관 사진" data-placeholder="{{지점 외관 사진}}">
+                        <img src="" alt="지???��? ?�진" data-placeholder="{{지???��? ?�진}}">
                     </div>
                 </div>
                 <div class="option-bottom-section">
-                    <div class="section-label">위치 및 교통</div>
-                    <div class="option-map-box" id="map" data-lat="{{위도}}" data-lng="{{경도}}"></div>
+                    <div class="section-label">?�치 �?교통</div>
+                    <div class="option-map-box" id="map" data-lat="{{?�도}}" data-lng="{{경도}}"></div>
                 </div>
             </div>
             <div class="option-right">
                 <div class="option-top-section">
                     <div class="option-info-group">
                         <div>
-                            <div class="info-block-title">건물 정보</div>
+                            <div class="info-block-title">건물 ?�보</div>
                             <table class="info-table">
                                 <tr>
                                     <th>주소</th>
@@ -522,70 +533,70 @@
                             </table>
                         </div>
                         <div>
-                            <div class="info-block-title">임대 정보</div>
+                            <div class="info-block-title">?��? ?�보</div>
                             <table class="info-table">
                                 <tr class="highlight-bg">
-                                    <th>인실</th>
-                                    <td>{{인실}}</td>
+                                    <th>?�실</th>
+                                    <td>{{?�실}}</td>
                                 </tr>
                                 <tr class="highlight-bg">
-                                    <th>보증금</th>
-                                    <td>{{보증금}}</td>
+                                    <th>보증�?/th>
+                                    <td>{{보증�?}</td>
                                 </tr>
                                 <tr>
-                                    <th>정가</th>
-                                    <td>{{정가}}<span class="vat-note">(부가세 별도)</span></td>
+                                    <th>?��?</th>
+                                    <td>{{?��?}}<span class="vat-note">(부가??별도)</span></td>
                                 </tr>
                                 <tr class="highlight-bg discount-row">
-                                    <th>할인가({{개월수}} 기준)</th>
-                                    <td>{{할인가}}<span class="vat-note">(부가세 별도)</span></td>
+                                    <th>?�인가({{개월??} 기�?)</th>
+                                    <td>{{?�인가}}<span class="vat-note">(부가??별도)</span></td>
                                 </tr>
                                 <tr>
-                                    <th>일회성 비용</th>
-                                    <td>{{일회성 비용}}<span class="vat-note">(부가세 별도)</span></td>
+                                    <th>?�회??비용</th>
+                                    <td>{{?�회??비용}}<span class="vat-note">(부가??별도)</span></td>
                                 </tr>
                             </table>
                         </div>
                     </div>
                 </div>
                 <div class="option-bottom-section">
-                    <div class="section-label">기타 정보</div>
+                    <div class="section-label">기�? ?�보</div>
                     <div class="option-table-wrap">
                         <table class="info-table">
                             <tr>
-                                <th>입주가능시기</th>
-                                <td>{{입주 가능일}}</td>
+                                <th>?�주가?�시�?/th>
+                                <td>{{?�주 가?�일}}</td>
                             </tr>
                             <tr>
-                                <th>오피스 정보</th>
-                                <td>{{오피스 정보}}</td>
+                                <th>?�피???�보</th>
+                                <td>{{?�피???�보}}</td>
                             </tr>
                             <tr>
-                                <th rowspan="3">기본 정보</th>
-                                <td>{{기본 정보1}}</td>
+                                <th rowspan="3">기본 ?�보</th>
+                                <td>{{기본 ?�보1}}</td>
                             </tr>
                             <tr>
-                                <td>{{기본 정보2}}</td>
+                                <td>{{기본 ?�보2}}</td>
                             </tr>
                             <tr>
-                                <td>{{기본 정보3}}</td>
+                                <td>{{기본 ?�보3}}</td>
                             </tr>
-                            <!-- 비고 데이터 형식:
-                                 냉난방식: 중앙냉난방식 → "중앙 냉난방식 제공으로 건물 운영시간 외 냉난방 사용 협의 필요"
-                                          개별냉난방식 → "개별 냉난방식 제공으로 24시간 제한 없이 사용 가능"
-                                 주차: 자주식 → "자주식 주차 제공으로 편리한 주차환경 제공"
-                                      기계식 → "기계식 주차 제공으로 주차 가능한 제원 검토 필요"
-                                 크레딧: "월별 OO 크레딧 : 00크레딧" (예: "월별 미팅룸 크레딧 : 30크레딧")
-                                 텍스트: 입력한 대로 표기 -->
+                            <!-- 비고 ?�이???�식:
+                                 ?�난방식: 중앙?�난방식 ??"중앙 ?�난방식 ?�공?�로 건물 ?�영?�간 ???�난�??�용 ?�의 ?�요"
+                                          개별?�난방식 ??"개별 ?�난방식 ?�공?�로 24?�간 ?�한 ?�이 ?�용 가??
+                                 주차: ?�주????"?�주??주차 ?�공?�로 ?�리??주차?�경 ?�공"
+                                      기계????"기계??주차 ?�공?�로 주차 가?�한 ?�원 검???�요"
+                                 ?�레?? "?�별 OO ?�레??: 00?�레?? (?? "?�별 미팅�??�레??: 30?�레??)
+                                 ?�스?? ?�력???��??�기 -->
                             <tr>
                                 <th rowspan="3">비고</th>
-                                <td class="remark-cell">{{기타1}}</td>
+                                <td class="remark-cell">{{기�?1}}</td>
                             </tr>
                             <tr>
-                                <td class="remark-cell">{{기타2}}</td>
+                                <td class="remark-cell">{{기�?2}}</td>
                             </tr>
                             <tr>
-                                <td class="remark-cell">{{기타3}}</td>
+                                <td class="remark-cell">{{기�?3}}</td>
                             </tr>
                         </table>
                     </div>
@@ -594,7 +605,7 @@
         </div>
         <div class="page-footer">
             <div class="footer-company">
-                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+                <span>?�매치코?�레?�션 l ?�울?�별???�초�?법원�?�?11-6 l www.smatch.kr</span>
             </div>
             <div class="footer-copyright">
                 Copyright 2025. smatch. all rights reserved.
@@ -602,46 +613,46 @@
         </div>
     </div>
 
-    <!-- 내부 사진 페이지 -->
+    <!-- ?��? ?�진 ?�이지 -->
     <div class="page photos-page">
         <div class="page-header">
-            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 내부사진</div>
+            <div class="page-title">?�션{{?�션번호}}. {{브랜??} {{지??} {{?�실}} - ?��??�진</div>
             <div class="header-right">
                 <div class="manager-info">
-                    <span class="label">담당 매니저</span>
-                    <span>{{담당자명}}</span>
-                    <span>{{담당자 연락처}}</span>
-                    <span>{{담당자 이메일}}</span>
+                    <span class="label">?�당 매니?�</span>
+                    <span>{{?�당?�명}}</span>
+                    <span>{{?�당???�락�?}</span>
+                    <span>{{?�당???�메??}</span>
                 </div>
-                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png" alt="FastMatch"></div>
+                <div class="header-logo"><img src="../image-asset/?�스?�매�?wordmark_가로형_black.png" alt="FastMatch"></div>
             </div>
         </div>
         <div class="page-content">
             <div class="photos-grid">
                 <div class="photo-box">
-                    <img src="" alt="내부 사진1" data-placeholder="{{내부 사진1}}">
+                    <img src="" alt="?��? ?�진1" data-placeholder="{{?��? ?�진1}}">
                 </div>
                 <div class="photo-box">
-                    <img src="" alt="내부 사진2" data-placeholder="{{내부 사진2}}">
+                    <img src="" alt="?��? ?�진2" data-placeholder="{{?��? ?�진2}}">
                 </div>
                 <div class="photo-box">
-                    <img src="" alt="내부 사진3" data-placeholder="{{내부 사진3}}">
+                    <img src="" alt="?��? ?�진3" data-placeholder="{{?��? ?�진3}}">
                 </div>
                 <div class="photo-box">
-                    <img src="" alt="내부 사진4" data-placeholder="{{내부 사진4}}">
+                    <img src="" alt="?��? ?�진4" data-placeholder="{{?��? ?�진4}}">
                 </div>
             </div>
         </div>
         <div class="page-footer">
             <div class="footer-company">
-                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+                <span>?�매치코?�레?�션 l ?�울?�별???�초�?법원�?�?11-6 l www.smatch.kr</span>
             </div>
             <div class="footer-copyright">
                 height: auto;
                 object-fit: contain;
                 }
 
-                /* 푸터 */
+                /* ?�터 */
                 .page-footer {
                 position: absolute;
                 bottom: 0;
@@ -673,39 +684,39 @@
                 </head>
 
                 <body>
-                    <!-- 옵션 상세 페이지 -->
+                    <!-- ?�션 ?�세 ?�이지 -->
                     <div class="page option-page">
                         <div class="page-header">
-                            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 상세안내</div>
+                            <div class="page-title">?�션{{?�션번호}}. {{브랜??} {{지??} {{?�실}} - ?�세?�내</div>
                             <div class="header-right">
                                 <div class="manager-info">
-                                    <span class="label">담당 매니저</span>
-                                    <span>{{담당자명}}</span>
-                                    <span>{{담당자 연락처}}</span>
-                                    <span>{{담당자 이메일}}</span>
+                                    <span class="label">?�당 매니?�</span>
+                                    <span>{{?�당?�명}}</span>
+                                    <span>{{?�당???�락�?}</span>
+                                    <span>{{?�당???�메??}</span>
                                 </div>
-                                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png"
+                                <div class="header-logo"><img src="../image-asset/?�스?�매�?wordmark_가로형_black.png"
                                         alt="FastMatch"></div>
                             </div>
                         </div>
                         <div class="page-content">
                             <div class="option-left">
                                 <div class="option-top-section">
-                                    <div class="section-label">외관 사진</div>
+                                    <div class="section-label">?��? ?�진</div>
                                     <div class="option-photo-box">
-                                        <img src="" alt="지점 외관 사진" data-placeholder="{{지점 외관 사진}}">
+                                        <img src="" alt="지???��? ?�진" data-placeholder="{{지???��? ?�진}}">
                                     </div>
                                 </div>
                                 <div class="option-bottom-section">
-                                    <div class="section-label">위치 및 교통</div>
-                                    <div class="option-map-box" id="map" data-lat="{{위도}}" data-lng="{{경도}}"></div>
+                                    <div class="section-label">?�치 �?교통</div>
+                                    <div class="option-map-box" id="map" data-lat="{{?�도}}" data-lng="{{경도}}"></div>
                                 </div>
                             </div>
                             <div class="option-right">
                                 <div class="option-top-section">
                                     <div class="option-info-group">
                                         <div>
-                                            <div class="info-block-title">건물 정보</div>
+                                            <div class="info-block-title">건물 ?�보</div>
                                             <table class="info-table">
                                                 <tr>
                                                     <th>주소</th>
@@ -718,70 +729,70 @@
                                             </table>
                                         </div>
                                         <div>
-                                            <div class="info-block-title">임대 정보</div>
+                                            <div class="info-block-title">?��? ?�보</div>
                                             <table class="info-table">
                                                 <tr class="highlight-bg">
-                                                    <th>인실</th>
-                                                    <td>{{인실}}</td>
+                                                    <th>?�실</th>
+                                                    <td>{{?�실}}</td>
                                                 </tr>
                                                 <tr class="highlight-bg">
-                                                    <th>보증금</th>
-                                                    <td>{{보증금}}</td>
+                                                    <th>보증�?/th>
+                                                    <td>{{보증�?}</td>
                                                 </tr>
                                                 <tr>
-                                                    <th>정가</th>
-                                                    <td>{{정가}}<span class="vat-note">(부가세 별도)</span></td>
+                                                    <th>?��?</th>
+                                                    <td>{{?��?}}<span class="vat-note">(부가??별도)</span></td>
                                                 </tr>
                                                 <tr class="highlight-bg discount-row">
-                                                    <th>할인가({{개월수}} 기준)</th>
-                                                    <td>{{할인가}}<span class="vat-note">(부가세 별도)</span></td>
+                                                    <th>?�인가({{개월??} 기�?)</th>
+                                                    <td>{{?�인가}}<span class="vat-note">(부가??별도)</span></td>
                                                 </tr>
                                                 <tr>
-                                                    <th>일회성 비용</th>
-                                                    <td>{{일회성 비용}}<span class="vat-note">(부가세 별도)</span></td>
+                                                    <th>?�회??비용</th>
+                                                    <td>{{?�회??비용}}<span class="vat-note">(부가??별도)</span></td>
                                                 </tr>
                                             </table>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="option-bottom-section">
-                                    <div class="section-label">기타 정보</div>
+                                    <div class="section-label">기�? ?�보</div>
                                     <div class="option-table-wrap">
                                         <table class="info-table">
                                             <tr>
-                                                <th>입주가능시기</th>
-                                                <td>{{입주 가능일}}</td>
+                                                <th>?�주가?�시�?/th>
+                                                <td>{{?�주 가?�일}}</td>
                                             </tr>
                                             <tr>
-                                                <th>오피스 정보</th>
-                                                <td>{{오피스 정보}}</td>
+                                                <th>?�피???�보</th>
+                                                <td>{{?�피???�보}}</td>
                                             </tr>
                                             <tr>
-                                                <th rowspan="3">기본 정보</th>
-                                                <td>{{기본 정보1}}</td>
+                                                <th rowspan="3">기본 ?�보</th>
+                                                <td>{{기본 ?�보1}}</td>
                                             </tr>
                                             <tr>
-                                                <td>{{기본 정보2}}</td>
+                                                <td>{{기본 ?�보2}}</td>
                                             </tr>
                                             <tr>
-                                                <td>{{기본 정보3}}</td>
+                                                <td>{{기본 ?�보3}}</td>
                                             </tr>
-                                            <!-- 비고 데이터 형식:
-                                 냉난방식: 중앙냉난방식 → "중앙 냉난방식 제공으로 건물 운영시간 외 냉난방 사용 협의 필요"
-                                          개별냉난방식 → "개별 냉난방식 제공으로 24시간 제한 없이 사용 가능"
-                                 주차: 자주식 → "자주식 주차 제공으로 편리한 주차환경 제공"
-                                      기계식 → "기계식 주차 제공으로 주차 가능한 제원 검토 필요"
-                                 크레딧: "월별 OO 크레딧 : 00크레딧" (예: "월별 미팅룸 크레딧 : 30크레딧")
-                                 텍스트: 입력한 대로 표기 -->
+                                            <!-- 비고 ?�이???�식:
+                                 ?�난방식: 중앙?�난방식 ??"중앙 ?�난방식 ?�공?�로 건물 ?�영?�간 ???�난�??�용 ?�의 ?�요"
+                                          개별?�난방식 ??"개별 ?�난방식 ?�공?�로 24?�간 ?�한 ?�이 ?�용 가??
+                                 주차: ?�주????"?�주??주차 ?�공?�로 ?�리??주차?�경 ?�공"
+                                      기계????"기계??주차 ?�공?�로 주차 가?�한 ?�원 검???�요"
+                                 ?�레?? "?�별 OO ?�레??: 00?�레?? (?? "?�별 미팅�??�레??: 30?�레??)
+                                 ?�스?? ?�력???��??�기 -->
                                             <tr>
                                                 <th rowspan="3">비고</th>
-                                                <td class="remark-cell">{{기타1}}</td>
+                                                <td class="remark-cell">{{기�?1}}</td>
                                             </tr>
                                             <tr>
-                                                <td class="remark-cell">{{기타2}}</td>
+                                                <td class="remark-cell">{{기�?2}}</td>
                                             </tr>
                                             <tr>
-                                                <td class="remark-cell">{{기타3}}</td>
+                                                <td class="remark-cell">{{기�?3}}</td>
                                             </tr>
                                         </table>
                                     </div>
@@ -790,7 +801,7 @@
                         </div>
                         <div class="page-footer">
                             <div class="footer-company">
-                                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+                                <span>?�매치코?�레?�션 l ?�울?�별???�초�?법원�?�?11-6 l www.smatch.kr</span>
                             </div>
                             <div class="footer-copyright">
                                 Copyright 2025. smatch. all rights reserved.
@@ -798,40 +809,40 @@
                         </div>
                     </div>
 
-                    <!-- 내부 사진 페이지 -->
+                    <!-- ?��? ?�진 ?�이지 -->
                     <div class="page photos-page">
                         <div class="page-header">
-                            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 내부사진</div>
+                            <div class="page-title">?�션{{?�션번호}}. {{브랜??} {{지??} {{?�실}} - ?��??�진</div>
                             <div class="header-right">
                                 <div class="manager-info">
-                                    <span class="label">담당 매니저</span>
-                                    <span>{{담당자명}}</span>
-                                    <span>{{담당자 연락처}}</span>
-                                    <span>{{담당자 이메일}}</span>
+                                    <span class="label">?�당 매니?�</span>
+                                    <span>{{?�당?�명}}</span>
+                                    <span>{{?�당???�락�?}</span>
+                                    <span>{{?�당???�메??}</span>
                                 </div>
-                                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png"
+                                <div class="header-logo"><img src="../image-asset/?�스?�매�?wordmark_가로형_black.png"
                                         alt="FastMatch"></div>
                             </div>
                         </div>
                         <div class="page-content">
                             <div class="photos-grid">
                                 <div class="photo-box">
-                                    <img src="" alt="내부 사진1" data-placeholder="{{내부 사진1}}">
+                                    <img src="" alt="?��? ?�진1" data-placeholder="{{?��? ?�진1}}">
                                 </div>
                                 <div class="photo-box">
-                                    <img src="" alt="내부 사진2" data-placeholder="{{내부 사진2}}">
+                                    <img src="" alt="?��? ?�진2" data-placeholder="{{?��? ?�진2}}">
                                 </div>
                                 <div class="photo-box">
-                                    <img src="" alt="내부 사진3" data-placeholder="{{내부 사진3}}">
+                                    <img src="" alt="?��? ?�진3" data-placeholder="{{?��? ?�진3}}">
                                 </div>
                                 <div class="photo-box">
-                                    <img src="" alt="내부 사진4" data-placeholder="{{내부 사진4}}">
+                                    <img src="" alt="?��? ?�진4" data-placeholder="{{?��? ?�진4}}">
                                 </div>
                             </div>
                         </div>
                         <div class="page-footer">
                             <div class="footer-company">
-                                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+                                <span>?�매치코?�레?�션 l ?�울?�별???�초�?법원�?�?11-6 l www.smatch.kr</span>
                             </div>
                             <div class="footer-copyright">
                                 Copyright 2025. smatch. all rights reserved.
@@ -840,29 +851,29 @@
                     </div>
 
                     <!-- FLOOR_PLAN_START -->
-                    <!-- 평면도 페이지 -->
+                    <!-- ?�면???�이지 -->
                     <div class="page floorplan-page">
                         <div class="page-header">
-                            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 평면도</div>
+                            <div class="page-title">?�션{{?�션번호}}. {{브랜??} {{지??} {{?�실}} - ?�면??/div>
                             <div class="header-right">
                                 <div class="manager-info">
-                                    <span class="label">담당 매니저</span>
-                                    <span>{{담당자명}}</span>
-                                    <span>{{담당자 연락처}}</span>
-                                    <span>{{담당자 이메일}}</span>
+                                    <span class="label">?�당 매니?�</span>
+                                    <span>{{?�당?�명}}</span>
+                                    <span>{{?�당???�락�?}</span>
+                                    <span>{{?�당???�메??}</span>
                                 </div>
-                                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png"
+                                <div class="header-logo"><img src="../image-asset/?�스?�매�?wordmark_가로형_black.png"
                                         alt="FastMatch"></div>
                             </div>
                         </div>
                         <div class="page-content">
                             <div class="floorplan-box">
-                                <img src="" alt="평면도" data-placeholder="{{평면도}}">
+                                <img src="" alt="?�면?? data-placeholder="{{?�면??}">
                             </div>
                         </div>
                         <div class="page-footer">
                             <div class="footer-company">
-                                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+                                <span>?�매치코?�레?�션 l ?�울?�별???�초�?법원�?�?11-6 l www.smatch.kr</span>
                             </div>
                             <div class="footer-copyright">
                                 Copyright 2025. smatch. all rights reserved.
@@ -871,7 +882,7 @@
                     </div>
                     <!-- FLOOR_PLAN_END -->
 
-                    <!-- 카카오맵 지도는 서버 사이드에서 정적 이미지로 삽입되므로 JavaScript 초기화 불필요 -->
+                    <!-- 카카?�맵 지?�는 ?�버 ?�이?�에???�적 ?��?지�??�입?��?�?JavaScript 초기??불필??-->
                 </body>
 
 </html>

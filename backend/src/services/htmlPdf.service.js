@@ -872,13 +872,9 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0) => 
         }
       }
 
-      // 4. 메모 (있으면 마지막에 추가)
-      if (option.memo && option.memo.trim()) {
-        remarkItems.push(`• ${option.memo.trim()}`);
-      }
-
-      // 최대 4개 항목을 줄바꿈으로 연결
-      const remarkText = remarkItems.slice(0, 4).join('\n');
+      // 비교표에서는 냉난방, 주차, 크레딧만 표시 (텍스트/메모 제외)
+      // 최대 3개 항목을 줄바꿈으로 연결
+      const remarkText = remarkItems.slice(0, 3).join('\n');
 
       // 브랜드 약어 생성
       const brandName = option.branch?.brand?.name || '';
@@ -1079,8 +1075,21 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
   }
 
   // 4. 메모 (있으면 마지막에 추가, 3번째 슬롯에)
+  // 비고 칸은 2줄로 제한하며 최대 약 85자까지만 표시 가능
+  const MAX_REMARK_LENGTH = 85;
   if (option.memo && option.memo.trim() && remarkItems.length < 3) {
-    remarkItems.push(option.memo.trim());
+    let memoText = option.memo.trim();
+    if (memoText.length > MAX_REMARK_LENGTH) {
+      memoText = memoText.substring(0, MAX_REMARK_LENGTH - 3) + '...';
+    }
+    remarkItems.push(memoText);
+  }
+
+  // 각 비고 항목도 최대 글자수로 제한
+  for (let i = 0; i < remarkItems.length; i++) {
+    if (remarkItems[i] && remarkItems[i].length > MAX_REMARK_LENGTH) {
+      remarkItems[i] = remarkItems[i].substring(0, MAX_REMARK_LENGTH - 3) + '...';
+    }
   }
 
   // 브랜드 약어 생성
