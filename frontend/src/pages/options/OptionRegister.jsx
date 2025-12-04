@@ -838,57 +838,45 @@ const OptionRegister = () => {
                   onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
+                  <option value="">선택하세요</option>
                   <option value="self_parking">자주식</option>
                   <option value="mechanical">기계식</option>
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">대 수 (선택)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.parking_count}
-                    onChange={(e) => setFormData({ ...formData, parking_count: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="예: 2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">주차비용 (선택)</label>
+              {/* 주차 상세 입력 (주차타입 선택 시 보임) */}
+              {formData.parking_type && (
+                <div className="space-y-3 p-3 bg-gray-50 rounded-lg border">
+                  <div className="flex gap-2 items-center flex-wrap">
+                    <input
+                      type="number"
+                      placeholder="대수"
+                      min="0"
+                      value={formData.parking_count || ''}
+                      onChange={(e) => setFormData({ ...formData, parking_count: e.target.value })}
+                      className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                    <span className="text-sm text-gray-600">대</span>
+                    <div className="relative flex-1 min-w-[120px]">
+                      <input
+                        type="text"
+                        placeholder="비용"
+                        value={formData.parking_cost ? formatNumberInput(formData.parking_cost) : ''}
+                        onChange={(e) => {
+                          const numericValue = parseNumberInput(e.target.value);
+                          setFormData({ ...formData, parking_cost: numericValue });
+                        }}
+                        className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">원</span>
+                    </div>
+                  </div>
                   <input
                     type="text"
-                    value={formData.parking_cost ? formatNumberInput(formData.parking_cost) : ''}
-                    onChange={(e) => {
-                      const numericValue = parseNumberInput(e.target.value);
-                      setFormData({ ...formData, parking_cost: numericValue });
-                    }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="예: 250,000"
+                    placeholder="주차 비고 (예: 선착순 대기, SUV 입고 불가)"
+                    value={formData.parking_note || ''}
+                    onChange={(e) => setFormData({ ...formData, parking_note: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">추가 메모 (선택)</label>
-                <textarea
-                  value={formData.parking_note}
-                  onChange={(e) => setFormData({ ...formData, parking_note: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  rows="2"
-                  placeholder="예: 선착순 대기, SUV 입고 불가, 대수협의 필요 등"
-                />
-              </div>
-              {/* 미리보기 */}
-              {formData.parking_type && (
-                <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                  <p className="text-sm font-medium text-green-800">미리보기:</p>
-                  <p className="text-sm text-green-700 mt-1">
-                    {formData.parking_type === 'self_parking' ? '자주식' : '기계식'} 주차
-                    {formData.parking_count ? ` ${formData.parking_count}대` : ''} 제공으로
-                    {formData.parking_type === 'self_parking' ? ' 편리한 주차환경 제공' : ' 주차 가능한 제원 검토 필요'}
-                    {formData.parking_cost ? ` / ${parseInt(formData.parking_cost).toLocaleString()}원` : ''}
-                    {formData.parking_note ? `, ${formData.parking_note}` : ''}
-                  </p>
                 </div>
               )}
             </div>
@@ -989,102 +977,62 @@ const OptionRegister = () => {
               {/* 새 크레딧 추가 */}
               <div className="space-y-3 border-t pt-4">
                 <label className="block text-sm font-medium text-gray-700">새 크레딧 추가</label>
-                <select
-                  value={newCredit.type}
-                  onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value, customName: '', unit: '크레딧' })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="monthly">월별 제공 크레딧</option>
-                  <option value="printing">프린팅 크레딧</option>
-                  <option value="meeting_room">미팅룸 크레딧</option>
-                  <option value="other">기타 크레딧</option>
-                </select>
+                <div className="flex gap-2 items-center flex-wrap">
+                  <select
+                    value={newCredit.type}
+                    onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value, customName: '', unit: '크레딧' })}
+                    className="px-2 py-1 border border-gray-300 rounded text-sm"
+                  >
+                    <option value="monthly">월별 제공</option>
+                    <option value="printing">프린팅</option>
+                    <option value="meeting_room">미팅룸</option>
+                    <option value="other">기타</option>
+                  </select>
 
-                {/* 기타 크레딧 선택시 추가 입력 필드 */}
-                {newCredit.type === 'other' && (
-                  <div className="space-y-3 p-3 bg-gray-50 rounded-lg border">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">명칭</label>
-                      <input
-                        type="text"
-                        value={newCredit.customName}
-                        onChange={(e) => setNewCredit({ ...newCredit, customName: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                        placeholder="예: 공용 미팅룸 사용 시간, 프린팅"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">수량</label>
-                        <input
-                          type="number"
-                          value={newCredit.amount}
-                          onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="예: 80"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">단위</label>
-                        <input
-                          type="text"
-                          value={newCredit.unit}
-                          onChange={(e) => setNewCredit({ ...newCredit, unit: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="예: 시간, 장, 회"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">추가설명 (선택)</label>
-                      <textarea
-                        value={newCredit.note}
-                        onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                        rows="2"
-                        placeholder="예: 공용 미팅룸"
-                      />
-                    </div>
-                    {/* 미리보기 */}
-                    {(newCredit.customName || newCredit.amount) && (
-                      <div className="p-2 bg-green-50 rounded border border-green-200">
-                        <p className="text-xs font-medium text-green-800">미리보기:</p>
-                        <p className="text-sm text-green-700">
-                          크레딧 : {newCredit.customName || '(명칭)'} {newCredit.amount || '(수량)'}{newCredit.unit || '크레딧'} 제공
-                          {newCredit.note && ` / ${newCredit.note}`}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* 기존 크레딧 타입 선택시 */}
-                {newCredit.type !== 'other' && (
-                  <>
+                  {newCredit.type === 'other' && (
                     <input
-                      type="number"
-                      value={newCredit.amount}
-                      onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="수량을 입력하세요"
+                      type="text"
+                      value={newCredit.customName || ''}
+                      onChange={(e) => setNewCredit({ ...newCredit, customName: e.target.value })}
+                      placeholder="명칭"
+                      className="w-32 px-2 py-1 border border-gray-300 rounded text-sm"
                     />
-                    <textarea
-                      value={newCredit.note}
-                      onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      rows="2"
-                      placeholder="추가 설명 (선택사항)"
+                  )}
+
+                  <input
+                    type="number"
+                    value={newCredit.amount}
+                    onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
+                    placeholder="수량"
+                    className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                  />
+
+                  {newCredit.type === 'other' && (
+                    <input
+                      type="text"
+                      value={newCredit.unit || ''}
+                      onChange={(e) => setNewCredit({ ...newCredit, unit: e.target.value })}
+                      placeholder="단위"
+                      className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
                     />
-                  </>
-                )}
-                <button
-                  type="button"
-                  onClick={handleAddCredit}
-                  disabled={!newCredit.amount || (newCredit.type === 'other' && !newCredit.customName)}
-                  className="w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  크레딧 추가
-                </button>
+                  )}
+
+                  <input
+                    type="text"
+                    value={newCredit.note}
+                    onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
+                    placeholder="메모(선택)"
+                    className="flex-1 min-w-[80px] px-2 py-1 border border-gray-300 rounded text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCredit}
+                    disabled={!newCredit.amount || (newCredit.type === 'other' && !newCredit.customName)}
+                    className="px-3 py-1 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  >
+                    추가
+                  </button>
+                </div>
               </div>
             </div>
           )}

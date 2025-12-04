@@ -709,11 +709,38 @@ const OptionDetailSlide = ({
               {/* 전용면적 */}
               <div className="flex">
                 <span className="text-gray-600 w-32">전용면적:</span>
-                <span className="font-semibold flex-1">
-                  {option.exclusive_area?.value
-                    ? `${option.exclusive_area.value} ${option.exclusive_area.unit === 'pyeong' ? '평' : '㎡'}`
-                    : '-'}
-                </span>
+                {isEditMode ? (
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editData.exclusive_area?.value || ''}
+                      onChange={(e) => setEditData(prev => ({
+                        ...prev,
+                        exclusive_area: { ...prev.exclusive_area, value: e.target.value }
+                      }))}
+                      className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      placeholder="면적"
+                    />
+                    <select
+                      value={editData.exclusive_area?.unit || 'pyeong'}
+                      onChange={(e) => setEditData(prev => ({
+                        ...prev,
+                        exclusive_area: { ...prev.exclusive_area, unit: e.target.value }
+                      }))}
+                      className="px-2 py-2 border border-gray-300 rounded-lg text-sm"
+                    >
+                      <option value="pyeong">평</option>
+                      <option value="sqm">㎡</option>
+                    </select>
+                  </div>
+                ) : (
+                  <span className="font-semibold flex-1">
+                    {option.exclusive_area?.value
+                      ? `${option.exclusive_area.value} ${option.exclusive_area.unit === 'pyeong' ? '평' : '㎡'}`
+                      : '-'}
+                  </span>
+                )}
               </div>
 
               {renderEditableField('냉난방', 'hvac_type', 'select', hvacOptions)}
