@@ -329,7 +329,7 @@ const OptionDetailSlide = ({
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('file', file);
 
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/upload/image`, {
         method: 'POST',
@@ -342,7 +342,8 @@ const OptionDetailSlide = ({
       if (!response.ok) throw new Error('업로드 실패');
 
       const data = await response.json();
-      setEditData(prev => ({ ...prev, floor_plan_url: data.url }));
+      const imageUrl = data.image?.url || data.url;
+      setEditData(prev => ({ ...prev, floor_plan_url: imageUrl }));
       success('이미지가 업로드되었습니다');
     } catch (err) {
       console.error('이미지 업로드 실패:', err);
