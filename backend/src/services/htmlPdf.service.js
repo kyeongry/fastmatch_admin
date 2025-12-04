@@ -1075,21 +1075,35 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
   }
 
   // 4. 메모 (있으면 마지막에 추가, 3번째 슬롯에)
-  // 비고 칸은 2줄로 제한하며 최대 약 85자까지만 표시 가능
-  const MAX_REMARK_LENGTH = 85;
   if (option.memo && option.memo.trim() && remarkItems.length < 3) {
-    let memoText = option.memo.trim();
-    if (memoText.length > MAX_REMARK_LENGTH) {
-      memoText = memoText.substring(0, MAX_REMARK_LENGTH - 3) + '...';
-    }
-    remarkItems.push(memoText);
+    remarkItems.push(option.memo.trim());
   }
 
-  // 각 비고 항목도 최대 글자수로 제한
-  for (let i = 0; i < remarkItems.length; i++) {
-    if (remarkItems[i] && remarkItems[i].length > MAX_REMARK_LENGTH) {
-      remarkItems[i] = remarkItems[i].substring(0, MAX_REMARK_LENGTH - 3) + '...';
+  // 비고 칸 글자수 제한: 1줄(45자), 2줄(90자)
+  // 표 크기 고정 상태에서 텍스트가 넘치지 않도록 제한
+  const MAX_1LINE = 45;  // 1줄에 들어가는 최대 글자수
+  const MAX_2LINE = 90;  // 2줄에 들어가는 최대 글자수
+
+  // 각 비고 항목에 클래스 결정 및 글자수 제한
+  const remarkClasses = [];
+  for (let i = 0; i < 3; i++) {
+    let text = remarkItems[i] || '';
+    let cssClass = '';
+
+    if (text.length === 0) {
+      cssClass = '';
+    } else if (text.length <= MAX_1LINE) {
+      // 1줄에 충분히 들어가는 경우
+      cssClass = 'remark-1line';
+    } else {
+      // 2줄 필요한 경우 - 최대 글자수로 제한
+      cssClass = 'remark-2line';
+      if (text.length > MAX_2LINE) {
+        text = text.substring(0, MAX_2LINE);
+      }
+      remarkItems[i] = text;
     }
+    remarkClasses.push(cssClass);
   }
 
   // 브랜드 약어 생성
@@ -1126,6 +1140,17 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
   };
 
   html = replaceVariables(html, variables);
+
+  // remark-cell에 동적 클래스 적용 (기타1, 기타2, 기타3)
+  // 정규식으로 class="remark-cell"을 class="remark-cell {클래스}"로 변경
+  const remarkCellRegex = /<td class="remark-cell">/g;
+  let remarkCellIndex = 0;
+  html = html.replace(remarkCellRegex, () => {
+    const cssClass = remarkClasses[remarkCellIndex] || '';
+    remarkCellIndex++;
+    if (remarkCellIndex > 3) remarkCellIndex = 0; // 3개 이상일 경우 리셋 (중복 페이지 대비)
+    return cssClass ? `<td class="remark-cell ${cssClass}">` : '<td class="remark-cell">';
+  });
 
   // 이미지 처리
   // 외관 사진
