@@ -241,11 +241,6 @@ const OptionRegister = () => {
         credits: [...prev.credits, creditData],
       }));
       setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
-      setFormData((prev) => ({
-        ...prev,
-        credits: [...prev.credits, creditData],
-      }));
-      setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
     }
   };
 
