@@ -817,7 +817,7 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0) => 
       // 2. 주차방식
       if (option.parking_type) {
         const parkingTypeLabel = option.parking_type === 'self_parking' ? '자주식' : '기계식';
-        let parkingText = `${parkingTypeLabel} 주차`;
+        let parkingText = `• ${parkingTypeLabel} 주차`;
 
         if (option.parking_count) {
           parkingText += ` ${option.parking_count}대`;
