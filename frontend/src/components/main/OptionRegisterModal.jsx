@@ -1067,134 +1067,130 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     </button>
                   </div>
 
-                  {/* 드래그앤드롭 + 클릭 + 붙여넣기 영역 */}
-                  <div
-                    className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
-                      formData.floor_plan_url
-                        ? 'border-green-400 bg-green-50'
-                        : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
-                    onClick={() => document.getElementById('floorplan-file-input').click()}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.currentTarget.classList.add('border-blue-500', 'bg-blue-100');
-                    }}
-                    onDragLeave={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.currentTarget.classList.remove('border-blue-500', 'bg-blue-100');
-                    }}
-                    onDrop={async (e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.currentTarget.classList.remove('border-blue-500', 'bg-blue-100');
-                      const files = e.dataTransfer.files;
-                      if (files && files[0] && files[0].type.startsWith('image/')) {
-                        await handleFloorPlanUpload(files[0]);
-                      }
-                    }}
-                    onPaste={async (e) => {
-                      // 업로드 중이면 무시
-                      if (uploadInProgressRef.current) {
-                        e.preventDefault();
-                        warning('이미지 업로드 중입니다. 완료 후 다시 시도해주세요.');
-                        return;
-                      }
-
-                      const items = e.clipboardData?.items;
-                      if (!items) return;
-
-                      for (let i = 0; i < items.length; i++) {
-                        const item = items[i];
-                        // 이미지 파일인 경우
-                        if (item.type.startsWith('image/')) {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const blob = item.getAsFile();
-                          if (blob) {
-                            uploadInProgressRef.current = true;
-                            try {
-                              await handleFloorPlanUpload(blob);
-                            } finally {
-                              uploadInProgressRef.current = false;
-                            }
-                          }
-                          return;
-                        }
-                        // 텍스트(URL)인 경우
-                        if (item.type === 'text/plain') {
-                          item.getAsString((text) => {
-                            if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
-                              setFormData(prev => ({ ...prev, floor_plan_url: text.trim() }));
-                              success('이미지 URL이 입력되었습니다');
-                            }
-                          });
-                        }
-                      }
-                    }}
-                    tabIndex={0}
-                  >
-                    <input
-                      id="floorplan-file-input"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFloorPlanUpload(e.target.files[0])}
-                      className="hidden"
-                    />
-
+                  <div className="space-y-3">
                     {formData.floor_plan_url ? (
-                      <div className="space-y-3">
+                      <div className="relative inline-block">
                         <img
                           src={formData.floor_plan_url}
                           alt="평면도 미리보기"
-                          className="max-h-48 mx-auto rounded-lg shadow-md"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'block';
-                          }}
+                          className="h-32 w-auto rounded-lg shadow-md object-cover"
                         />
-                        <p className="text-sm text-green-600 font-medium hidden">이미지를 불러올 수 없습니다</p>
-                        <p className="text-sm text-green-600 font-medium">이미지가 등록되었습니다</p>
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={() => {
                             setFormData(prev => ({ ...prev, floor_plan_url: '' }));
                             setFloorPlanFile(null);
                           }}
-                          className="text-sm text-red-500 hover:text-red-700 underline"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition shadow-md"
                         >
-                          이미지 삭제
+                          ✕
                         </button>
                       </div>
                     ) : (
-                      <div className="space-y-3">
-                        <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
-                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
+                      <div
+                        className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          e.currentTarget.classList.add('border-blue-500', 'bg-blue-50');
+                        }}
+                        onDragLeave={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
+                        }}
+                        onDrop={async (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
+                          const files = e.dataTransfer.files;
+                          if (files && files[0] && files[0].type.startsWith('image/')) {
+                            await handleFloorPlanUpload(files[0]);
+                          }
+                        }}
+                        onPaste={async (e) => {
+                          if (uploadInProgressRef.current) {
+                            e.preventDefault();
+                            warning('이미지 업로드 중입니다. 완료 후 다시 시도해주세요.');
+                            return;
+                          }
+
+                          const items = e.clipboardData?.items;
+                          if (!items) return;
+
+                          for (let i = 0; i < items.length; i++) {
+                            const item = items[i];
+                            if (item.type.startsWith('image/')) {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const blob = item.getAsFile();
+                              if (blob) {
+                                uploadInProgressRef.current = true;
+                                try {
+                                  await handleFloorPlanUpload(blob);
+                                } finally {
+                                  uploadInProgressRef.current = false;
+                                }
+                              }
+                              return;
+                            }
+                            if (item.type === 'text/plain') {
+                              item.getAsString((text) => {
+                                if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
+                                  setFormData(prev => ({ ...prev, floor_plan_url: text.trim() }));
+                                  success('이미지 URL이 입력되었습니다');
+                                }
+                              });
+                            }
+                          }
+                        }}
+                        tabIndex={0}
+                      >
+                        <div className="flex gap-4 items-start flex-wrap">
+                          <div className="w-32 h-32 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-400 border border-gray-200">
+                            <svg className="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span className="text-xs">이미지 드롭</span>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <input
+                              id="floorplan-file-input"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFloorPlanUpload(e.target.files[0])}
+                              className="hidden"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => document.getElementById('floorplan-file-input').click()}
+                              disabled={uploadInProgressRef.current}
+                              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                            >
+                              {uploadInProgressRef.current ? '업로드 중...' : '파일 선택'}
+                            </button>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-gray-700 font-medium">이미지를 드래그하거나 클릭하여 선택</p>
-                          <p className="text-sm text-gray-500 mt-1">또는 Ctrl+V로 클립보드 이미지/URL 붙여넣기</p>
-                        </div>
+                        <p className="mt-2 text-xs text-gray-500">
+                          이미지를 드래그하거나, Ctrl+V로 붙여넣기하거나, 버튼을 클릭하세요
+                        </p>
                       </div>
                     )}
                   </div>
 
                   {/* URL 직접 입력 */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">또는 이미지 URL 직접 입력</label>
-                    <input
-                      type="text"
-                      value={formData.floor_plan_url}
-                      onChange={(e) => setFormData({ ...formData, floor_plan_url: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="https://example.com/image.jpg"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
+                  {!formData.floor_plan_url && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">또는 이미지 URL 직접 입력</label>
+                      <input
+                        type="text"
+                        value={formData.floor_plan_url}
+                        onChange={(e) => setFormData({ ...formData, floor_plan_url: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
