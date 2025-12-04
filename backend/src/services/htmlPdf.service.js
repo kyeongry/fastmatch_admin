@@ -997,8 +997,9 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
       ? '편리한 주차환경 제공'
       : '주차 가능한 제원 검토 필요';
 
-    // 기본 문구 생성: "• {{주차방식}} 주차 {{대 수}}대 제공으로 {{주차방식 내용}}"
-    let parkingText = `• ${parkingTypeLabel} 주차`;
+    // 기본 문구 생성: "{{주차방식}} 주차 {{대 수}}대 제공으로 {{주차방식 내용}}"
+    // 옵션상세 페이지에서는 도트 없이 표시 (비교표는 별도 로직에서 도트 추가)
+    let parkingText = `${parkingTypeLabel} 주차`;
 
     if (option.parking_count) {
       parkingText += ` ${option.parking_count}대`;
