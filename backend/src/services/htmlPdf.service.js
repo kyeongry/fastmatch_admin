@@ -1118,6 +1118,16 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
 
   html = replaceVariables(html, variables);
 
+  // office-info-cell에 동적 클래스 적용 (오피스 정보 길이에 따라)
+  const officeInfo = option.office_info || '';
+  const officeInfoClass = officeInfo.length > MAX_1LINE ? 'office-info-2line' : '';
+  if (officeInfoClass) {
+    html = html.replace(
+      /<td class="office-info-cell">/g,
+      `<td class="office-info-cell ${officeInfoClass}">`
+    );
+  }
+
   // remark-cell에 동적 클래스 적용 (기타1, 기타2, 기타3)
   // 정규식으로 class="remark-cell"을 class="remark-cell {클래스}"로 변경
   const remarkCellRegex = /<td class="remark-cell">/g;
