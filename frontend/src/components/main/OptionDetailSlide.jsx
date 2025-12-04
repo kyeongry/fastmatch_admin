@@ -907,36 +907,77 @@ const OptionDetailSlide = ({
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      id="floor-plan-upload"
-                    />
-                    <label
-                      htmlFor="floor-plan-upload"
-                      className={`px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-500 hover:bg-gray-50 transition flex items-center gap-2 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
-                    >
-                      {isUploading ? (
-                        <>
-                          <svg className="animate-spin h-5 w-5 text-gray-400" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                          <span className="text-gray-500">업로드 중...</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                          <span className="text-gray-500">이미지 첨부</span>
-                        </>
-                      )}
-                    </label>
+                  <div
+                    className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onDrop={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const files = e.dataTransfer.files;
+                      if (files && files[0] && files[0].type.startsWith('image/')) {
+                        const fakeEvent = { target: { files: [files[0]] } };
+                        await handleImageUpload(fakeEvent);
+                      }
+                    }}
+                    onPaste={async (e) => {
+                      const items = e.clipboardData?.items;
+                      if (!items) return;
+                      for (let i = 0; i < items.length; i++) {
+                        const item = items[i];
+                        if (item.type.startsWith('image/')) {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const blob = item.getAsFile();
+                          if (blob) {
+                            const fakeEvent = { target: { files: [blob] } };
+                            await handleImageUpload(fakeEvent);
+                          }
+                          return;
+                        }
+                        if (item.type === 'text/plain') {
+                          item.getAsString((text) => {
+                            if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
+                              setEditData(prev => ({ ...prev, floor_plan_url: text.trim() }));
+                              success('평면도 URL이 설정되었습니다');
+                            }
+                          });
+                        }
+                      }
+                    }}
+                    tabIndex={0}
+                  >
+                    <div className="flex gap-4 items-start flex-wrap">
+                      <div className="w-32 h-32 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-400 border border-gray-200">
+                        <svg className="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-xs">이미지 드롭</span>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="floor-plan-upload"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploading}
+                          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                        >
+                          {isUploading ? '업로드 중...' : '파일 선택'}
+                        </button>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-xs text-gray-500">
+                      이미지를 드래그하거나, Ctrl+V로 붙여넣기하거나, 버튼을 클릭하세요
+                    </p>
                   </div>
                 )}
               </div>
