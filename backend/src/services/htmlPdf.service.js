@@ -217,6 +217,18 @@ const formatters = {
     // 배열인 경우
     if (Array.isArray(credits)) {
       return credits.map(credit => {
+        // 기타 크레딧 (커스텀 형식)
+        if (credit.type === 'other' && credit.customName) {
+          const unit = credit.unit || '크레딧';
+          const amount = credit.amount || 0;
+          let result = `${credit.customName} ${amount.toLocaleString()} ${unit} 제공`;
+          if (credit.note) {
+            result += ` / ${credit.note}`;
+          }
+          return result;
+        }
+
+        // 기존 크레딧 타입
         const typeMap = {
           'monthly': '월별 제공',
           'printing': '프린팅',
@@ -241,6 +253,17 @@ const formatters = {
 
     // 객체인 경우
     if (typeof credits === 'object') {
+      // 기타 크레딧 (커스텀 형식)
+      if (credits.type === 'other' && credits.customName) {
+        const unit = credits.unit || '크레딧';
+        const amount = credits.amount || 0;
+        let result = `${credits.customName} ${amount.toLocaleString()} ${unit} 제공`;
+        if (credits.note) {
+          result += ` / ${credits.note}`;
+        }
+        return result;
+      }
+
       const typeMap = {
         'monthly': '월별 제공',
         'printing': '프린팅',
@@ -814,13 +837,15 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0) => 
 
       // 2. 주차방식
       if (option.parking_type) {
-        const parkingMap = {
-          'self_parking': '• 자주식 주차',
-          'mechanical': '• 기계식 주차',
-        };
-        if (parkingMap[option.parking_type]) {
-          remarkItems.push(parkingMap[option.parking_type]);
+        const parkingTypeLabel = option.parking_type === 'self_parking' ? '자주식' : '기계식';
+        let parkingText = `• ${parkingTypeLabel} 주차`;
+        if (option.parking_count) {
+          parkingText += ` ${option.parking_count}대`;
         }
+        if (option.parking_cost) {
+          parkingText += ` ${parseInt(option.parking_cost).toLocaleString()}원`;
+        }
+        remarkItems.push(parkingText);
       }
 
       // 3. 크레딧
@@ -962,13 +987,26 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
 
   // 2. 주차방식 - 상세 설명 포함
   if (option.parking_type) {
-    const parkingMap = {
-      'self_parking': '자주식 주차 제공으로 편리한 주차환경 제공',
-      'mechanical': '기계식 주차 제공으로 주차 가능한 제원 검토 필요'
-    };
-    if (parkingMap[option.parking_type]) {
-      remarkItems.push(parkingMap[option.parking_type]);
+    const parkingTypeLabel = option.parking_type === 'self_parking' ? '자주식' : '기계식';
+    const countPart = option.parking_count ? ` ${option.parking_count}대` : '';
+
+    // 기본 문구 생성
+    let parkingText = `${parkingTypeLabel} 주차${countPart} 제공으로 편리한 주차환경 제공`;
+
+    // 추가 정보 (비용, 메모)
+    const extras = [];
+    if (option.parking_cost) {
+      extras.push(`${parseInt(option.parking_cost).toLocaleString()}원`);
     }
+    if (option.parking_note && option.parking_note.trim()) {
+      extras.push(option.parking_note.trim());
+    }
+
+    if (extras.length > 0) {
+      parkingText += ` / ${extras.join(', ')}`;
+    }
+
+    remarkItems.push(parkingText);
   }
 
   // 3. 크레딧

@@ -1486,6 +1486,8 @@ const BranchManagement = () => {
             }}
             title={isEditingMode ? "지점 수정" : "지점 상세"}
             size="5xl"
+            preventClose={isEditingMode}
+            preventCloseMessage="수정 중인 내용이 있습니다. 정말 닫으시겠습니까?"
           >
             {renderBranchForm(editBranch, setEditBranch, true, !isEditingMode)}
             <div className="flex gap-3 pt-4 border-t mt-4">

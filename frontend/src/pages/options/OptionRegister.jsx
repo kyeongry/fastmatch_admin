@@ -45,6 +45,8 @@ const OptionRegister = () => {
     credits: [],
     hvac_type: 'central',
     parking_type: 'self_parking',
+    parking_count: '',
+    parking_cost: '',
     parking_note: '',
     memo: '',
     floor_plan_url: '',
@@ -52,7 +54,7 @@ const OptionRegister = () => {
   });
 
   const [newFee, setNewFee] = useState({ type: '', amount: '', customType: '' });
-  const [newCredit, setNewCredit] = useState({ type: 'monthly', amount: '', note: '' });
+  const [newCredit, setNewCredit] = useState({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
   const [floorPlanFile, setFloorPlanFile] = useState(null);
 
   // 기타 정보 팝업 상태
@@ -72,48 +74,6 @@ const OptionRegister = () => {
     }
   }, [formData.brand_id]);
 
-  // 평면도 입력 필드에 paste 이벤트 리스너 추가
-  useEffect(() => {
-    const handlePaste = async (e) => {
-      // 업로드 중이면 무시
-      if (uploadInProgressRef.current) {
-        e.preventDefault();
-        warning('이미지 업로드 중입니다. 완료 후 다시 시도해주세요.');
-        return;
-      }
-
-      const items = e.clipboardData?.items;
-      if (!items) return;
-
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-
-        // 이미지 파일인 경우
-        if (item.type.indexOf('image') !== -1) {
-          e.preventDefault();
-          e.stopPropagation();
-          const blob = item.getAsFile();
-          if (blob) {
-            uploadInProgressRef.current = true;
-            try {
-              await handleFloorPlanUpload(blob);
-            } finally {
-              uploadInProgressRef.current = false;
-            }
-          }
-          return;
-        }
-      }
-    };
-
-    const inputElement = floorPlanInputRef.current;
-    if (inputElement) {
-      inputElement.addEventListener('paste', handlePaste);
-      return () => {
-        inputElement.removeEventListener('paste', handlePaste);
-      };
-    }
-  }, []);
 
   const fetchBrands = async () => {
     try {
@@ -263,11 +223,21 @@ const OptionRegister = () => {
 
   const handleAddCredit = () => {
     if (newCredit.type && newCredit.amount) {
+      const creditData = {
+        type: newCredit.type,
+        amount: parseInt(newCredit.amount),
+        note: newCredit.note,
+      };
+      // 기타 크레딧일 경우 추가 정보 저장
+      if (newCredit.type === 'other') {
+        creditData.customName = newCredit.customName || '';
+        creditData.unit = newCredit.unit || '크레딧';
+      }
       setFormData((prev) => ({
         ...prev,
-        credits: [...prev.credits, { type: newCredit.type, amount: parseInt(newCredit.amount), note: newCredit.note }],
+        credits: [...prev.credits, creditData],
       }));
-      setNewCredit({ type: 'monthly', amount: '', note: '' });
+      setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
     }
   };
 
@@ -327,6 +297,8 @@ const OptionRegister = () => {
         office_info: formData.office_info || null,
         hvac_type: formData.hvac_type || null,
         parking_type: formData.parking_type || null,
+        parking_count: formData.parking_count ? parseInt(formData.parking_count) : null,
+        parking_cost: formData.parking_cost ? parseInt(formData.parking_cost) : null,
         parking_note: formData.parking_note || null,
         memo: formData.memo || null,
         floor_plan_url: formData.floor_plan_url || null,
@@ -738,9 +710,12 @@ const OptionRegister = () => {
         onClose={() => {
           setShowOtherInfoModal(false);
           setActiveSection(null);
+          setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
         }}
         title="기타 옵션 추가"
         size="4xl"
+        preventClose={activeSection === 'credit' && (newCredit.amount || newCredit.customName || newCredit.note)}
+        preventCloseMessage="입력 중인 크레딧 정보가 있습니다. 크레딧 추가 버튼을 눌러 저장하거나, 정말 닫으시겠습니까?"
       >
         <div className="space-y-4">
           {/* 옵션 버튼들 */}
@@ -828,24 +803,65 @@ const OptionRegister = () => {
                   ← 뒤로
                 </button>
               </div>
-              <select
-                value={formData.parking_type}
-                onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="self_parking">자주식</option>
-                <option value="mechanical">기계식</option>
-              </select>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주차방식 *</label>
+                <select
+                  value={formData.parking_type}
+                  onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="self_parking">자주식</option>
+                  <option value="mechanical">기계식</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">대 수 (선택)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.parking_count}
+                    onChange={(e) => setFormData({ ...formData, parking_count: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="예: 2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">주차비용 (선택)</label>
+                  <input
+                    type="text"
+                    value={formData.parking_cost ? formatNumberInput(formData.parking_cost) : ''}
+                    onChange={(e) => {
+                      const numericValue = parseNumberInput(e.target.value);
+                      setFormData({ ...formData, parking_cost: numericValue });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="예: 250,000"
+                  />
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">추가 메모 (선택)</label>
                 <textarea
                   value={formData.parking_note}
                   onChange={(e) => setFormData({ ...formData, parking_note: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  rows="3"
-                  placeholder="주차 관련 추가 정보를 입력하세요"
+                  rows="2"
+                  placeholder="예: 선착순 대기, SUV 입고 불가, 대수협의 필요 등"
                 />
               </div>
+              {/* 미리보기 */}
+              {formData.parking_type && (
+                <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-sm font-medium text-green-800">미리보기:</p>
+                  <p className="text-sm text-green-700 mt-1">
+                    {formData.parking_type === 'self_parking' ? '자주식' : '기계식'}
+                    {formData.parking_count && ` ${formData.parking_count}대`}
+                    {formData.parking_cost && ` ${parseInt(formData.parking_cost).toLocaleString()}원`}
+                    {formData.parking_note && ` ${formData.parking_note}`}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -918,9 +934,13 @@ const OptionRegister = () => {
                         {credit.type === 'monthly' && '월별 제공 크레딧'}
                         {credit.type === 'printing' && '프린팅 크레딧'}
                         {credit.type === 'meeting_room' && '미팅룸 크레딧'}
-                        {credit.type === 'other' && '기타 크레딧'}
+                        {credit.type === 'other' && (credit.customName || '기타 크레딧')}
                       </div>
-                      <div className="text-sm text-gray-700 mt-1">수량: {credit.amount.toLocaleString()}</div>
+                      <div className="text-sm text-gray-700 mt-1">
+                        {credit.type === 'other'
+                          ? `${credit.amount.toLocaleString()} ${credit.unit || '크레딧'} 제공`
+                          : `수량: ${credit.amount.toLocaleString()}`}
+                      </div>
                       {credit.note && <div className="text-xs text-gray-600 mt-1">{credit.note}</div>}
                     </div>
                     <button
@@ -942,7 +962,7 @@ const OptionRegister = () => {
                 <label className="block text-sm font-medium text-gray-700">새 크레딧 추가</label>
                 <select
                   value={newCredit.type}
-                  onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
+                  onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value, customName: '', unit: '크레딧' })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="monthly">월별 제공 크레딧</option>
@@ -950,24 +970,89 @@ const OptionRegister = () => {
                   <option value="meeting_room">미팅룸 크레딧</option>
                   <option value="other">기타 크레딧</option>
                 </select>
-                <input
-                  type="number"
-                  value={newCredit.amount}
-                  onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="수량을 입력하세요"
-                />
-                <textarea
-                  value={newCredit.note}
-                  onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  rows="2"
-                  placeholder="추가 설명 (선택사항)"
-                />
+
+                {/* 기타 크레딧 선택시 추가 입력 필드 */}
+                {newCredit.type === 'other' && (
+                  <div className="space-y-3 p-3 bg-gray-50 rounded-lg border">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">명칭</label>
+                      <input
+                        type="text"
+                        value={newCredit.customName}
+                        onChange={(e) => setNewCredit({ ...newCredit, customName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        placeholder="예: 공용 미팅룸 사용 시간, 프린팅"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">수량</label>
+                        <input
+                          type="number"
+                          value={newCredit.amount}
+                          onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                          placeholder="예: 80"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">단위</label>
+                        <input
+                          type="text"
+                          value={newCredit.unit}
+                          onChange={(e) => setNewCredit({ ...newCredit, unit: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                          placeholder="예: 시간, 장, 회"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">추가설명 (선택)</label>
+                      <textarea
+                        value={newCredit.note}
+                        onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        rows="2"
+                        placeholder="예: 공용 미팅룸"
+                      />
+                    </div>
+                    {/* 미리보기 */}
+                    {(newCredit.customName || newCredit.amount) && (
+                      <div className="p-2 bg-green-50 rounded border border-green-200">
+                        <p className="text-xs font-medium text-green-800">미리보기:</p>
+                        <p className="text-sm text-green-700">
+                          {newCredit.customName || '(명칭)'} {newCredit.amount || '(수량)'} {newCredit.unit} 제공
+                          {newCredit.note && ` / ${newCredit.note}`}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 기존 크레딧 타입 선택시 */}
+                {newCredit.type !== 'other' && (
+                  <>
+                    <input
+                      type="number"
+                      value={newCredit.amount}
+                      onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="수량을 입력하세요"
+                    />
+                    <textarea
+                      value={newCredit.note}
+                      onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      rows="2"
+                      placeholder="추가 설명 (선택사항)"
+                    />
+                  </>
+                )}
                 <button
                   type="button"
                   onClick={handleAddCredit}
-                  className="w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium"
+                  disabled={!newCredit.amount || (newCredit.type === 'other' && !newCredit.customName)}
+                  className="w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   크레딧 추가
                 </button>
@@ -988,41 +1073,111 @@ const OptionRegister = () => {
                   ← 뒤로
                 </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">평면도 URL 입력 (이미지 붙여넣기 가능)</label>
-                <input
-                  ref={floorPlanInputRef}
-                  type="text"
-                  value={formData.floor_plan_url}
-                  onChange={(e) => setFormData({ ...formData, floor_plan_url: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="이미지 URL을 붙여넣거나 Ctrl+V로 이미지를 붙여넣으세요"
-                />
-                {formData.floor_plan_url && (
-                  <div className="mt-2">
-                    <p className="text-sm text-green-600">✓ URL이 입력되었습니다</p>
-                    <img
-                      src={formData.floor_plan_url}
-                      alt="평면도 미리보기"
-                      className="mt-2 max-w-xs rounded border"
-                      onError={(e) => e.target.style.display = 'none'}
+              <div
+                ref={floorPlanInputRef}
+                className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDrop={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const files = e.dataTransfer.files;
+                  if (files && files[0] && files[0].type.startsWith('image/')) {
+                    await handleFloorPlanUpload(files[0]);
+                  }
+                }}
+                onPaste={async (e) => {
+                  // 업로드 중이면 무시
+                  if (uploadInProgressRef.current) {
+                    e.preventDefault();
+                    warning('이미지 업로드 중입니다. 완료 후 다시 시도해주세요.');
+                    return;
+                  }
+
+                  const items = e.clipboardData?.items;
+                  if (!items) return;
+                  for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.type.startsWith('image/')) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const blob = item.getAsFile();
+                      if (blob) {
+                        uploadInProgressRef.current = true;
+                        try {
+                          await handleFloorPlanUpload(blob);
+                        } finally {
+                          uploadInProgressRef.current = false;
+                        }
+                      }
+                      return;
+                    }
+                    if (item.type === 'text/plain') {
+                      item.getAsString((text) => {
+                        if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
+                          setFormData({ ...formData, floor_plan_url: text.trim() });
+                          success('평면도 URL이 설정되었습니다');
+                        }
+                      });
+                    }
+                  }
+                }}
+                tabIndex={0}
+              >
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  평면도 이미지
+                  <span className="text-xs text-gray-500 ml-2">(드래그앤드롭, 파일 선택, 클립보드 붙여넣기)</span>
+                </label>
+                <div className="flex gap-4 items-start flex-wrap">
+                  {formData.floor_plan_url ? (
+                    <div className="relative">
+                      <img
+                        src={formData.floor_plan_url}
+                        alt="평면도 미리보기"
+                        className="h-32 w-32 object-cover rounded-lg border border-gray-300 shadow-sm"
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({ ...formData, floor_plan_url: '' });
+                          setFloorPlanFile(null);
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 shadow"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-32 h-32 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-400 border border-gray-200">
+                      <svg className="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-xs">이미지 드롭</span>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFloorPlanUpload(e.target.files[0])}
+                      className="hidden"
+                      id="floorPlanFileInput"
                     />
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('floorPlanFileInput').click()}
+                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
+                    >
+                      파일 선택
+                    </button>
                   </div>
-                )}
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex-1 border-t border-gray-300"></div>
-                <span className="text-sm text-gray-500">또는</span>
-                <div className="flex-1 border-t border-gray-300"></div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">평면도 파일 업로드</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFloorPlanUpload(e.target.files[0])}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  이미지를 드래그하거나, Ctrl+V로 붙여넣기하거나, 버튼을 클릭하세요
+                </p>
                 {floorPlanFile && (
                   <p className="mt-2 text-sm text-gray-600">선택된 파일: {floorPlanFile.name}</p>
                 )}
@@ -1056,19 +1211,38 @@ const OptionRegister = () => {
             </div>
           )}
 
-          {/* 완료 버튼 */}
-          <div className="flex justify-end pt-4 border-t mt-6">
+          {/* 취소/확인 버튼 */}
+          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
             <button
               type="button"
               onClick={() => {
                 setShowOtherInfoModal(false);
                 setActiveSection(null);
+                setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
               }}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowOtherInfoModal(false);
+                setActiveSection(null);
+                setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
+              }}
+              disabled={activeSection === 'credit' && (newCredit.amount || newCredit.customName || newCredit.note)}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               확인
             </button>
           </div>
+          {/* 크레딧 입력중 안내 메시지 */}
+          {activeSection === 'credit' && (newCredit.amount || newCredit.customName || newCredit.note) && (
+            <p className="text-xs text-orange-600 text-right mt-2">
+              * 입력 중인 크레딧이 있습니다. 크레딧 추가 버튼을 눌러 저장해주세요.
+            </p>
+          )}
         </div>
       </Modal>
     </Layout>
