@@ -4,6 +4,7 @@ const {
   createProposalDocument,
   updateProposalDocument,
   deleteProposalDocument,
+  bulkDeleteProposalDocuments,
   getProposalDocumentWithOptions,
 } = require('../services/proposalDocument.service');
 const { generateProposalPDF, getExistingPDFUrl } = require('../services/proposalPDF.service');
@@ -79,6 +80,17 @@ const remove = async (req, res, next) => {
   }
 };
 
+// 제안서 일괄 삭제
+const bulkRemove = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    const result = await bulkDeleteProposalDocuments(ids, req.user.id);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // 제안서 PDF 생성 및 다운로드
 const generatePDF = async (req, res, next) => {
   try {
@@ -134,5 +146,6 @@ module.exports = {
   create,
   update,
   remove,
+  bulkRemove,
   generatePDF,
 };

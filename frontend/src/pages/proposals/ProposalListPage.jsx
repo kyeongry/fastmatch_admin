@@ -9,6 +9,8 @@ const ProposalListPage = () => {
     const [loading, setLoading] = useState(true);
     const [pdfGenerating, setPdfGenerating] = useState({});
     const [deleting, setDeleting] = useState({});
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
     const navigate = useNavigate();
     const { error: showError, success: showSuccess } = useToast();
 
@@ -27,11 +29,55 @@ const ProposalListPage = () => {
             const response = await proposalDocumentAPI.getAll({ page, pageSize });
             setProposals(response.data?.documents || []);
             setTotal(response.data?.total || 0);
+            setSelectedIds([]); // 페이지 변경 시 선택 초기화
         } catch (err) {
             console.error('Failed to fetch proposals:', err);
             showError('제안서 목록을 불러오는데 실패했습니다.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // 전체 선택/해제
+    const handleSelectAll = (checked) => {
+        if (checked) {
+            setSelectedIds(proposals.map(p => p.id || p._id));
+        } else {
+            setSelectedIds([]);
+        }
+    };
+
+    // 개별 선택/해제
+    const handleSelectOne = (id, checked) => {
+        if (checked) {
+            setSelectedIds(prev => [...prev, id]);
+        } else {
+            setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
+        }
+    };
+
+    // 일괄 삭제
+    const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) {
+            showError('삭제할 제안서를 선택해주세요.');
+            return;
+        }
+
+        if (!window.confirm(`선택한 ${selectedIds.length}개의 제안서를 삭제하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            setBulkDeleting(true);
+            const response = await proposalDocumentAPI.bulkDelete(selectedIds);
+            showSuccess(response.data?.message || `${selectedIds.length}개의 제안서가 삭제되었습니다.`);
+            setSelectedIds([]);
+            fetchProposals();
+        } catch (err) {
+            console.error('일괄 삭제 실패:', err);
+            showError(err.response?.data?.message || '일괄 삭제에 실패했습니다.');
+        } finally {
+            setBulkDeleting(false);
         }
     };
 
@@ -149,11 +195,46 @@ const ProposalListPage = () => {
                     </div>
                 </div>
 
-                {/* 페이지 크기 선택 */}
+                {/* 페이지 크기 선택 및 일괄 삭제 */}
                 <div className="flex justify-between items-center mb-4">
-                    <p className="text-sm text-gray-500">
-                        총 {total}개의 제안서
-                    </p>
+                    <div className="flex items-center gap-4">
+                        <p className="text-sm text-gray-500">
+                            총 {total}개의 제안서
+                        </p>
+                        {selectedIds.length > 0 && (
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-blue-600 font-medium">
+                                    {selectedIds.length}개 선택됨
+                                </span>
+                                <button
+                                    onClick={handleBulkDelete}
+                                    disabled={bulkDeleting}
+                                    className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition ${
+                                        bulkDeleting
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                            : 'bg-red-600 text-white hover:bg-red-700'
+                                    }`}
+                                >
+                                    {bulkDeleting ? (
+                                        <>
+                                            <svg className="animate-spin -ml-0.5 mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            삭제중...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            선택 삭제
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        )}
+                    </div>
                     <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-500">표시:</span>
                         <select
@@ -182,6 +263,14 @@ const ProposalListPage = () => {
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
+                                        <th className="px-4 py-3 text-left">
+                                            <input
+                                                type="checkbox"
+                                                checked={proposals.length > 0 && selectedIds.length === proposals.length}
+                                                onChange={(e) => handleSelectAll(e.target.checked)}
+                                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                                            />
+                                        </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             제안서명
                                         </th>
@@ -202,7 +291,7 @@ const ProposalListPage = () => {
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {proposals.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                            <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                                                 생성된 제안서가 없습니다.
                                             </td>
                                         </tr>
@@ -210,9 +299,18 @@ const ProposalListPage = () => {
                                         proposals.map((proposal) => {
                                             const daysLeft = getDaysUntilDeletion(proposal.created_at);
                                             const isUrgent = daysLeft <= 7;
+                                            const proposalId = proposal.id || proposal._id;
 
                                             return (
-                                                <tr key={proposal._id || proposal.id} className="hover:bg-gray-50">
+                                                <tr key={proposalId} className="hover:bg-gray-50">
+                                                    <td className="px-4 py-4">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedIds.includes(proposalId)}
+                                                            onChange={(e) => handleSelectOne(proposalId, e.target.checked)}
+                                                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                                                        />
+                                                    </td>
                                                     <td className="px-6 py-4">
                                                         <div className="text-sm font-medium text-gray-900">
                                                             {proposal.document_name}

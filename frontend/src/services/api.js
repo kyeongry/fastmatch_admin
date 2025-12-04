@@ -160,6 +160,7 @@ export const proposalDocumentAPI = {
   create: (data) => api.post('/proposals/documents', data),
   update: (id, data) => api.put(`/proposals/documents/${id}`, data),
   delete: (id) => api.delete(`/proposals/documents/${id}`),
+  bulkDelete: (ids) => api.post('/proposals/documents/bulk-delete', { ids }),
   generatePDF: (id, regenerate = false) =>
     api.get(`/proposals/documents/${id}/pdf`, {
       params: { regenerate },

@@ -287,10 +287,50 @@ const deleteProposalDocument = async (id, userId) => {
   }
 };
 
+// 제안서 일괄 삭제
+const bulkDeleteProposalDocuments = async (ids, userId) => {
+  try {
+    if (!ids || ids.length === 0) {
+      throw new Error('삭제할 제안서를 선택해주세요');
+    }
+
+    const db = await getDatabase();
+
+    // 삭제할 문서들이 모두 현재 사용자의 것인지 확인
+    const documents = await db.collection('proposal_documents').find({
+      _id: { $in: ids.map(id => new ObjectId(id)) }
+    }).toArray();
+
+    if (documents.length !== ids.length) {
+      throw new Error('일부 제안서를 찾을 수 없습니다');
+    }
+
+    const unauthorized = documents.filter(doc => doc.creator_id.toString() !== userId);
+    if (unauthorized.length > 0) {
+      throw new Error('삭제 권한이 없는 제안서가 포함되어 있습니다');
+    }
+
+    // 일괄 삭제 실행
+    const result = await db.collection('proposal_documents').deleteMany({
+      _id: { $in: ids.map(id => new ObjectId(id)) }
+    });
+
+    return {
+      success: true,
+      message: `${result.deletedCount}개의 제안서가 삭제되었습니다`,
+      deletedCount: result.deletedCount
+    };
+  } catch (error) {
+    console.error('❌ Bulk delete proposal documents error:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   getProposalDocuments,
   getProposalDocumentById,
   createProposalDocument,
   updateProposalDocument,
   deleteProposalDocument,
+  bulkDeleteProposalDocuments,
 };
