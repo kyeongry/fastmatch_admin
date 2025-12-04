@@ -372,18 +372,19 @@
             vertical-align: middle;
         }
 
-        /* 비고 셀 - 1줄 */
-        .info-table .remark-cell.remark-1line {
+        /* 비고 셀 - 기본 1줄 스타일 (다른 셀과 동일한 8pt 유지) */
+        .info-table .remark-cell {
+            font-size: var(--option-table-font-size) !important;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* 비고 셀 - 2줄 지원 */
+        /* 비고 셀 - 2줄 지원 (긴 텍스트일 때만 7pt로 축소) */
         .info-table .remark-cell.remark-2line {
             height: var(--bottom-cell-height) !important;
             line-height: 1.3 !important;
-            white-space: normal !important;
+            white-space: pre-line !important;
             padding: 4px 10px !important;
             font-size: 7pt !important;
             overflow: hidden;
@@ -391,14 +392,15 @@
             vertical-align: middle;
         }
 
-        /* 오피스 정보 셀 - 1줄 기본 스타일 */
+        /* 오피스 정보 셀 - 기본 1줄 스타일 (다른 셀과 동일한 8pt 유지) */
         .info-table .office-info-cell {
+            font-size: var(--option-table-font-size) !important;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* 오피스 정보 셀 - 2줄용 (긴 텍스트) */
+        /* 오피스 정보 셀 - 2줄용 (긴 텍스트일 때만 7pt로 축소) */
         .info-table .office-info-cell.office-info-2line {
             white-space: pre-line !important;
             line-height: 1.3 !important;
