@@ -1026,21 +1026,26 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
     remarkItems.push(parkingText);
   }
 
-  // 3. 크레딧
+  // 3. 크레딧 (형식: {{크레딧종류}} : 월 {{수량}} {{단위}} 제공)
   if (option.credits && Array.isArray(option.credits) && option.credits.length > 0) {
-    // 크레딧 : {{명칭}} {{수량}} {{단위}} +"제공" / {{추가설명}}
     const creditTexts = option.credits.map(credit => {
+      const amount = credit.amount || 0;
       let text = '';
-      if (credit.type === 'other' && credit.customName) {
-        text = `크레딧 : ${credit.customName} ${credit.amount}${credit.unit || '크레딧'} 제공`;
+
+      if (credit.type === 'other') {
+        // 기타: {명칭} : 월 {수량} {단위} 제공
+        const customName = credit.customName || '기타';
+        const unit = credit.unit || '크레딧';
+        text = `${customName} : 월 ${amount.toLocaleString()} ${unit} 제공`;
       } else {
+        // 크레딧/프린팅/미팅룸: {크레딧종류} : 월 {수량} 크레딧 제공
         const typeMap = {
-          'monthly': '월별 제공',
+          'monthly': '크레딧',
           'printing': '프린팅',
           'meeting_room': '미팅룸',
-          'other': '기타',
         };
-        text = `크레딧 : ${typeMap[credit.type] || '기타'} ${credit.amount}크레딧 제공`;
+        const typeName = typeMap[credit.type] || '크레딧';
+        text = `${typeName} : 월 ${amount.toLocaleString()} 크레딧 제공`;
       }
 
       if (credit.note) {
@@ -1050,7 +1055,6 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
     });
 
     // 여러 크레딧이 있으면 줄바꿈으로 연결하거나 하나씩 추가
-    // 여기서는 하나로 합쳐서 추가 (공간 고려)
     if (creditTexts.length > 0) {
       remarkItems.push(creditTexts.join('\n'));
     }
@@ -1061,24 +1065,27 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
     remarkItems.push(option.memo.trim());
   }
 
-  // 비고 칸 글자수 기준: 1줄(45자 이하), 2줄(45자 초과)
-  // CSS에서 -webkit-line-clamp로 2줄까지만 표시하고 나머지는 ...으로 처리
-  const MAX_1LINE = 45;  // 1줄에 들어가는 최대 글자수
+  // 비고 칸 글자수 기준: 1줄(50자 이하), 2줄(50자 초과 또는 줄바꿈 포함)
+  // 1줄일 때는 기본 폰트(8pt)와 동일, 2줄일 때만 작은 폰트(7pt) 적용
+  const MAX_1LINE = 50;  // 1줄에 들어가는 최대 글자수
 
   // 각 비고 항목에 클래스 결정 (CSS가 overflow 처리)
+  // - 빈 텍스트 또는 짧은 텍스트: 클래스 없음 (기본 8pt)
+  // - 줄바꿈 포함 또는 긴 텍스트: remark-2line (7pt)
   const remarkClasses = [];
   for (let i = 0; i < 3; i++) {
     const text = remarkItems[i] || '';
     let cssClass = '';
 
     if (text.length === 0) {
+      // 빈 텍스트: 기본 스타일 (8pt)
       cssClass = '';
-    } else if (text.length <= MAX_1LINE) {
-      // 1줄에 충분히 들어가는 경우
-      cssClass = 'remark-1line';
-    } else {
-      // 2줄 필요한 경우 - CSS가 overflow 처리
+    } else if (text.includes('\n') || text.length > MAX_1LINE) {
+      // 줄바꿈이 있거나 50자 초과: 2줄로 처리 (7pt)
       cssClass = 'remark-2line';
+    } else {
+      // 1줄에 들어가는 경우: 기본 스타일 (8pt)
+      cssClass = '';
     }
     remarkClasses.push(cssClass);
   }
@@ -1118,9 +1125,10 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
 
   html = replaceVariables(html, variables);
 
-  // office-info-cell에 동적 클래스 적용 (오피스 정보 길이에 따라)
+  // office-info-cell에 동적 클래스 적용 (오피스 정보 길이 또는 줄바꿈에 따라)
+  // 1줄일 때는 기본 폰트(8pt), 2줄일 때만 작은 폰트(7pt) 적용
   const officeInfo = option.office_info || '';
-  const officeInfoClass = officeInfo.length > MAX_1LINE ? 'office-info-2line' : '';
+  const officeInfoClass = (officeInfo.includes('\n') || officeInfo.length > MAX_1LINE) ? 'office-info-2line' : '';
   if (officeInfoClass) {
     html = html.replace(
       /<td class="office-info-cell">/g,
