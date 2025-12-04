@@ -212,7 +212,8 @@
         }
 
         .option-bottom-section .option-table-wrap .info-table {
-            flex: none; /* 테이블 크기 고정 - 8행(224px) */
+            flex: none;
+            /* 테이블 크기 고정 - 8행(224px) */
         }
 
         .option-info-group {
@@ -230,17 +231,20 @@
 
         /* 건물 정보와 임대 정보의 고정 크기 */
         .option-info-group>div:first-child {
-            flex: 0 0 100px; /* 건물 정보: label(24px) + 2행(38px×2=76px) = 100px */
+            flex: 0 0 100px;
+            /* 건물 정보: label(24px) + 2행(38px×2=76px) = 100px */
             max-height: 100px;
         }
 
         .option-info-group>div:last-child {
-            flex: 0 0 214px; /* 임대 정보: label(24px) + 5행(38px×5=190px) = 214px */
+            flex: 0 0 214px;
+            /* 임대 정보: label(24px) + 5행(38px×5=190px) = 214px */
             max-height: 214px;
         }
 
         .option-info-group .info-table {
-            flex: none; /* 테이블 크기 고정 */
+            flex: none;
+            /* 테이블 크기 고정 */
         }
 
         .section-label {
@@ -647,6 +651,7 @@
         </div>
     </div>
 
+    <!-- FLOOR_PLAN_START -->
     <!-- 평면도 페이지 -->
     <div class="page floorplan-page">
         <div class="page-header">
@@ -675,6 +680,7 @@
             </div>
         </div>
     </div>
+    <!-- FLOOR_PLAN_END -->
 
     <!-- 카카오맵 지도는 서버 사이드에서 정적 이미지로 삽입되므로 JavaScript 초기화 불필요 -->
 </body>

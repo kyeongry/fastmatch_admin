@@ -505,8 +505,8 @@ const OptionDetailSlide = ({
                   onClick={handleSaveEdit}
                   disabled={isSaving || !hasChanges}
                   className={`px-4 py-2 font-medium rounded-lg transition text-sm ${hasChanges
-                      ? 'bg-primary-500 text-white hover:bg-primary-600'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    ? 'bg-primary-500 text-white hover:bg-primary-600'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }`}
                 >
                   {isSaving ? '저장 중...' : '저장'}
@@ -718,6 +718,15 @@ const OptionDetailSlide = ({
 
               {renderEditableField('냉난방', 'hvac_type', 'select', hvacOptions)}
               {renderEditableField('주차', 'parking_type', 'select', parkingOptions)}
+
+              {/* 주차 상세 정보 (읽기 모드) */}
+              {!isEditMode && option.parking_type && (
+                <div className="pl-32 text-sm text-gray-600 space-y-1 mt-1">
+                  {option.parking_count && <div>대수: {option.parking_count}대</div>}
+                  {option.parking_cost && <div>비용: {formatNumberWithComma(option.parking_cost)}원</div>}
+                  {option.parking_note && <div>비고: {option.parking_note}</div>}
+                </div>
+              )}
               {/* 주차 상세 입력 (수정 모드일 때만 보임) */}
               {isEditMode && editData.parking_type && (
                 <div className="pl-32 space-y-2">

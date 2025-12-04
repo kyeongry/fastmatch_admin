@@ -951,8 +951,18 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
   // 평면도가 없으면 평면도 페이지 제거
   if (!option.floor_plan_url) {
     console.log(`   ⚠️ 평면도 없음 - 평면도 페이지 제거`);
-    // 평면도 페이지 전체 블록 제거: <!-- 평면도 페이지 --> 부터 해당 page div 끝까지
-    html = html.replace(/\s*<!-- 평면도 페이지 -->\s*<div class="page floorplan-page">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*<\/div>/g, '');
+    // 평면도 페이지 전체 블록 제거 (마커 사용)
+    const startMarker = '<!-- FLOOR_PLAN_START -->';
+    const endMarker = '<!-- FLOOR_PLAN_END -->';
+
+    const startIndex = html.indexOf(startMarker);
+    const endIndex = html.indexOf(endMarker);
+
+    if (startIndex !== -1 && endIndex !== -1) {
+      html = html.substring(0, startIndex) + html.substring(endIndex + endMarker.length);
+    } else {
+      console.warn('   ⚠️ 평면도 페이지 마커를 찾을 수 없습니다.');
+    }
   }
 
   // 이미지를 Base64로 변환

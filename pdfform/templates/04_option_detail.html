@@ -212,7 +212,8 @@
         }
 
         .option-bottom-section .option-table-wrap .info-table {
-            flex: none; /* 테이블 크기 고정 - 8행(224px) */
+            flex: none;
+            /* 테이블 크기 고정 - 8행(224px) */
         }
 
         .option-info-group {
@@ -230,17 +231,20 @@
 
         /* 건물 정보와 임대 정보의 고정 크기 */
         .option-info-group>div:first-child {
-            flex: 0 0 100px; /* 건물 정보: label(24px) + 2행(38px×2=76px) = 100px */
+            flex: 0 0 100px;
+            /* 건물 정보: label(24px) + 2행(38px×2=76px) = 100px */
             max-height: 100px;
         }
 
         .option-info-group>div:last-child {
-            flex: 0 0 214px; /* 임대 정보: label(24px) + 5행(38px×5=190px) = 214px */
+            flex: 0 0 214px;
+            /* 임대 정보: label(24px) + 5행(38px×5=190px) = 214px */
             max-height: 214px;
         }
 
         .option-info-group .info-table {
-            flex: none; /* 테이블 크기 고정 */
+            flex: none;
+            /* 테이블 크기 고정 */
         }
 
         .section-label {
@@ -633,41 +637,241 @@
                 <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
             </div>
             <div class="footer-copyright">
-                Copyright 2025. smatch. all rights reserved.
-            </div>
-        </div>
-    </div>
+                height: auto;
+                object-fit: contain;
+                }
 
-    <!-- 평면도 페이지 -->
-    <div class="page floorplan-page">
-        <div class="page-header">
-            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 평면도</div>
-            <div class="header-right">
-                <div class="manager-info">
-                    <span class="label">담당 매니저</span>
-                    <span>{{담당자명}}</span>
-                    <span>{{담당자 연락처}}</span>
-                    <span>{{담당자 이메일}}</span>
-                </div>
-                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png" alt="FastMatch"></div>
-            </div>
-        </div>
-        <div class="page-content">
-            <div class="floorplan-box">
-                <img src="" alt="평면도" data-placeholder="{{평면도}}">
-            </div>
-        </div>
-        <div class="page-footer">
-            <div class="footer-company">
-                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
-            </div>
-            <div class="footer-copyright">
-                Copyright 2025. smatch. all rights reserved.
-            </div>
-        </div>
-    </div>
+                /* 푸터 */
+                .page-footer {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: var(--footer-height);
+                padding: 0 24px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: var(--footer-font-size);
+                color: #888;
+                background: white;
+                }
 
-    <!-- 카카오맵 지도는 서버 사이드에서 정적 이미지로 삽입되므로 JavaScript 초기화 불필요 -->
-</body>
+                .footer-company {
+                display: flex;
+                gap: 16px;
+                }
+
+                .footer-company span {
+                color: #666;
+                }
+
+                .footer-copyright {
+                color: #999;
+                }
+                </style>
+                </head>
+
+                <body>
+                    <!-- 옵션 상세 페이지 -->
+                    <div class="page option-page">
+                        <div class="page-header">
+                            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 상세안내</div>
+                            <div class="header-right">
+                                <div class="manager-info">
+                                    <span class="label">담당 매니저</span>
+                                    <span>{{담당자명}}</span>
+                                    <span>{{담당자 연락처}}</span>
+                                    <span>{{담당자 이메일}}</span>
+                                </div>
+                                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png"
+                                        alt="FastMatch"></div>
+                            </div>
+                        </div>
+                        <div class="page-content">
+                            <div class="option-left">
+                                <div class="option-top-section">
+                                    <div class="section-label">외관 사진</div>
+                                    <div class="option-photo-box">
+                                        <img src="" alt="지점 외관 사진" data-placeholder="{{지점 외관 사진}}">
+                                    </div>
+                                </div>
+                                <div class="option-bottom-section">
+                                    <div class="section-label">위치 및 교통</div>
+                                    <div class="option-map-box" id="map" data-lat="{{위도}}" data-lng="{{경도}}"></div>
+                                </div>
+                            </div>
+                            <div class="option-right">
+                                <div class="option-top-section">
+                                    <div class="option-info-group">
+                                        <div>
+                                            <div class="info-block-title">건물 정보</div>
+                                            <table class="info-table">
+                                                <tr>
+                                                    <th>주소</th>
+                                                    <td>{{주소}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>교통</th>
+                                                    <td>{{교통}}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div>
+                                            <div class="info-block-title">임대 정보</div>
+                                            <table class="info-table">
+                                                <tr class="highlight-bg">
+                                                    <th>인실</th>
+                                                    <td>{{인실}}</td>
+                                                </tr>
+                                                <tr class="highlight-bg">
+                                                    <th>보증금</th>
+                                                    <td>{{보증금}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>정가</th>
+                                                    <td>{{정가}}<span class="vat-note">(부가세 별도)</span></td>
+                                                </tr>
+                                                <tr class="highlight-bg discount-row">
+                                                    <th>할인가({{개월수}} 기준)</th>
+                                                    <td>{{할인가}}<span class="vat-note">(부가세 별도)</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>일회성 비용</th>
+                                                    <td>{{일회성 비용}}<span class="vat-note">(부가세 별도)</span></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="option-bottom-section">
+                                    <div class="section-label">기타 정보</div>
+                                    <div class="option-table-wrap">
+                                        <table class="info-table">
+                                            <tr>
+                                                <th>입주가능시기</th>
+                                                <td>{{입주 가능일}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>오피스 정보</th>
+                                                <td>{{오피스 정보}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th rowspan="3">기본 정보</th>
+                                                <td>{{기본 정보1}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{{기본 정보2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{{기본 정보3}}</td>
+                                            </tr>
+                                            <!-- 비고 데이터 형식:
+                                 냉난방식: 중앙냉난방식 → "중앙 냉난방식 제공으로 건물 운영시간 외 냉난방 사용 협의 필요"
+                                          개별냉난방식 → "개별 냉난방식 제공으로 24시간 제한 없이 사용 가능"
+                                 주차: 자주식 → "자주식 주차 제공으로 편리한 주차환경 제공"
+                                      기계식 → "기계식 주차 제공으로 주차 가능한 제원 검토 필요"
+                                 크레딧: "월별 OO 크레딧 : 00크레딧" (예: "월별 미팅룸 크레딧 : 30크레딧")
+                                 텍스트: 입력한 대로 표기 -->
+                                            <tr>
+                                                <th rowspan="3">비고</th>
+                                                <td class="remark-cell">{{기타1}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="remark-cell">{{기타2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="remark-cell">{{기타3}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="page-footer">
+                            <div class="footer-company">
+                                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+                            </div>
+                            <div class="footer-copyright">
+                                Copyright 2025. smatch. all rights reserved.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 내부 사진 페이지 -->
+                    <div class="page photos-page">
+                        <div class="page-header">
+                            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 내부사진</div>
+                            <div class="header-right">
+                                <div class="manager-info">
+                                    <span class="label">담당 매니저</span>
+                                    <span>{{담당자명}}</span>
+                                    <span>{{담당자 연락처}}</span>
+                                    <span>{{담당자 이메일}}</span>
+                                </div>
+                                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png"
+                                        alt="FastMatch"></div>
+                            </div>
+                        </div>
+                        <div class="page-content">
+                            <div class="photos-grid">
+                                <div class="photo-box">
+                                    <img src="" alt="내부 사진1" data-placeholder="{{내부 사진1}}">
+                                </div>
+                                <div class="photo-box">
+                                    <img src="" alt="내부 사진2" data-placeholder="{{내부 사진2}}">
+                                </div>
+                                <div class="photo-box">
+                                    <img src="" alt="내부 사진3" data-placeholder="{{내부 사진3}}">
+                                </div>
+                                <div class="photo-box">
+                                    <img src="" alt="내부 사진4" data-placeholder="{{내부 사진4}}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="page-footer">
+                            <div class="footer-company">
+                                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+                            </div>
+                            <div class="footer-copyright">
+                                Copyright 2025. smatch. all rights reserved.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FLOOR_PLAN_START -->
+                    <!-- 평면도 페이지 -->
+                    <div class="page floorplan-page">
+                        <div class="page-header">
+                            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 평면도</div>
+                            <div class="header-right">
+                                <div class="manager-info">
+                                    <span class="label">담당 매니저</span>
+                                    <span>{{담당자명}}</span>
+                                    <span>{{담당자 연락처}}</span>
+                                    <span>{{담당자 이메일}}</span>
+                                </div>
+                                <div class="header-logo"><img src="../image-asset/패스트매치_wordmark_가로형_black.png"
+                                        alt="FastMatch"></div>
+                            </div>
+                        </div>
+                        <div class="page-content">
+                            <div class="floorplan-box">
+                                <img src="" alt="평면도" data-placeholder="{{평면도}}">
+                            </div>
+                        </div>
+                        <div class="page-footer">
+                            <div class="footer-company">
+                                <span>스매치코퍼레이션 l 서울특별시 서초구 법원로4길 11-6 l www.smatch.kr</span>
+                            </div>
+                            <div class="footer-copyright">
+                                Copyright 2025. smatch. all rights reserved.
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FLOOR_PLAN_END -->
+
+                    <!-- 카카오맵 지도는 서버 사이드에서 정적 이미지로 삽입되므로 JavaScript 초기화 불필요 -->
+                </body>
 
 </html>
