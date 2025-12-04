@@ -311,12 +311,18 @@ const sendProposalEmails = async (proposalRequest, user, brandIds, sendType) => 
       }
 
       try {
-        // CC 이메일 목록 구성
+        // CC 이메일 목록 구성 - 소속에 따라 분기
         const ccEmails = [];
         if (manager?.cc_email) ccEmails.push(manager.cc_email);
-        ccEmails.push('lm@fastmatch.kr');
 
-        console.log(`📧 이메일 발송 준비: to=${toEmail}, cc=${ccEmails.join(', ')}, user.email=${user?.email}`);
+        // 사용자 소속에 따라 CC 이메일 결정
+        // in-house: official@fastmatch.kr, partner(기본값): lm1@smatch.kr
+        const affiliationCcEmail = user?.affiliation === 'in-house'
+          ? 'official@fastmatch.kr'
+          : 'lm1@smatch.kr';
+        ccEmails.push(affiliationCcEmail);
+
+        console.log(`📧 이메일 발송 준비: to=${toEmail}, cc=${ccEmails.join(', ')}, user.email=${user?.email}, affiliation=${user?.affiliation || 'partner'}`);
 
         await sendProposalRequestEmail(
           {

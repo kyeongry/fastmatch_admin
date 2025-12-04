@@ -669,10 +669,23 @@ const OptionRegister = () => {
                     </button>
                     {(formData.exclusive_area.value || formData.hvac_type || formData.parking_type || formData.credits.length > 0 || formData.floor_plan_url || floorPlanFile || formData.memo) && (
                       <div className="mt-3 flex flex-wrap gap-2">
-                        {formData.hvac_type && <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">냉난방식</span>}
-                        {formData.parking_type && <span className="px-3 py-1 bg-green-50 text-green-700 text-xs rounded-full font-medium">주차방식</span>}
+                        {formData.hvac_type && <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">냉난방식 : {formData.hvac_type === 'central' ? '중앙냉난방' : '개별냉난방'}</span>}
+                        {formData.parking_type && (
+                          <span className="px-3 py-1 bg-green-50 text-green-700 text-xs rounded-full font-medium">
+                            {formData.parking_type === 'self_parking' ? '자주식' : '기계식'} 주차
+                            {formData.parking_count && ` ${formData.parking_count}대`}
+                            {formData.parking_cost && ` ${parseInt(formData.parking_cost).toLocaleString()}원`}
+                          </span>
+                        )}
                         {formData.exclusive_area.value && <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs rounded-full font-medium">전용면적</span>}
-                        {formData.credits.length > 0 && <span className="px-3 py-1 bg-yellow-50 text-yellow-700 text-xs rounded-full font-medium">크레딧 ({formData.credits.length})</span>}
+                        {formData.credits.length > 0 && formData.credits.map((credit, idx) => (
+                          <span key={idx} className="px-3 py-1 bg-yellow-50 text-yellow-700 text-xs rounded-full font-medium">
+                            {credit.type === 'other'
+                              ? `${credit.customName || '기타'} ${credit.amount} ${credit.unit || '크레딧'} 제공${credit.note ? ` / ${credit.note}` : ''}`
+                              : `${credit.type === 'monthly' ? '월별 제공' : credit.type === 'printing' ? '프린팅' : '미팅룸'} ${credit.amount}`
+                            }
+                          </span>
+                        ))}
                         {(formData.floor_plan_url || floorPlanFile) && <span className="px-3 py-1 bg-pink-50 text-pink-700 text-xs rounded-full font-medium">평면도</span>}
                         {formData.memo && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-medium">텍스트</span>}
                       </div>
