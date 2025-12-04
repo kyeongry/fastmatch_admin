@@ -46,6 +46,20 @@ const ComparisonTablePage = ({ options }) => {
                 { label: '월 임대료', key: 'monthly_fee', format: (val) => val ? `${val.toLocaleString()}원` : '-' },
                 { label: '보증금', key: 'deposit', format: (val) => val ? `${val.toLocaleString()}원` : '-' },
                 { label: '인실', key: 'capacity', format: (val) => val ? `${val}인실` : '-' },
+                { label: '크레딧', key: 'credits', format: (credits) => {
+                  if (!credits || !Array.isArray(credits) || credits.length === 0) return '-';
+                  return credits.map(credit => {
+                    const amount = credit.amount || 0;
+                    if (credit.type === 'other') {
+                      const customName = credit.customName || '기타';
+                      const unit = credit.unit || '크레딧';
+                      return `${customName} : 월 ${amount.toLocaleString()} ${unit} 제공`;
+                    }
+                    const typeMap = { 'monthly': '크레딧', 'printing': '프린팅', 'meeting_room': '미팅룸' };
+                    const typeName = typeMap[credit.type] || '크레딧';
+                    return `${typeName} : 월 ${amount.toLocaleString()} 크레딧 제공`;
+                  }).join(' / ');
+                }},
               ].map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.tableRow}>
                   <View style={styles.tableColHeader}><Text style={styles.tableCellHeader}>{row.label}</Text></View>

@@ -851,8 +851,8 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                         <div key={index} className="flex items-center gap-2 px-3 py-2 bg-yellow-50 rounded-lg text-sm">
                           <span className="flex-1">
                             {credit.type === 'other'
-                              ? `${credit.customName || '기타'} ${credit.amount.toLocaleString()}${credit.unit || '크레딧'}`
-                              : `${credit.type === 'monthly' ? '월별 제공' : credit.type === 'printing' ? '프린팅' : '미팅룸'} ${credit.amount.toLocaleString()}크레딧`
+                              ? `${credit.customName || '기타'} : 월 ${credit.amount.toLocaleString()} ${credit.unit || '크레딧'} 제공`
+                              : `${credit.type === 'monthly' ? '크레딧' : credit.type === 'printing' ? '프린팅' : '미팅룸'} : 월 ${credit.amount.toLocaleString()} 크레딧 제공`
                             }
                             {credit.note && ` (${credit.note})`}
                           </span>
@@ -874,7 +874,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                     >
-                      <option value="monthly">월별 제공</option>
+                      <option value="monthly">크레딧</option>
                       <option value="printing">프린팅</option>
                       <option value="meeting_room">미팅룸</option>
                       <option value="other">기타</option>
@@ -1088,7 +1088,8 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       </div>
                     ) : (
                       <div
-                        className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+                        className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:bg-blue-50 transition-colors outline-none cursor-pointer"
+                        onClick={(e) => e.currentTarget.focus()}
                         onDragOver={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -1172,7 +1173,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                           </div>
                         </div>
                         <p className="mt-2 text-xs text-gray-500">
-                          이미지를 드래그하거나, Ctrl+V로 붙여넣기하거나, 버튼을 클릭하세요
+                          이미지를 드래그하거나, 이 영역 클릭 후 Ctrl+V로 붙여넣기하거나, 버튼을 클릭하세요
                         </p>
                       </div>
                     )}
