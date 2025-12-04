@@ -28,6 +28,8 @@ const initialFormData = {
   credits: [],
   hvac_type: '',
   parking_type: '',
+  parking_count: '',
+  parking_cost: '',
   parking_note: '',
   memo: '',
   floor_plan_url: '',
@@ -56,7 +58,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
   const [formData, setFormData] = useState(initialFormData);
 
   const [newFee, setNewFee] = useState({ type: '', amount: '', customType: '' });
-  const [newCredit, setNewCredit] = useState({ type: 'monthly', amount: '', note: '' });
+  const [newCredit, setNewCredit] = useState({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
   const [floorPlanFile, setFloorPlanFile] = useState(null);
 
   // 기타 정보 팝업 상태
@@ -81,6 +83,8 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
           // 기타 정보 매핑
           hvac_type: initialData.hvac_type || '',
           parking_type: initialData.parking_type || '',
+          parking_count: initialData.parking_count || '',
+          parking_cost: initialData.parking_cost || '',
           parking_note: initialData.parking_note || '',
           memo: initialData.memo || '',
           floor_plan_url: initialData.floor_plan_url || '',
@@ -280,12 +284,18 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
 
   const handleAddCredit = () => {
     if (newCredit.type && newCredit.amount) {
-      const creditToAdd = { type: newCredit.type, amount: parseInt(newCredit.amount), note: newCredit.note };
+      const creditToAdd = {
+        type: newCredit.type,
+        amount: parseInt(newCredit.amount),
+        note: newCredit.note,
+        customName: newCredit.type === 'other' ? newCredit.customName : undefined,
+        unit: newCredit.type === 'other' ? (newCredit.unit || '크레딧') : '크레딧'
+      };
       setFormData((prev) => ({
         ...prev,
         credits: [...prev.credits, creditToAdd],
       }));
-      setNewCredit({ type: 'monthly', amount: '', note: '' });
+      setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
       setActiveSection(null); // 크레딧 추가 후 기타옵션 메뉴로 돌아감
     }
   };
@@ -391,6 +401,8 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
         office_info: formData.office_info || null,
         hvac_type: formData.hvac_type || null,
         parking_type: formData.parking_type || null,
+        parking_count: formData.parking_count ? parseInt(formData.parking_count) : null,
+        parking_cost: formData.parking_cost ? parseInt(formData.parking_cost) : null,
         parking_note: formData.parking_note || null,
         memo: formData.memo || null,
         floor_plan_url: formData.floor_plan_url || null,
@@ -770,17 +782,62 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
               </div>
 
               {/* 주차 */}
-              <div className="flex items-center gap-4">
-                <label className="w-24 text-sm font-medium text-gray-700 shrink-0">주차:</label>
-                <select
-                  value={formData.parking_type}
-                  onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">선택</option>
-                  <option value="self_parking">자주식</option>
-                  <option value="mechanical">기계식</option>
-                </select>
+              <div className="flex items-start gap-4">
+                <label className="w-24 text-sm font-medium text-gray-700 shrink-0 pt-2">주차:</label>
+                <div className="flex-1 space-y-2">
+                  <select
+                    value={formData.parking_type}
+                    onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">선택</option>
+                    <option value="self_parking">자주식</option>
+                    <option value="mechanical">기계식</option>
+                  </select>
+                  {/* 주차 상세 입력 (주차 타입 선택 시 표시) */}
+                  {formData.parking_type && (
+                    <div className="space-y-2 pl-2 border-l-2 border-gray-200">
+                      <div className="flex gap-2 items-center">
+                        <input
+                          type="number"
+                          placeholder="대수"
+                          value={formData.parking_count}
+                          onChange={(e) => setFormData({ ...formData, parking_count: e.target.value })}
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <span className="text-sm text-gray-600">대</span>
+                        <div className="relative flex-1">
+                          <input
+                            type="text"
+                            placeholder="비용"
+                            value={formatNumberInput(formData.parking_cost)}
+                            onChange={(e) => {
+                              const numericValue = parseNumberInput(e.target.value);
+                              setFormData({ ...formData, parking_cost: numericValue });
+                            }}
+                            className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">원</span>
+                        </div>
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="주차 비고"
+                          value={formData.parking_note}
+                          onChange={(e) => {
+                            if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                              setFormData({ ...formData, parking_note: e.target.value });
+                            }
+                          }}
+                          maxLength={TEXT_MAX_LENGTH}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <span className="text-xs text-gray-400">{formData.parking_note?.length || 0}/{TEXT_MAX_LENGTH}자</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* 크레딧 */}
@@ -793,10 +850,10 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       {formData.credits.map((credit, index) => (
                         <div key={index} className="flex items-center gap-2 px-3 py-2 bg-yellow-50 rounded-lg text-sm">
                           <span className="flex-1">
-                            {credit.type === 'monthly' && '월별 제공'}
-                            {credit.type === 'printing' && '프린팅'}
-                            {credit.type === 'meeting_room' && '미팅룸'}
-                            {credit.type === 'other' && '기타'}: {credit.amount.toLocaleString()}
+                            {credit.type === 'other'
+                              ? `${credit.customName || '기타'} ${credit.amount.toLocaleString()}${credit.unit || '크레딧'}`
+                              : `${credit.type === 'monthly' ? '월별 제공' : credit.type === 'printing' ? '프린팅' : '미팅룸'} ${credit.amount.toLocaleString()}크레딧`
+                            }
                             {credit.note && ` (${credit.note})`}
                           </span>
                           <button
@@ -822,14 +879,36 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       <option value="meeting_room">미팅룸</option>
                       <option value="other">기타</option>
                     </select>
+                    {/* 기타 선택 시 명칭 입력 */}
+                    {newCredit.type === 'other' && (
+                      <input
+                        type="text"
+                        value={newCredit.customName}
+                        onChange={(e) => setNewCredit({ ...newCredit, customName: e.target.value })}
+                        placeholder="명칭"
+                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                    )}
                     <input
                       type="number"
                       value={newCredit.amount}
                       onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
-                      className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="수량"
                     />
-                    <div className="relative flex-1 min-w-[150px]">
+                    {/* 기타 선택 시 단위 입력 */}
+                    {newCredit.type === 'other' ? (
+                      <input
+                        type="text"
+                        value={newCredit.unit}
+                        onChange={(e) => setNewCredit({ ...newCredit, unit: e.target.value })}
+                        placeholder="단위"
+                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                    ) : (
+                      <span className="text-sm text-gray-600">크레딧</span>
+                    )}
+                    <div className="relative flex-1 min-w-[100px]">
                       <input
                         type="text"
                         value={newCredit.note}
