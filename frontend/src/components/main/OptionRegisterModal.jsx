@@ -1088,7 +1088,8 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       </div>
                     ) : (
                       <div
-                        className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+                        className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:bg-blue-50 transition-colors outline-none cursor-pointer"
+                        onClick={(e) => e.currentTarget.focus()}
                         onDragOver={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -1172,7 +1173,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                           </div>
                         </div>
                         <p className="mt-2 text-xs text-gray-500">
-                          이미지를 드래그하거나, Ctrl+V로 붙여넣기하거나, 버튼을 클릭하세요
+                          이미지를 드래그하거나, 이 영역 클릭 후 Ctrl+V로 붙여넣기하거나, 버튼을 클릭하세요
                         </p>
                       </div>
                     )}
