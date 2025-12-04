@@ -720,93 +720,164 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
             </div>
           </section>
 
-          {/* 5. 추가 정보 */}
+          {/* 5. 추가 정보 (선택입력사항) */}
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">
-              5. 추가 정보
+              5. 추가정보 <span className="text-base font-normal text-gray-500">(선택입력사항)</span>
             </h2>
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">오피스정보</label>
+              {/* 전용면적 */}
+              <div className="flex items-center gap-4">
+                <label className="w-24 text-sm font-medium text-gray-700 shrink-0">전용면적:</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.exclusive_area.value}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      exclusive_area: { ...formData.exclusive_area, value: e.target.value }
+                    })}
+                    className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder=""
+                  />
+                  <select
+                    value={formData.exclusive_area.unit}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      exclusive_area: { ...formData.exclusive_area, unit: e.target.value }
+                    })}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="pyeong">평</option>
+                    <option value="sqm">㎡</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* 냉난방 */}
+              <div className="flex items-center gap-4">
+                <label className="w-24 text-sm font-medium text-gray-700 shrink-0">냉난방:</label>
+                <select
+                  value={formData.hvac_type}
+                  onChange={(e) => setFormData({ ...formData, hvac_type: e.target.value })}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">선택</option>
+                  <option value="central">중앙냉난방</option>
+                  <option value="individual">개별냉난방</option>
+                </select>
+              </div>
+
+              {/* 주차 */}
+              <div className="flex items-center gap-4">
+                <label className="w-24 text-sm font-medium text-gray-700 shrink-0">주차:</label>
+                <select
+                  value={formData.parking_type}
+                  onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">선택</option>
+                  <option value="self_parking">자주식</option>
+                  <option value="mechanical">기계식</option>
+                </select>
+              </div>
+
+              {/* 크레딧 */}
+              <div className="flex items-start gap-4">
+                <label className="w-24 text-sm font-medium text-gray-700 shrink-0 pt-2">크레딧:</label>
+                <div className="flex-1 space-y-2">
+                  {/* 등록된 크레딧 목록 */}
+                  {formData.credits.length > 0 && (
+                    <div className="space-y-2 mb-3">
+                      {formData.credits.map((credit, index) => (
+                        <div key={index} className="flex items-center gap-2 px-3 py-2 bg-yellow-50 rounded-lg text-sm">
+                          <span className="flex-1">
+                            {credit.type === 'monthly' && '월별 제공'}
+                            {credit.type === 'printing' && '프린팅'}
+                            {credit.type === 'meeting_room' && '미팅룸'}
+                            {credit.type === 'other' && '기타'}: {credit.amount.toLocaleString()}
+                            {credit.note && ` (${credit.note})`}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveCredit(index)}
+                            className="text-red-500 hover:text-red-700 text-xs"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {/* 새 크레딧 추가 입력 */}
+                  <div className="flex gap-2 items-center flex-wrap">
+                    <select
+                      value={newCredit.type}
+                      onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                    >
+                      <option value="monthly">월별 제공</option>
+                      <option value="printing">프린팅</option>
+                      <option value="meeting_room">미팅룸</option>
+                      <option value="other">기타</option>
+                    </select>
+                    <input
+                      type="number"
+                      value={newCredit.amount}
+                      onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
+                      className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                      placeholder="수량"
+                    />
+                    <div className="relative flex-1 min-w-[150px]">
+                      <input
+                        type="text"
+                        value={newCredit.note}
+                        onChange={(e) => {
+                          if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                            setNewCredit({ ...newCredit, note: e.target.value });
+                          }
+                        }}
+                        maxLength={TEXT_MAX_LENGTH}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        placeholder={`메모(${newCredit.note?.length || 0}/${TEXT_MAX_LENGTH}자)`}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddCredit}
+                      className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium text-sm"
+                    >
+                      추가
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 오피스정보 */}
+              <div className="flex items-start gap-4">
+                <label className="w-24 text-sm font-medium text-gray-700 shrink-0 pt-2">오피스정보:</label>
                 <textarea
                   value={formData.office_info}
                   onChange={(e) => setFormData({ ...formData, office_info: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  rows="3"
-                  placeholder="오피스 정보를 입력해주세요"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  rows="2"
+                  placeholder="예: 8층 5인실 창측 전용호실 / 전용면적 3.6평"
                 />
               </div>
 
-              {/* 기타 옵션 추가 버튼 */}
-              <div>
+              {/* 기타 옵션 (평면도, 텍스트 메모) 추가 버튼 */}
+              <div className="border-t pt-4 mt-4">
                 <button
                   type="button"
                   onClick={() => setShowOtherInfoModal(true)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-primary-50 hover:bg-primary-100 border-2 border-primary-200 rounded-lg transition text-left"
+                  className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition text-sm"
                 >
-                  <span className="text-sm font-semibold text-primary-700">기타 옵션 추가</span>
-                  <span className="text-primary-600 font-medium">+</span>
+                  <span className="text-lg">+</span>
+                  <span>평면도 / 메모 추가</span>
                 </button>
-                {(formData.exclusive_area.value || formData.hvac_type || formData.parking_type || formData.credits.length > 0 || formData.floor_plan_url || floorPlanFile || formData.memo) && (
+                {(formData.floor_plan_url || floorPlanFile || formData.memo) && (
                   <div className="mt-3 space-y-2">
-                    {formData.hvac_type && (
-                      <div className="flex items-center justify-between px-3 py-2 bg-blue-50 text-blue-700 text-sm rounded-lg">
-                        <span>냉난방식: <strong>{formData.hvac_type === 'central' ? '중앙냉난방' : '개별냉난방'}</strong></span>
-                        <button
-                          type="button"
-                          onClick={() => setFormData({ ...formData, hvac_type: '' })}
-                          className="ml-2 text-blue-600 hover:text-blue-800 font-bold"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    )}
-                    {formData.parking_type && (
-                      <div className="flex items-center justify-between px-3 py-2 bg-green-50 text-green-700 text-sm rounded-lg">
-                        <span>주차방식: <strong>{formData.parking_type === 'self_parking' ? '자주식' : '기계식'}</strong></span>
-                        <button
-                          type="button"
-                          onClick={() => setFormData({ ...formData, parking_type: '', parking_note: '' })}
-                          className="ml-2 text-green-600 hover:text-green-800 font-bold"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    )}
-                    {formData.exclusive_area.value && (
-                      <div className="flex items-center justify-between px-3 py-2 bg-purple-50 text-purple-700 text-sm rounded-lg">
-                        <span>전용면적: <strong>{formData.exclusive_area.value} {formData.exclusive_area.unit === 'sqm' ? '㎡' : '평'}</strong></span>
-                        <button
-                          type="button"
-                          onClick={() => setFormData({ ...formData, exclusive_area: { value: '', unit: 'pyeong' } })}
-                          className="ml-2 text-purple-600 hover:text-purple-800 font-bold"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    )}
-                    {formData.credits.length > 0 && (
-                      <div className="px-3 py-2 bg-yellow-50 text-yellow-700 text-sm rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-semibold">크레딧 ({formData.credits.length}개)</span>
-                          <button
-                            type="button"
-                            onClick={() => setFormData({ ...formData, credits: [] })}
-                            className="ml-2 text-yellow-600 hover:text-yellow-800 font-bold"
-                          >
-                            전체 삭제
-                          </button>
-                        </div>
-                        {formData.credits.map((credit, idx) => (
-                          <div key={idx} className="text-xs mt-1">
-                            • {credit.type === 'monthly' && '월별 제공'}
-                            {credit.type === 'printing' && '프린팅'}
-                            {credit.type === 'meeting_room' && '미팅룸'}
-                            {credit.type === 'other' && '기타'} 크레딧: {credit.amount.toLocaleString()}
-                          </div>
-                        ))}
-                      </div>
-                    )}
                     {(formData.floor_plan_url || floorPlanFile) && (
                       <div className="flex items-center justify-between px-3 py-2 bg-pink-50 text-pink-700 text-sm rounded-lg">
                         <span>평면도: <strong>{floorPlanFile ? floorPlanFile.name : '업로드됨'}</strong></span>
@@ -825,7 +896,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     {formData.memo && (
                       <div className="px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold">텍스트</span>
+                          <span className="font-semibold">메모</span>
                           <button
                             type="button"
                             onClick={() => setFormData({ ...formData, memo: '' })}
@@ -888,34 +959,6 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setActiveSection('hvac')}
-                    className="px-4 py-3 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-lg text-blue-700 font-semibold transition text-sm"
-                  >
-                    냉난방식
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection('parking')}
-                    className="px-4 py-3 bg-green-50 hover:bg-green-100 border-2 border-green-200 rounded-lg text-green-700 font-semibold transition text-sm"
-                  >
-                    주차방식
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection('area')}
-                    className="px-4 py-3 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-lg text-purple-700 font-semibold transition text-sm"
-                  >
-                    전용면적
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection('credit')}
-                    className="px-4 py-3 bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-200 rounded-lg text-yellow-700 font-semibold transition text-sm"
-                  >
-                    크레딧
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => setActiveSection('floorplan')}
                     className="px-4 py-3 bg-pink-50 hover:bg-pink-100 border-2 border-pink-200 rounded-lg text-pink-700 font-semibold transition text-sm"
                   >
@@ -926,211 +969,8 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     onClick={() => setActiveSection('memo')}
                     className="px-4 py-3 bg-gray-100 hover:bg-gray-200 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold transition text-sm"
                   >
-                    텍스트
+                    메모
                   </button>
-                </div>
-              )}
-
-              {/* 냉난방식 섹션 */}
-              {activeSection === 'hvac' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900">냉난방식</h3>
-                    <button
-                      type="button"
-                      onClick={() => setActiveSection(null)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      ← 뒤로
-                    </button>
-                  </div>
-                  <select
-                    value={formData.hvac_type}
-                    onChange={(e) => setFormData({ ...formData, hvac_type: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">선택 안 함</option>
-                    <option value="central">중앙냉난방</option>
-                    <option value="individual">개별냉난방</option>
-                  </select>
-                </div>
-              )}
-
-              {/* 주차방식 섹션 */}
-              {activeSection === 'parking' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900">주차방식</h3>
-                    <button
-                      type="button"
-                      onClick={() => setActiveSection(null)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      ← 뒤로
-                    </button>
-                  </div>
-                  <select
-                    value={formData.parking_type}
-                    onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">선택 안 함</option>
-                    <option value="self_parking">자주식</option>
-                    <option value="mechanical">기계식</option>
-                  </select>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      추가 메모 (선택) <span className="text-gray-400 text-xs">({formData.parking_note?.length || 0}/{TEXT_MAX_LENGTH}자)</span>
-                    </label>
-                    <textarea
-                      value={formData.parking_note}
-                      onChange={(e) => {
-                        if (e.target.value.length <= TEXT_MAX_LENGTH) {
-                          setFormData({ ...formData, parking_note: e.target.value });
-                        }
-                      }}
-                      maxLength={TEXT_MAX_LENGTH}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      rows="3"
-                      placeholder="주차 관련 추가 정보를 입력하세요"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* 전용면적 섹션 */}
-              {activeSection === 'area' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900">전용면적</h3>
-                    <button
-                      type="button"
-                      onClick={() => setActiveSection(null)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      ← 뒤로
-                    </button>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">단위 선택</label>
-                    <select
-                      value={formData.exclusive_area.unit}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        exclusive_area: { ...formData.exclusive_area, unit: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="sqm">제곱미터 (㎡)</option>
-                      <option value="pyeong">평</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      전용면적 ({formData.exclusive_area.unit === 'sqm' ? '㎡' : '평'})
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formData.exclusive_area.value}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        exclusive_area: { ...formData.exclusive_area, value: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder={`전용면적을 입력하세요 (예: ${formData.exclusive_area.unit === 'sqm' ? '85.5' : '25.8'})`}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* 크레딧 섹션 */}
-              {activeSection === 'credit' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900">크레딧</h3>
-                    <button
-                      type="button"
-                      onClick={() => setActiveSection(null)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      ← 뒤로
-                    </button>
-                  </div>
-
-                  {/* 등록된 크레딧 목록 */}
-                  <div className="space-y-3 mb-4">
-                    {formData.credits.map((credit, index) => (
-                      <div key={index} className="flex items-start gap-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                        <div className="flex-1">
-                          <div className="text-sm font-semibold text-gray-900">
-                            {credit.type === 'monthly' && '월별 제공 크레딧'}
-                            {credit.type === 'printing' && '프린팅 크레딧'}
-                            {credit.type === 'meeting_room' && '미팅룸 크레딧'}
-                            {credit.type === 'other' && '기타 크레딧'}
-                          </div>
-                          <div className="text-sm text-gray-700 mt-1">수량: {credit.amount.toLocaleString()}</div>
-                          {credit.note && <div className="text-xs text-gray-600 mt-1">{credit.note}</div>}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveCredit(index)}
-                          className="px-3 py-1 text-red-600 hover:bg-red-50 rounded text-sm transition"
-                        >
-                          삭제
-                        </button>
-                      </div>
-                    ))}
-                    {formData.credits.length === 0 && (
-                      <p className="text-sm text-gray-500 text-center py-4">등록된 크레딧이 없습니다</p>
-                    )}
-                  </div>
-
-                  {/* 새 크레딧 추가 */}
-                  <div className="space-y-3 border-t pt-4">
-                    <label className="block text-sm font-medium text-gray-700">새 크레딧 추가</label>
-                    <select
-                      value={newCredit.type}
-                      onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="monthly">월별 제공 크레딧</option>
-                      <option value="printing">프린팅 크레딧</option>
-                      <option value="meeting_room">미팅룸 크레딧</option>
-                      <option value="other">기타 크레딧</option>
-                    </select>
-                    <input
-                      type="number"
-                      value={newCredit.amount}
-                      onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="수량을 입력하세요"
-                    />
-                    <div>
-                      <label className="block text-sm text-gray-500 mb-1">
-                        추가 설명 ({newCredit.note?.length || 0}/{TEXT_MAX_LENGTH}자)
-                      </label>
-                      <textarea
-                        value={newCredit.note}
-                        onChange={(e) => {
-                          if (e.target.value.length <= TEXT_MAX_LENGTH) {
-                            setNewCredit({ ...newCredit, note: e.target.value });
-                          }
-                        }}
-                        maxLength={TEXT_MAX_LENGTH}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        rows="2"
-                        placeholder="추가 설명 (선택사항)"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleAddCredit}
-                      className="w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium"
-                    >
-                      크레딧 추가
-                    </button>
-                  </div>
                 </div>
               )}
 
