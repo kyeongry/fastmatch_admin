@@ -232,7 +232,15 @@ const OptionRegister = () => {
       if (newCredit.type === 'other') {
         creditData.customName = newCredit.customName || '';
         creditData.unit = newCredit.unit || '크레딧';
+      } else {
+        // 기타가 아닌 경우에도 unit 저장 (기본값)
+        creditData.unit = '크레딧';
       }
+      setFormData((prev) => ({
+        ...prev,
+        credits: [...prev.credits, creditData],
+      }));
+      setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
       setFormData((prev) => ({
         ...prev,
         credits: [...prev.credits, creditData],
@@ -678,14 +686,21 @@ const OptionRegister = () => {
                           </span>
                         )}
                         {formData.exclusive_area.value && <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs rounded-full font-medium">전용면적</span>}
-                        {formData.credits.length > 0 && formData.credits.map((credit, idx) => (
-                          <span key={idx} className="px-3 py-1 bg-yellow-50 text-yellow-700 text-xs rounded-full font-medium">
-                            {credit.type === 'other'
-                              ? `${credit.customName || '기타'} ${credit.amount} ${credit.unit || '크레딧'} 제공${credit.note ? ` / ${credit.note}` : ''}`
-                              : `${credit.type === 'monthly' ? '월별 제공' : credit.type === 'printing' ? '프린팅' : '미팅룸'} ${credit.amount}`
-                            }
-                          </span>
-                        ))}
+                        {formData.credits.length > 0 && formData.credits.map((credit, idx) => {
+                          let text = '';
+                          if (credit.type === 'other') {
+                            text = `크레딧 : ${credit.customName || '기타'} ${credit.amount}${credit.unit || '크레딧'} 제공`;
+                          } else {
+                            const typeMap = { 'monthly': '월별 제공', 'printing': '프린팅', 'meeting_room': '미팅룸' };
+                            text = `크레딧 : ${typeMap[credit.type] || '기타'} ${credit.amount}크레딧 제공`;
+                          }
+                          if (credit.note) text += ` / ${credit.note}`;
+                          return (
+                            <span key={idx} className="px-3 py-1 bg-yellow-50 text-yellow-700 text-xs rounded-full font-medium">
+                              {text}
+                            </span>
+                          );
+                        })}
                         {(formData.floor_plan_url || floorPlanFile) && <span className="px-3 py-1 bg-pink-50 text-pink-700 text-xs rounded-full font-medium">평면도</span>}
                         {formData.memo && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-medium">텍스트</span>}
                       </div>
@@ -868,10 +883,11 @@ const OptionRegister = () => {
                 <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                   <p className="text-sm font-medium text-green-800">미리보기:</p>
                   <p className="text-sm text-green-700 mt-1">
-                    {formData.parking_type === 'self_parking' ? '자주식' : '기계식'}
-                    {formData.parking_count && ` ${formData.parking_count}대`}
-                    {formData.parking_cost && ` ${parseInt(formData.parking_cost).toLocaleString()}원`}
-                    {formData.parking_note && ` ${formData.parking_note}`}
+                    {formData.parking_type === 'self_parking' ? '자주식' : '기계식'} 주차
+                    {formData.parking_count ? ` ${formData.parking_count}대` : ''} 제공으로
+                    {formData.parking_type === 'self_parking' ? ' 편리한 주차환경 제공' : ' 주차 가능한 제원 검토 필요'}
+                    {formData.parking_cost ? ` / ${parseInt(formData.parking_cost).toLocaleString()}원` : ''}
+                    {formData.parking_note ? `, ${formData.parking_note}` : ''}
                   </p>
                 </div>
               )}
@@ -1034,7 +1050,7 @@ const OptionRegister = () => {
                       <div className="p-2 bg-green-50 rounded border border-green-200">
                         <p className="text-xs font-medium text-green-800">미리보기:</p>
                         <p className="text-sm text-green-700">
-                          {newCredit.customName || '(명칭)'} {newCredit.amount || '(수량)'} {newCredit.unit} 제공
+                          크레딧 : {newCredit.customName || '(명칭)'} {newCredit.amount || '(수량)'}{newCredit.unit || '크레딧'} 제공
                           {newCredit.note && ` / ${newCredit.note}`}
                         </p>
                       </div>

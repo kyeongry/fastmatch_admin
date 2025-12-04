@@ -838,21 +838,37 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0) => 
       // 2. 주차방식
       if (option.parking_type) {
         const parkingTypeLabel = option.parking_type === 'self_parking' ? '자주식' : '기계식';
-        let parkingText = `• ${parkingTypeLabel} 주차`;
+        let parkingText = `${parkingTypeLabel} 주차`;
+
         if (option.parking_count) {
           parkingText += ` ${option.parking_count}대`;
         }
+
         if (option.parking_cost) {
           parkingText += ` ${parseInt(option.parking_cost).toLocaleString()}원`;
         }
+
         remarkItems.push(parkingText);
       }
 
       // 3. 크레딧
       if (option.credits && Array.isArray(option.credits) && option.credits.length > 0) {
-        const creditText = formatters.credits(option.credits);
-        if (creditText) {
-          remarkItems.push(`• ${creditText}`);
+        // 비교표에서는 간단하게 표시 (예: "월별 제공 10크레딧" 등)
+        const creditTexts = option.credits.map(credit => {
+          if (credit.type === 'other' && credit.customName) {
+            return `${credit.customName} ${credit.amount}${credit.unit || '크레딧'}`;
+          }
+          const typeMap = {
+            'monthly': '월별 제공',
+            'printing': '프린팅',
+            'meeting_room': '미팅룸',
+            'other': '기타',
+          };
+          return `${typeMap[credit.type] || '기타'} ${credit.amount}크레딧`;
+        });
+
+        if (creditTexts.length > 0) {
+          remarkItems.push(`• ${creditTexts.join(', ')}`);
         }
       }
 
@@ -988,15 +1004,23 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
   // 2. 주차방식 - 상세 설명 포함
   if (option.parking_type) {
     const parkingTypeLabel = option.parking_type === 'self_parking' ? '자주식' : '기계식';
-    const countPart = option.parking_count ? ` ${option.parking_count}대` : '';
 
-    // 주차방식에 따른 설명 문구
+    // 주차방식 내용
     const parkingDescription = option.parking_type === 'self_parking'
       ? '편리한 주차환경 제공'
       : '주차 가능한 제원 검토 필요';
 
-    // 기본 문구 생성
-    let parkingText = `${parkingTypeLabel} 주차${countPart} 제공으로 ${parkingDescription}`;
+    // 기본 문구 생성: "{{주차방식}} 주차 {{대 수}}대 제공으로 {{주차방식 내용}}"
+    let parkingText = `${parkingTypeLabel} 주차`;
+
+    if (option.parking_count) {
+      parkingText += ` ${option.parking_count}대`;
+    } else {
+      // 대수가 없으면 "제공으로" 문맥이 자연스럽게 연결되도록
+      // "자주식 주차 제공으로"
+    }
+
+    parkingText += ` 제공으로 ${parkingDescription}`;
 
     // 추가 정보 (비용, 메모)
     const extras = [];
@@ -1016,9 +1040,31 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
 
   // 3. 크레딧
   if (option.credits && Array.isArray(option.credits) && option.credits.length > 0) {
-    const creditText = formatters.credits(option.credits);
-    if (creditText) {
-      remarkItems.push(creditText);
+    // 크레딧 : {{명칭}} {{수량}} {{단위}} +"제공" / {{추가설명}}
+    const creditTexts = option.credits.map(credit => {
+      let text = '';
+      if (credit.type === 'other' && credit.customName) {
+        text = `크레딧 : ${credit.customName} ${credit.amount}${credit.unit || '크레딧'} 제공`;
+      } else {
+        const typeMap = {
+          'monthly': '월별 제공',
+          'printing': '프린팅',
+          'meeting_room': '미팅룸',
+          'other': '기타',
+        };
+        text = `크레딧 : ${typeMap[credit.type] || '기타'} ${credit.amount}크레딧 제공`;
+      }
+
+      if (credit.note) {
+        text += ` / ${credit.note}`;
+      }
+      return text;
+    });
+
+    // 여러 크레딧이 있으면 줄바꿈으로 연결하거나 하나씩 추가
+    // 여기서는 하나로 합쳐서 추가 (공간 고려)
+    if (creditTexts.length > 0) {
+      remarkItems.push(creditTexts.join('\n'));
     }
   }
 
@@ -1119,7 +1165,7 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
       const imgBase64 = await urlImageToBase64(imgUrl);
       if (imgBase64) {
         html = html.replace(
-          new RegExp(`<img\\s+src="[^"]*"\\s+alt="내부 사진${i}"\\s+data-placeholder="{{내부 사진${i}}}">`,'g'),
+          new RegExp(`<img\\s+src="[^"]*"\\s+alt="내부 사진${i}"\\s+data-placeholder="{{내부 사진${i}}}">`, 'g'),
           `<img src="${imgBase64}" alt="내부 사진${i}">`
         );
       }

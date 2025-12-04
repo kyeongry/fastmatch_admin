@@ -39,7 +39,7 @@ const OptionDetailSlide = ({
   const [isUploading, setIsUploading] = useState(false);
 
   // 크레딧 추가용 상태
-  const [newCredit, setNewCredit] = useState({ type: 'monthly', amount: '', note: '' });
+  const [newCredit, setNewCredit] = useState({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
 
   // 권한 확인
   const isOwner = user && option && user.id === option.creator_id;
@@ -269,12 +269,18 @@ const OptionDetailSlide = ({
   // 크레딧 추가 핸들러
   const handleAddCredit = () => {
     if (newCredit.type && newCredit.amount) {
-      const creditToAdd = { type: newCredit.type, amount: parseInt(newCredit.amount), note: newCredit.note };
+      const creditToAdd = {
+        type: newCredit.type,
+        amount: parseInt(newCredit.amount),
+        note: newCredit.note,
+        customName: newCredit.type === 'other' ? newCredit.customName : undefined,
+        unit: newCredit.type === 'other' ? (newCredit.unit || '크레딧') : '크레딧'
+      };
       setEditData(prev => ({
         ...prev,
         credits: [...(prev.credits || []), creditToAdd],
       }));
-      setNewCredit({ type: 'monthly', amount: '', note: '' });
+      setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
     }
   };
 
@@ -498,11 +504,10 @@ const OptionDetailSlide = ({
                 <button
                   onClick={handleSaveEdit}
                   disabled={isSaving || !hasChanges}
-                  className={`px-4 py-2 font-medium rounded-lg transition text-sm ${
-                    hasChanges
+                  className={`px-4 py-2 font-medium rounded-lg transition text-sm ${hasChanges
                       ? 'bg-primary-500 text-white hover:bg-primary-600'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   {isSaving ? '저장 중...' : '저장'}
                 </button>
@@ -713,9 +718,38 @@ const OptionDetailSlide = ({
 
               {renderEditableField('냉난방', 'hvac_type', 'select', hvacOptions)}
               {renderEditableField('주차', 'parking_type', 'select', parkingOptions)}
-              {renderEditableField('주차 대수', 'parking_count', 'number')}
-              {renderEditableField('주차 비용', 'parking_cost', 'currency')}
-              {renderEditableField('주차메모', 'parking_note')}
+              {/* 주차 상세 입력 (수정 모드일 때만 보임) */}
+              {isEditMode && editData.parking_type && (
+                <div className="pl-32 space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      placeholder="대수"
+                      value={editData.parking_count || ''}
+                      onChange={(e) => handleInputChange('parking_count', e.target.value)}
+                      className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                    <span className="self-center text-sm text-gray-600">대</span>
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        placeholder="비용"
+                        value={formatNumberWithComma(editData.parking_cost)}
+                        onChange={(e) => handlePriceInputChange('parking_cost', e.target.value)}
+                        className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">원</span>
+                    </div>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="주차 비고"
+                    value={editData.parking_note || ''}
+                    onChange={(e) => handleInputChange('parking_note', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+              )}
 
               {/* 크레딧 표시/수정 */}
               <div className="flex">
@@ -729,11 +763,10 @@ const OptionDetailSlide = ({
                           {editData.credits.map((credit, idx) => (
                             <div key={idx} className="flex items-center justify-between bg-yellow-50 px-2 py-1 rounded text-sm">
                               <span>
-                                {credit.type === 'monthly' && '월별 제공'}
-                                {credit.type === 'printing' && '프린팅'}
-                                {credit.type === 'meeting_room' && '미팅룸'}
-                                {credit.type === 'other' && '기타'}
-                                : {credit.amount?.toLocaleString()}
+                                {credit.type === 'other'
+                                  ? `${credit.customName || '기타'} ${credit.amount}${credit.unit || '크레딧'}`
+                                  : `${credit.type === 'monthly' ? '월별 제공' : credit.type === 'printing' ? '프린팅' : '미팅룸'} ${credit.amount}크레딧`
+                                }
                                 {credit.note && ` (${credit.note})`}
                               </span>
                               <button
@@ -748,49 +781,72 @@ const OptionDetailSlide = ({
                         </div>
                       )}
                       {/* 새 크레딧 추가 */}
-                      <div className="flex gap-2 items-center flex-wrap">
-                        <select
-                          value={newCredit.type}
-                          onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
-                          className="px-2 py-1 border border-gray-300 rounded text-sm"
-                        >
-                          <option value="monthly">월별 제공</option>
-                          <option value="printing">프린팅</option>
-                          <option value="meeting_room">미팅룸</option>
-                          <option value="other">기타</option>
-                        </select>
-                        <input
-                          type="number"
-                          value={newCredit.amount}
-                          onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
-                          placeholder="수량"
-                          className="w-24 px-2 py-1 border border-gray-300 rounded text-sm"
-                        />
-                        <input
-                          type="text"
-                          value={newCredit.note}
-                          onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
-                          placeholder="메모(선택)"
-                          className="flex-1 min-w-[80px] px-2 py-1 border border-gray-300 rounded text-sm"
-                        />
-                        <button
-                          type="button"
-                          onClick={handleAddCredit}
-                          className="px-3 py-1 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600"
-                        >
-                          추가
-                        </button>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex gap-2 items-center flex-wrap">
+                          <select
+                            value={newCredit.type}
+                            onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
+                            className="px-2 py-1 border border-gray-300 rounded text-sm"
+                          >
+                            <option value="monthly">월별 제공</option>
+                            <option value="printing">프린팅</option>
+                            <option value="meeting_room">미팅룸</option>
+                            <option value="other">기타</option>
+                          </select>
+
+                          {newCredit.type === 'other' && (
+                            <input
+                              type="text"
+                              value={newCredit.customName || ''}
+                              onChange={(e) => setNewCredit({ ...newCredit, customName: e.target.value })}
+                              placeholder="명칭"
+                              className="w-32 px-2 py-1 border border-gray-300 rounded text-sm"
+                            />
+                          )}
+
+                          <input
+                            type="number"
+                            value={newCredit.amount}
+                            onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
+                            placeholder="수량"
+                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                          />
+
+                          {newCredit.type === 'other' && (
+                            <input
+                              type="text"
+                              value={newCredit.unit || ''}
+                              onChange={(e) => setNewCredit({ ...newCredit, unit: e.target.value })}
+                              placeholder="단위"
+                              className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
+                            />
+                          )}
+
+                          <input
+                            type="text"
+                            value={newCredit.note}
+                            onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
+                            placeholder="메모(선택)"
+                            className="flex-1 min-w-[80px] px-2 py-1 border border-gray-300 rounded text-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddCredit}
+                            className="px-3 py-1 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600"
+                          >
+                            추가
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ) : (
                     option.credits && Array.isArray(option.credits) && option.credits.length > 0 ? (
                       option.credits.map((credit, idx) => (
                         <div key={idx} className="font-semibold">
-                          {credit.type === 'monthly' && '월별 제공'}
-                          {credit.type === 'printing' && '프린팅'}
-                          {credit.type === 'meeting_room' && '미팅룸'}
-                          {credit.type === 'other' && '기타'}
-                          : {credit.amount?.toLocaleString()}
+                          {credit.type === 'other'
+                            ? `${credit.customName || '기타'} ${credit.amount}${credit.unit || '크레딧'}`
+                            : `${credit.type === 'monthly' ? '월별 제공' : credit.type === 'printing' ? '프린팅' : '미팅룸'} ${credit.amount}크레딧`
+                          }
                           {credit.note && ` (${credit.note})`}
                         </div>
                       ))

@@ -32,6 +32,7 @@ class UserModel {
       created_at: new Date(),
       updated_at: new Date(),
       status: userData.status || 'active',
+      affiliation: userData.affiliation || 'partner',
     };
 
     const result = await collection.insertOne(user);
