@@ -198,7 +198,7 @@ const updateUserInfo = async (req, res, next) => {
     const updateData = req.body;
 
     // 허용된 필드만 업데이트
-    const allowedFields = ['role', 'status', 'name', 'phone'];
+    const allowedFields = ['role', 'status', 'name', 'phone', 'affiliation'];
     const filteredData = {};
     for (const field of allowedFields) {
       if (updateData[field] !== undefined) {
