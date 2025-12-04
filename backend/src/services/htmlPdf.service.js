@@ -211,68 +211,47 @@ const formatters = {
   },
 
   // 크레딧 포맷팅 (배열 또는 문자열 처리)
+  // 형식: {{크레딧종류}} : 월 {{수량}} {{단위}} 제공
   credits: (credits) => {
     if (!credits) return '';
 
+    const formatSingleCredit = (credit) => {
+      const amount = credit.amount || 0;
+
+      // 기타 크레딧 (커스텀 형식): {명칭} : 월 {수량} {단위} 제공
+      if (credit.type === 'other') {
+        const customName = credit.customName || '기타';
+        const unit = credit.unit || '크레딧';
+        return `${customName} : 월 ${amount.toLocaleString()} ${unit} 제공`;
+      }
+
+      // 기존 크레딧 타입: {크레딧종류} : 월 {수량} 크레딧 제공
+      const typeMap = {
+        'monthly': '크레딧',
+        'printing': '프린팅',
+        'meeting_room': '미팅룸',
+      };
+      const typeName = typeMap[credit.type] || '크레딧';
+      return `${typeName} : 월 ${amount.toLocaleString()} 크레딧 제공`;
+    };
+
     // 배열인 경우
     if (Array.isArray(credits)) {
-      return credits.map(credit => {
-        // 기타 크레딧 (커스텀 형식)
-        if (credit.type === 'other' && credit.customName) {
-          const unit = credit.unit || '크레딧';
-          const amount = credit.amount || 0;
-          let result = `${credit.customName} ${amount.toLocaleString()} ${unit} 제공`;
-          if (credit.note) {
-            result += ` / ${credit.note}`;
-          }
-          return result;
-        }
-
-        // 기존 크레딧 타입
-        const typeMap = {
-          'monthly': '월별 제공',
-          'printing': '프린팅',
-          'meeting_room': '미팅룸',
-          'other': '기타',
-        };
-        const typeName = typeMap[credit.type] || credit.type || '기타';
-        const amount = credit.amount || 0;
-        const note = credit.note ? ` (${credit.note})` : '';
-        return `${typeName} ${amount.toLocaleString()}크레딧${note}`;
-      }).join(', ');
+      return credits.map(formatSingleCredit).join(' / ');
     }
 
     // 문자열인 경우
     if (typeof credits === 'string') {
       if (credits.includes(':')) {
         const [type, value] = credits.split(':');
-        return `월별 ${type.trim()} 제공 : ${value.trim()}크레딧`;
+        return `${type.trim()} : 월 ${value.trim()} 크레딧 제공`;
       }
-      return `월별 미팅룸 크레딧 : ${credits}크레딧`;
+      return `크레딧 : 월 ${credits} 크레딧 제공`;
     }
 
     // 객체인 경우
     if (typeof credits === 'object') {
-      // 기타 크레딧 (커스텀 형식)
-      if (credits.type === 'other' && credits.customName) {
-        const unit = credits.unit || '크레딧';
-        const amount = credits.amount || 0;
-        let result = `${credits.customName} ${amount.toLocaleString()} ${unit} 제공`;
-        if (credits.note) {
-          result += ` / ${credits.note}`;
-        }
-        return result;
-      }
-
-      const typeMap = {
-        'monthly': '월별 제공',
-        'printing': '프린팅',
-        'meeting_room': '미팅룸',
-        'other': '기타',
-      };
-      const typeName = typeMap[credits.type] || credits.type || '기타';
-      const amount = credits.amount || 0;
-      return `${typeName} ${amount.toLocaleString()}크레딧`;
+      return formatSingleCredit(credits);
     }
 
     return String(credits);
@@ -851,24 +830,26 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0) => 
         remarkItems.push(parkingText);
       }
 
-      // 3. 크레딧
+      // 3. 크레딧 (형식: 크레딧종류 : 월 수량 단위 제공)
       if (option.credits && Array.isArray(option.credits) && option.credits.length > 0) {
-        // 비교표에서는 간단하게 표시 (예: "월별 제공 10크레딧" 등)
         const creditTexts = option.credits.map(credit => {
-          if (credit.type === 'other' && credit.customName) {
-            return `${credit.customName} ${credit.amount}${credit.unit || '크레딧'}`;
+          const amount = credit.amount || 0;
+          if (credit.type === 'other') {
+            const customName = credit.customName || '기타';
+            const unit = credit.unit || '크레딧';
+            return `${customName} : 월 ${amount.toLocaleString()} ${unit} 제공`;
           }
           const typeMap = {
-            'monthly': '월별 제공',
+            'monthly': '크레딧',
             'printing': '프린팅',
             'meeting_room': '미팅룸',
-            'other': '기타',
           };
-          return `${typeMap[credit.type] || '기타'} ${credit.amount}크레딧`;
+          const typeName = typeMap[credit.type] || '크레딧';
+          return `${typeName} : 월 ${amount.toLocaleString()} 크레딧 제공`;
         });
 
         if (creditTexts.length > 0) {
-          remarkItems.push(`• ${creditTexts.join(', ')}`);
+          remarkItems.push(`• ${creditTexts.join(' / ')}`);
         }
       }
 

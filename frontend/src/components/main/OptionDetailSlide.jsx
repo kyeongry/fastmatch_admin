@@ -813,8 +813,8 @@ const OptionDetailSlide = ({
                             <div key={idx} className="flex items-center justify-between bg-yellow-50 px-2 py-1 rounded text-sm">
                               <span>
                                 {credit.type === 'other'
-                                  ? `${credit.customName || '기타'} ${credit.amount}${credit.unit || '크레딧'}`
-                                  : `${credit.type === 'monthly' ? '월별 제공' : credit.type === 'printing' ? '프린팅' : '미팅룸'} ${credit.amount}크레딧`
+                                  ? `${credit.customName || '기타'} : 월 ${credit.amount} ${credit.unit || '크레딧'} 제공`
+                                  : `${credit.type === 'monthly' ? '크레딧' : credit.type === 'printing' ? '프린팅' : '미팅룸'} : 월 ${credit.amount} 크레딧 제공`
                                 }
                                 {credit.note && ` (${credit.note})`}
                               </span>
@@ -837,7 +837,7 @@ const OptionDetailSlide = ({
                             onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
                             className="px-2 py-1 border border-gray-300 rounded text-sm"
                           >
-                            <option value="monthly">월별 제공</option>
+                            <option value="monthly">크레딧</option>
                             <option value="printing">프린팅</option>
                             <option value="meeting_room">미팅룸</option>
                             <option value="other">기타</option>
@@ -898,8 +898,8 @@ const OptionDetailSlide = ({
                       option.credits.map((credit, idx) => (
                         <div key={idx} className="font-semibold">
                           {credit.type === 'other'
-                            ? `${credit.customName || '기타'} ${credit.amount}${credit.unit || '크레딧'}`
-                            : `${credit.type === 'monthly' ? '월별 제공' : credit.type === 'printing' ? '프린팅' : '미팅룸'} ${credit.amount}크레딧`
+                            ? `${credit.customName || '기타'} : 월 ${credit.amount} ${credit.unit || '크레딧'} 제공`
+                            : `${credit.type === 'monthly' ? '크레딧' : credit.type === 'printing' ? '프린팅' : '미팅룸'} : 월 ${credit.amount} 크레딧 제공`
                           }
                           {credit.note && ` (${credit.note})`}
                         </div>

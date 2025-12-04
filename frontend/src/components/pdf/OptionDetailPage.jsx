@@ -210,16 +210,22 @@ const OptionDetailPage = ({ option }) => {
           {option.credits && option.credits.length > 0 && (
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>제공 크레딧</Text>
-              <View style={{ flex: 1 }}>
-                {option.credits.map((credit, idx) => (
-                  <Text key={idx} style={styles.infoValue}>
-                    • {credit.type === 'monthly' && '월별 제공'}
-                    {credit.type === 'printing' && '프린팅'}
-                    {credit.type === 'meeting_room' && '미팅룸'}
-                    {credit.type === 'other' && '기타'} 크레딧: {credit.amount.toLocaleString()}
-                  </Text>
-                ))}
-              </View>
+              <Text style={styles.infoValue}>
+                {option.credits.map((credit, idx) => {
+                  const amount = credit.amount || 0;
+                  let creditText = '';
+                  if (credit.type === 'other') {
+                    const customName = credit.customName || '기타';
+                    const unit = credit.unit || '크레딧';
+                    creditText = `${customName} : 월 ${amount.toLocaleString()} ${unit} 제공`;
+                  } else {
+                    const typeMap = { 'monthly': '크레딧', 'printing': '프린팅', 'meeting_room': '미팅룸' };
+                    const typeName = typeMap[credit.type] || '크레딧';
+                    creditText = `${typeName} : 월 ${amount.toLocaleString()} 크레딧 제공`;
+                  }
+                  return idx === 0 ? creditText : ` / ${creditText}`;
+                }).join('')}
+              </Text>
             </View>
           )}
         </View>

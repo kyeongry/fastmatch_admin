@@ -851,8 +851,8 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                         <div key={index} className="flex items-center gap-2 px-3 py-2 bg-yellow-50 rounded-lg text-sm">
                           <span className="flex-1">
                             {credit.type === 'other'
-                              ? `${credit.customName || '기타'} ${credit.amount.toLocaleString()}${credit.unit || '크레딧'}`
-                              : `${credit.type === 'monthly' ? '월별 제공' : credit.type === 'printing' ? '프린팅' : '미팅룸'} ${credit.amount.toLocaleString()}크레딧`
+                              ? `${credit.customName || '기타'} : 월 ${credit.amount.toLocaleString()} ${credit.unit || '크레딧'} 제공`
+                              : `${credit.type === 'monthly' ? '크레딧' : credit.type === 'printing' ? '프린팅' : '미팅룸'} : 월 ${credit.amount.toLocaleString()} 크레딧 제공`
                             }
                             {credit.note && ` (${credit.note})`}
                           </span>
@@ -874,7 +874,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                     >
-                      <option value="monthly">월별 제공</option>
+                      <option value="monthly">크레딧</option>
                       <option value="printing">프린팅</option>
                       <option value="meeting_room">미팅룸</option>
                       <option value="other">기타</option>
