@@ -935,8 +935,8 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
   // 평면도가 없으면 평면도 페이지 제거
   if (!option.floor_plan_url) {
     console.log(`   ⚠️ 평면도 없음 - 평면도 페이지 제거`);
-    // 평면도 페이지 전체 블록 제거: <!-- 평면도 페이지 --> 부터 다음 <script> 또는 </body> 전까지
-    html = html.replace(/\s*<!-- 평면도 페이지 -->[\s\S]*?<div class="page floorplan-page">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*(?=\s*<script|\s*<\/body)/g, '');
+    // 평면도 페이지 전체 블록 제거: <!-- 평면도 페이지 --> 부터 해당 page div 끝까지
+    html = html.replace(/\s*<!-- 평면도 페이지 -->\s*<div class="page floorplan-page">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*<\/div>/g, '');
   }
 
   // 이미지를 Base64로 변환
