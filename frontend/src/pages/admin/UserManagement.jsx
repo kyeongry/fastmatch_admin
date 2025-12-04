@@ -93,6 +93,26 @@ const UserManagement = () => {
     }
   };
 
+  const handleUpdateAffiliation = async (userId, newAffiliation) => {
+    const affiliationText = newAffiliation === 'in-house' ? 'In-house' : 'Partner';
+    if (!window.confirm(`이 사용자의 소속을 "${affiliationText}"로 변경하시겠습니까?`)) {
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await adminAPI.updateUser(userId, { affiliation: newAffiliation });
+      success(`사용자 소속이 ${affiliationText}로 변경되었습니다`);
+      setSelectedUser(prev => ({ ...prev, affiliation: newAffiliation }));
+      fetchUsers();
+    } catch (err) {
+      console.error('소속 변경 실패:', err);
+      error(err.response?.data?.message || '소속 변경에 실패했습니다');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // 검색 필터링
   const filteredUsers = users.filter((user) => {
     if (!searchQuery) return true;
@@ -130,6 +150,19 @@ const UserManagement = () => {
       header: '전화번호',
       accessor: 'phone',
       render: (row) => <span className="text-gray-600">{row.phone || '-'}</span>,
+    },
+    {
+      header: '소속',
+      accessor: 'affiliation',
+      render: (row) => (
+        <span className={`px-2 py-1 rounded text-xs font-medium ${
+          row.affiliation === 'in-house'
+            ? 'bg-blue-100 text-blue-800'
+            : 'bg-orange-100 text-orange-800'
+        }`}>
+          {row.affiliation === 'in-house' ? 'In-house' : 'Partner'}
+        </span>
+      ),
     },
     {
       header: '권한',
@@ -371,6 +404,46 @@ const UserManagement = () => {
                         loading={submitting}
                       >
                         일반 사용자로 변경
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 소속 관리 */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">소속 관리</h3>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">현재 소속</p>
+                    <span className={`px-3 py-1.5 rounded text-sm font-medium ${
+                      selectedUser.affiliation === 'in-house'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-orange-100 text-orange-800'
+                    }`}>
+                      {selectedUser.affiliation === 'in-house' ? 'In-house' : 'Partner'}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    {selectedUser.affiliation !== 'in-house' ? (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handleUpdateAffiliation(selectedUser.id, 'in-house')}
+                        disabled={submitting}
+                        loading={submitting}
+                      >
+                        In-house로 변경
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleUpdateAffiliation(selectedUser.id, 'partner')}
+                        disabled={submitting}
+                        loading={submitting}
+                      >
+                        Partner로 변경
                       </Button>
                     )}
                   </div>

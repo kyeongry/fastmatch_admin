@@ -990,8 +990,13 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
     const parkingTypeLabel = option.parking_type === 'self_parking' ? '자주식' : '기계식';
     const countPart = option.parking_count ? ` ${option.parking_count}대` : '';
 
+    // 주차방식에 따른 설명 문구
+    const parkingDescription = option.parking_type === 'self_parking'
+      ? '편리한 주차환경 제공'
+      : '주차 가능한 제원 검토 필요';
+
     // 기본 문구 생성
-    let parkingText = `${parkingTypeLabel} 주차${countPart} 제공으로 편리한 주차환경 제공`;
+    let parkingText = `${parkingTypeLabel} 주차${countPart} 제공으로 ${parkingDescription}`;
 
     // 추가 정보 (비용, 메모)
     const extras = [];
