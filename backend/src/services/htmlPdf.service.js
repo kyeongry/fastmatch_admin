@@ -817,7 +817,7 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0) => 
       // 2. 주차방식
       if (option.parking_type) {
         const parkingTypeLabel = option.parking_type === 'self_parking' ? '자주식' : '기계식';
-        let parkingText = `${parkingTypeLabel} 주차`;
+        let parkingText = `• ${parkingTypeLabel} 주차`;
 
         if (option.parking_count) {
           parkingText += ` ${option.parking_count}대`;
@@ -997,8 +997,8 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
       ? '편리한 주차환경 제공'
       : '주차 가능한 제원 검토 필요';
 
-    // 기본 문구 생성: "{{주차방식}} 주차 {{대 수}}대 제공으로 {{주차방식 내용}}"
-    let parkingText = `${parkingTypeLabel} 주차`;
+    // 기본 문구 생성: "• {{주차방식}} 주차 {{대 수}}대 제공으로 {{주차방식 내용}}"
+    let parkingText = `• ${parkingTypeLabel} 주차`;
 
     if (option.parking_count) {
       parkingText += ` ${option.parking_count}대`;
@@ -1060,15 +1060,14 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
     remarkItems.push(option.memo.trim());
   }
 
-  // 비고 칸 글자수 제한: 1줄(45자), 2줄(90자)
-  // 표 크기 고정 상태에서 텍스트가 넘치지 않도록 제한
+  // 비고 칸 글자수 기준: 1줄(45자 이하), 2줄(45자 초과)
+  // CSS에서 -webkit-line-clamp로 2줄까지만 표시하고 나머지는 ...으로 처리
   const MAX_1LINE = 45;  // 1줄에 들어가는 최대 글자수
-  const MAX_2LINE = 90;  // 2줄에 들어가는 최대 글자수
 
-  // 각 비고 항목에 클래스 결정 및 글자수 제한
+  // 각 비고 항목에 클래스 결정 (CSS가 overflow 처리)
   const remarkClasses = [];
   for (let i = 0; i < 3; i++) {
-    let text = remarkItems[i] || '';
+    const text = remarkItems[i] || '';
     let cssClass = '';
 
     if (text.length === 0) {
@@ -1077,12 +1076,8 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
       // 1줄에 충분히 들어가는 경우
       cssClass = 'remark-1line';
     } else {
-      // 2줄 필요한 경우 - 최대 글자수로 제한
+      // 2줄 필요한 경우 - CSS가 overflow 처리
       cssClass = 'remark-2line';
-      if (text.length > MAX_2LINE) {
-        text = text.substring(0, MAX_2LINE);
-      }
-      remarkItems[i] = text;
     }
     remarkClasses.push(cssClass);
   }

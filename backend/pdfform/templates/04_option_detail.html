@@ -372,6 +372,29 @@
             vertical-align: middle;
         }
 
+        /* 비고 셀 - 1줄 */
+        .info-table .remark-cell.remark-1line {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 비고 셀 - 2줄 지원 */
+        .info-table .remark-cell.remark-2line {
+            height: auto !important;
+            min-height: var(--bottom-cell-height);
+            max-height: 52px !important;
+            line-height: 1.3 !important;
+            white-space: normal !important;
+            padding: 4px 10px !important;
+            font-size: 7pt !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
         /* 오피스 정보 셀 - 2줄 지원 */
         .info-table .office-info-cell {
             white-space: pre-line !important;
