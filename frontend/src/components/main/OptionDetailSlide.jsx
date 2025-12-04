@@ -9,6 +9,10 @@ import {
   formatMoveInDate,
   formatContractPeriod,
 } from '../../utils/formatters';
+import { MEMO_MAX_LENGTH } from '../pdf/OptionDetailPage';
+
+// 비고 관련 텍스트 최대 글자 수
+const TEXT_MAX_LENGTH = MEMO_MAX_LENGTH;
 
 const OptionDetailSlide = ({
   option,
@@ -777,13 +781,21 @@ const OptionDetailSlide = ({
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">원</span>
                     </div>
                   </div>
-                  <input
-                    type="text"
-                    placeholder="주차 비고"
-                    value={editData.parking_note || ''}
-                    onChange={(e) => handleInputChange('parking_note', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                  />
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="주차 비고"
+                      value={editData.parking_note || ''}
+                      onChange={(e) => {
+                        if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                          handleInputChange('parking_note', e.target.value);
+                        }
+                      }}
+                      maxLength={TEXT_MAX_LENGTH}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                    <span className="text-xs text-gray-400">{editData.parking_note?.length || 0}/{TEXT_MAX_LENGTH}자</span>
+                  </div>
                 </div>
               )}
 
@@ -861,8 +873,13 @@ const OptionDetailSlide = ({
                           <input
                             type="text"
                             value={newCredit.note}
-                            onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
-                            placeholder="메모(선택)"
+                            onChange={(e) => {
+                              if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                                setNewCredit({ ...newCredit, note: e.target.value });
+                              }
+                            }}
+                            maxLength={TEXT_MAX_LENGTH}
+                            placeholder={`메모(${newCredit.note?.length || 0}/${TEXT_MAX_LENGTH}자)`}
                             className="flex-1 min-w-[80px] px-2 py-1 border border-gray-300 rounded text-sm"
                           />
                           <button
@@ -899,11 +916,18 @@ const OptionDetailSlide = ({
 
           {/* 메모 */}
           <section>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">메모</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              메모 {isEditMode && <span className="text-sm font-normal text-gray-400">({editData.memo?.length || 0}/{TEXT_MAX_LENGTH}자)</span>}
+            </h3>
             {isEditMode ? (
               <textarea
                 value={editData.memo || ''}
-                onChange={(e) => handleInputChange('memo', e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                    handleInputChange('memo', e.target.value);
+                  }
+                }}
+                maxLength={TEXT_MAX_LENGTH}
                 placeholder="메모를 입력하세요..."
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[100px]"
               />

@@ -1,5 +1,51 @@
-﻿import React from 'react';
+import React from 'react';
 import { Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
+
+// 비고 텍스트 최대 글자 수 (2줄 기준, PDF 폰트 10pt 기준 약 60자/줄)
+export const MEMO_MAX_LENGTH = 120;
+
+// 텍스트 길이에 따른 동적 스타일 계산
+const getMemoTextStyle = (text) => {
+  const length = text?.length || 0;
+  // 1줄 (60자 이하): 기본 스타일
+  // 2줄 (61-120자): 폰트 9pt, 줄간격 줄임
+  if (length > 60) {
+    return {
+      fontSize: 9,
+      fontFamily: 'NanumGothic',
+      color: '#666666',
+      lineHeight: 1.4,
+    };
+  }
+  return {
+    fontSize: 10,
+    fontFamily: 'NanumGothic',
+    color: '#666666',
+    lineHeight: 1.5,
+  };
+};
+
+const getMemoBoxStyle = (text) => {
+  const length = text?.length || 0;
+  if (length > 60) {
+    return {
+      marginTop: 15,
+      padding: 8,
+      backgroundColor: '#F8F9FA',
+      borderRadius: 4,
+      borderWidth: 1,
+      borderColor: '#E0E0E0',
+    };
+  }
+  return {
+    marginTop: 15,
+    padding: 12,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  };
+};
 
 const styles = StyleSheet.create({
   page: {
@@ -63,14 +109,6 @@ const styles = StyleSheet.create({
     fontFamily: 'NanumGothic',
     color: '#999999',
   },
-  memoBox: {
-    marginTop: 15,
-    padding: 12,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
   memoLabel: {
     fontSize: 11,
     fontWeight: 'bold',
@@ -78,18 +116,15 @@ const styles = StyleSheet.create({
     color: '#555555',
     marginBottom: 6,
   },
-  memoText: {
-    fontSize: 10,
-    fontFamily: 'NanumGothic',
-    color: '#666666',
-    lineHeight: 1.5,
-  },
 });
 
 const OptionDetailPage = ({ option }) => {
   const brandName = option.branch?.brand?.alias || option.branch?.brand?.name || '';
   const title = `${brandName} ${option.branch?.name || ''} - ${option.name}`;
   const formatCurrency = (val) => val ? `${val.toLocaleString()}원` : '-';
+
+  const memoText = option.memo || '메모가 없습니다.';
+  const descriptionText = option.branch?.description || '지점 설명이 없습니다.';
 
   return (
     <>
@@ -117,10 +152,10 @@ const OptionDetailPage = ({ option }) => {
           <Text style={styles.imagePlaceholder}>외관 이미지</Text>
         </View>
 
-        <View style={styles.memoBox}>
+        <View style={getMemoBoxStyle(descriptionText)}>
           <Text style={styles.memoLabel}>지점 소개</Text>
-          <Text style={styles.memoText}>
-            {option.branch?.description || '지점 설명이 없습니다.'}
+          <Text style={getMemoTextStyle(descriptionText)}>
+            {descriptionText}
           </Text>
         </View>
       </Page>
@@ -172,52 +207,48 @@ const OptionDetailPage = ({ option }) => {
               {option.move_in_date_type === 'immediate' ? '즉시' : option.move_in_date_value || '-'}
             </Text>
           </View>
-        </Text>
-      </View>
-      {option.credits && option.credits.length > 0 && (
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>제공 크레딧</Text>
-          <View style={{ flex: 1 }}>
-            {option.credits.map((credit, idx) => (
-              <Text key={idx} style={styles.infoValue}>
-                • {credit.type === 'monthly' && '월별 제공'}
-                {credit.type === 'printing' && '프린팅'}
-                {credit.type === 'meeting_room' && '미팅룸'}
-                {credit.type === 'other' && '기타'} 크레딧: {credit.amount.toLocaleString()}
-              </Text>
-            ))}
-          </View>
+          {option.credits && option.credits.length > 0 && (
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>제공 크레딧</Text>
+              <View style={{ flex: 1 }}>
+                {option.credits.map((credit, idx) => (
+                  <Text key={idx} style={styles.infoValue}>
+                    • {credit.type === 'monthly' && '월별 제공'}
+                    {credit.type === 'printing' && '프린팅'}
+                    {credit.type === 'meeting_room' && '미팅룸'}
+                    {credit.type === 'other' && '기타'} 크레딧: {credit.amount.toLocaleString()}
+                  </Text>
+                ))}
+              </View>
+            </View>
+          )}
         </View>
+
+        <View style={getMemoBoxStyle(memoText)}>
+          <Text style={styles.memoLabel}>옵션 메모</Text>
+          <Text style={getMemoTextStyle(memoText)}>
+            {memoText}
+          </Text>
+        </View>
+      </Page>
+
+      {option.floor_plan_url && (
+        <Page size="A4" style={styles.page}>
+          <Text style={styles.header}>옵션 상세 (3/3): {title}</Text>
+
+          <Text style={styles.subHeader}>평면도</Text>
+          <View style={{ marginTop: 15 }}>
+            <Image
+              src={option.floor_plan_url}
+              style={{
+                width: '100%',
+                maxHeight: 500,
+                objectFit: 'contain'
+              }}
+            />
+          </View>
+        </Page>
       )}
-    </View >
-
-      <View style={styles.memoBox}>
-        <Text style={styles.memoLabel}>옵션 메모</Text>
-        <Text style={styles.memoText}>
-          {option.memo || '메모가 없습니다.'}
-        </Text>
-      </View>
-      </Page >
-
-{
-  option.floor_plan_url && (
-    <Page size="A4" style={styles.page}>
-      <Text style={styles.header}>옵션 상세 (3/3): {title}</Text>
-
-      <Text style={styles.subHeader}>평면도</Text>
-      <View style={{ marginTop: 15 }}>
-        <Image
-          src={option.floor_plan_url}
-          style={{
-            width: '100%',
-            maxHeight: 500,
-            objectFit: 'contain'
-          }}
-        />
-      </View>
-    </Page>
-  )
-}
     </>
   );
 };

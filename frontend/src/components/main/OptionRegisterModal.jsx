@@ -3,6 +3,10 @@ import Modal from '../common/Modal';
 import { brandAPI, branchAPI, optionAPI, uploadAPI } from '../../services/api';
 import { useToast } from '../../hooks/useToast';
 import { formatNumberInput, parseNumberInput } from '../../utils/formatters';
+import { MEMO_MAX_LENGTH } from '../pdf/OptionDetailPage';
+
+// 비고 관련 텍스트 최대 글자 수
+const TEXT_MAX_LENGTH = MEMO_MAX_LENGTH;
 
 // 초기 폼 데이터
 const initialFormData = {
@@ -975,10 +979,17 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     <option value="mechanical">기계식</option>
                   </select>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">추가 메모 (선택)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      추가 메모 (선택) <span className="text-gray-400 text-xs">({formData.parking_note?.length || 0}/{TEXT_MAX_LENGTH}자)</span>
+                    </label>
                     <textarea
                       value={formData.parking_note}
-                      onChange={(e) => setFormData({ ...formData, parking_note: e.target.value })}
+                      onChange={(e) => {
+                        if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                          setFormData({ ...formData, parking_note: e.target.value });
+                        }
+                      }}
+                      maxLength={TEXT_MAX_LENGTH}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       rows="3"
                       placeholder="주차 관련 추가 정보를 입력하세요"
@@ -1095,13 +1106,23 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       placeholder="수량을 입력하세요"
                     />
-                    <textarea
-                      value={newCredit.note}
-                      onChange={(e) => setNewCredit({ ...newCredit, note: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      rows="2"
-                      placeholder="추가 설명 (선택사항)"
-                    />
+                    <div>
+                      <label className="block text-sm text-gray-500 mb-1">
+                        추가 설명 ({newCredit.note?.length || 0}/{TEXT_MAX_LENGTH}자)
+                      </label>
+                      <textarea
+                        value={newCredit.note}
+                        onChange={(e) => {
+                          if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                            setNewCredit({ ...newCredit, note: e.target.value });
+                          }
+                        }}
+                        maxLength={TEXT_MAX_LENGTH}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        rows="2"
+                        placeholder="추가 설명 (선택사항)"
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={handleAddCredit}
@@ -1272,10 +1293,17 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     </button>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">메모</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      메모 <span className="text-gray-400 text-xs">({formData.memo?.length || 0}/{TEXT_MAX_LENGTH}자)</span>
+                    </label>
                     <textarea
                       value={formData.memo}
-                      onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
+                      onChange={(e) => {
+                        if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                          setFormData({ ...formData, memo: e.target.value });
+                        }
+                      }}
+                      maxLength={TEXT_MAX_LENGTH}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       rows="4"
                       placeholder="추가 메모를 입력해주세요"
