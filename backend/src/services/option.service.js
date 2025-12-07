@@ -316,6 +316,8 @@ const createOption = async (data, userId) => {
     credits: data.credits || null,
     hvac_type: data.hvac_type || null,
     parking_type: data.parking_type || null,
+    parking_count: data.parking_count || null,
+    parking_cost: data.parking_cost || null,
     parking_note: data.parking_note || null,
     memo: data.memo || null,
     floor_plan_url: data.floor_plan_url || null,
@@ -377,6 +379,8 @@ const updateOption = async (id, data, userId, userRole) => {
   if (data.credits !== undefined) updateData.credits = data.credits;
   if (data.hvac_type) updateData.hvac_type = data.hvac_type;
   if (data.parking_type) updateData.parking_type = data.parking_type;
+  if (data.parking_count !== undefined) updateData.parking_count = data.parking_count;
+  if (data.parking_cost !== undefined) updateData.parking_cost = data.parking_cost;
   if (data.parking_note !== undefined) updateData.parking_note = data.parking_note;
   if (data.exclusive_area !== undefined) updateData.exclusive_area = data.exclusive_area;
   if (data.memo) updateData.memo = data.memo;
