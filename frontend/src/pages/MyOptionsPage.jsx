@@ -124,6 +124,22 @@ const MyOptionsPage = () => {
         }
     };
 
+    // 옵션 수정 후 상세 데이터 새로고침
+    const handleDetailUpdate = async () => {
+        await fetchMyOptions(); // 목록 새로고침
+        // selectedOption이 열려있으면 최신 데이터로 업데이트
+        if (selectedOption && selectedOption.id) {
+            try {
+                const response = await optionAPI.getById(selectedOption.id);
+                if (response.data?.option) {
+                    setSelectedOption(response.data.option);
+                }
+            } catch (err) {
+                console.error('옵션 상세 새로고침 실패:', err);
+            }
+        }
+    };
+
     return (
         <Layout>
             <div className="p-8 max-w-7xl mx-auto">
@@ -253,7 +269,7 @@ const MyOptionsPage = () => {
                 onReactivate={handleReactivate}
                 onCancelDeleteRequest={handleCancelDeleteRequest}
                 onDelete={handleDeleteRequest}
-                onUpdate={fetchMyOptions}
+                onUpdate={handleDetailUpdate}
             />
 
             {/* 옵션 수정 모달 */}
