@@ -209,6 +209,22 @@ const MainPage = () => {
     }
   };
 
+  // 옵션 수정 후 상세 데이터 새로고침
+  const handleDetailUpdate = async () => {
+    await fetchOptions(); // 목록 새로고침
+    // detailOption이 열려있으면 최신 데이터로 업데이트
+    if (detailOption && detailOption.id) {
+      try {
+        const response = await optionAPI.getById(detailOption.id);
+        if (response.data?.option) {
+          setDetailOption(response.data.option);
+        }
+      } catch (err) {
+        console.error('옵션 상세 새로고침 실패:', err);
+      }
+    }
+  };
+
   // 거래완료 필터링
   const filteredOptions = showCompleted
     ? options
@@ -374,7 +390,7 @@ const MainPage = () => {
         onReactivate={handleReactivate}
         onCancelDeleteRequest={handleCancelDeleteRequest}
         onDelete={handleDeleteRequest}
-        onUpdate={fetchOptions}
+        onUpdate={handleDetailUpdate}
       />
 
       {/* 삭제 요청 모달 */}
