@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { optionAPI } from '../../services/api';
+import { optionAPI, uploadAPI } from '../../services/api';
 import { useToast } from '../../hooks/useToast';
 import {
   formatPrice,
@@ -328,26 +328,19 @@ const OptionDetailSlide = ({
 
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const response = await uploadAPI.image(file);
+      const imageUrl = response.data?.image?.url || response.data?.url;
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/upload/image`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
-      });
+      if (!imageUrl) {
+        throw new Error('이미지 URL을 받지 못했습니다');
+      }
 
-      if (!response.ok) throw new Error('업로드 실패');
-
-      const data = await response.json();
-      const imageUrl = data.image?.url || data.url;
       setEditData(prev => ({ ...prev, floor_plan_url: imageUrl }));
       success('이미지가 업로드되었습니다');
     } catch (err) {
       console.error('이미지 업로드 실패:', err);
-      showError('이미지 업로드에 실패했습니다');
+      const errorMessage = err.response?.data?.message || err.message || '이미지 업로드에 실패했습니다';
+      showError(errorMessage);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
