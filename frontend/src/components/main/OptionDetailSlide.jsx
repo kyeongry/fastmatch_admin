@@ -45,6 +45,9 @@ const OptionDetailSlide = ({
   // 크레딧 추가용 상태
   const [newCredit, setNewCredit] = useState({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
 
+  // 일회성비용 추가용 상태
+  const [newFee, setNewFee] = useState({ type: '', amount: '', customType: '' });
+
   // 권한 확인
   const isOwner = user && option && user.id === option.creator_id;
   const isAdmin = user && user.role === 'admin';
@@ -241,6 +244,21 @@ const OptionDetailSlide = ({
       return;
     }
 
+    // 크레딧 입력 중인데 추가 안한 경우 경고
+    if (newCredit.amount || (newCredit.type === 'other' && newCredit.customName)) {
+      warning('크레딧이 입력되었지만 추가되지 않았습니다. 추가 버튼을 눌러주세요.');
+      return;
+    }
+
+    // 일회성비용 입력 중인데 추가 안한 경우 경고
+    const feeTypeEntered = newFee.type && newFee.type !== '';
+    const feeAmountEntered = newFee.amount && newFee.amount !== '';
+    const feeCustomTypeEntered = newFee.type === 'custom' && newFee.customType && newFee.customType !== '';
+    if (feeAmountEntered || (feeTypeEntered && (newFee.type !== 'custom' || feeCustomTypeEntered))) {
+      warning('일회성비용이 입력되었지만 추가되지 않았습니다. 추가 버튼을 눌러주세요.');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const updatePayload = {
@@ -293,6 +311,27 @@ const OptionDetailSlide = ({
     setEditData(prev => ({
       ...prev,
       credits: (prev.credits || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  // 일회성비용 추가 핸들러
+  const handleAddFee = () => {
+    const feeType = newFee.type === 'custom' ? newFee.customType : newFee.type;
+    const amount = parseNumberFromComma(newFee.amount);
+    if (feeType && amount) {
+      setEditData(prev => ({
+        ...prev,
+        one_time_fees: [...(prev.one_time_fees || []), { type: feeType, amount: parseFloat(amount) }],
+      }));
+      setNewFee({ type: '', amount: '', customType: '' });
+    }
+  };
+
+  // 일회성비용 삭제 핸들러
+  const handleRemoveFee = (index) => {
+    setEditData(prev => ({
+      ...prev,
+      one_time_fees: (prev.one_time_fees || []).filter((_, i) => i !== index),
     }));
   };
 
@@ -607,19 +646,86 @@ const OptionDetailSlide = ({
               {renderEditableField('보증금', 'deposit', 'price')}
               {renderEditableField('정가', 'list_price', 'price')}
 
-              {/* 일회성 비용 표시 */}
-              {(option.one_time_fees && option.one_time_fees.length > 0) && (
+              {/* 일회성 비용 */}
+              {isEditMode ? (
                 <div className="mt-4">
-                  <span className="text-gray-600 font-medium">일회성 비용:</span>
-                  <div className="mt-2 space-y-2">
-                    {option.one_time_fees.map((fee, index) => (
-                      <div key={index} className="flex items-center gap-2 pl-4">
-                        <span className="text-sm text-gray-600">• {fee.type}:</span>
-                        <span className="text-sm font-semibold">{formatPrice(fee.amount)}원</span>
-                      </div>
-                    ))}
+                  <span className="text-gray-600 font-medium block mb-3">일회성 비용:</span>
+                  {/* 등록된 일회성 비용 목록 */}
+                  <div className="space-y-2 mb-3">
+                    {editData.one_time_fees && editData.one_time_fees.length > 0 ? (
+                      editData.one_time_fees.map((fee, index) => (
+                        <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                          <span className="flex-1 text-sm font-medium">
+                            {fee.type}: {formatPrice(fee.amount)}원
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFee(index)}
+                            className="px-2 py-1 text-red-600 hover:bg-red-50 rounded text-xs transition"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-gray-500 text-center py-2">등록된 일회성 비용이 없습니다</p>
+                    )}
+                  </div>
+                  {/* 일회성 비용 추가 폼 */}
+                  <div className="flex gap-2 flex-wrap">
+                    <select
+                      value={newFee.type}
+                      onChange={(e) => setNewFee({ ...newFee, type: e.target.value, customType: '' })}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">종류 선택</option>
+                      <option value="셋업비">셋업비</option>
+                      <option value="셋팅비">셋팅비</option>
+                      <option value="퇴실비">퇴실비</option>
+                      <option value="custom">기타</option>
+                    </select>
+                    {newFee.type === 'custom' && (
+                      <input
+                        type="text"
+                        value={newFee.customType}
+                        onChange={(e) => setNewFee({ ...newFee, customType: e.target.value })}
+                        placeholder="종류 입력"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                      />
+                    )}
+                    <input
+                      type="text"
+                      value={formatNumberWithComma(newFee.amount)}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                        setNewFee({ ...newFee, amount: numericValue });
+                      }}
+                      placeholder="금액"
+                      className="flex-1 min-w-[100px] px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddFee}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition font-medium"
+                    >
+                      추가
+                    </button>
                   </div>
                 </div>
+              ) : (
+                (option.one_time_fees && option.one_time_fees.length > 0) && (
+                  <div className="mt-4">
+                    <span className="text-gray-600 font-medium">일회성 비용:</span>
+                    <div className="mt-2 space-y-2">
+                      {option.one_time_fees.map((fee, index) => (
+                        <div key={index} className="flex items-center gap-2 pl-4">
+                          <span className="text-sm text-gray-600">• {fee.type}:</span>
+                          <span className="text-sm font-semibold">{formatPrice(fee.amount)}원</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
               )}
             </div>
           </section>
