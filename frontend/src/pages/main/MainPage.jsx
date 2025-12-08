@@ -8,6 +8,7 @@ import OptionListItem from '../../components/main/OptionListItem';
 import OptionDetailSlide from '../../components/main/OptionDetailSlide';
 import OptionRegisterModal from '../../components/main/OptionRegisterModal';
 import Footer from '../../components/main/Footer';
+import Pagination from '../../components/common/Pagination';
 import { Modal, Button } from '../../components/common';
 import { optionAPI } from '../../services/api';
 import { useToast } from '../../hooks/useToast';
@@ -32,6 +33,14 @@ const MainPage = () => {
     // localStorage에서 뷰 모드 복원
     return localStorage.getItem('optionViewMode') || 'grid';
   });
+
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(() => {
+    const saved = localStorage.getItem('optionItemsPerPage');
+    return saved ? parseInt(saved, 10) : 20;
+  });
+  const [totalOptions, setTotalOptions] = useState(0);
 
   const [filters, setFilters] = useState(() => {
     // localStorage에서 필터 상태 복원
@@ -79,6 +88,22 @@ const MainPage = () => {
     filters.refresh,
     filters.minCapacity,
     filters.maxCapacity,
+    currentPage,
+    itemsPerPage,
+  ]);
+
+  // 필터 변경 시 페이지를 1로 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    JSON.stringify(filters.brands),
+    JSON.stringify(filters.branches),
+    JSON.stringify(filters.creators),
+    filters.search,
+    filters.sort,
+    filters.minCapacity,
+    filters.maxCapacity,
   ]);
 
   const fetchOptions = async () => {
@@ -92,20 +117,24 @@ const MainPage = () => {
         ...(filters.minCapacity && { min_capacity: filters.minCapacity }),
         ...(filters.maxCapacity && { max_capacity: filters.maxCapacity }),
         sort: filters.sort || 'latest',
+        page: currentPage,
+        pageSize: itemsPerPage,
       };
 
       const response = await optionAPI.getAll(params);
       // API 응답: { success: true, options: [...], total, page, pageSize }
-      // 백엔드와 연동되지 않은 데이터는 노출하지 않음
       const optionsArray = response.data?.options || [];
+      const total = response.data?.total || 0;
       // 유효한 옵션만 필터링 (id가 있는 것만)
       const validOptions = Array.isArray(optionsArray)
         ? optionsArray.filter((opt) => opt && opt.id)
         : [];
       setOptions(validOptions);
+      setTotalOptions(total);
     } catch (error) {
       console.error('옵션 목록 조회 실패:', error);
       setOptions([]);
+      setTotalOptions(0);
     } finally {
       setLoading(false);
     }
@@ -236,13 +265,33 @@ const MainPage = () => {
     localStorage.setItem('optionViewMode', mode);
   };
 
+  // 페이지 크기 변경 핸들러
+  const handleItemsPerPageChange = (newSize) => {
+    setItemsPerPage(newSize);
+    setCurrentPage(1);
+    localStorage.setItem('optionItemsPerPage', newSize.toString());
+  };
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  // 총 페이지 수 계산
+  const totalPages = Math.ceil(totalOptions / itemsPerPage);
+
   return (
     <Layout>
       <div className="flex flex-col h-full overflow-hidden bg-gray-50">
         {/* 상단 검색 & 필터 영역 */}
         <div className="bg-white border-b border-gray-200 shadow-sm">
           <SearchBar onSearchChange={(search) => setFilters({ ...filters, search })} />
-          <FilterBar filters={filters} onFilterChange={setFilters} />
+          <FilterBar
+            filters={filters}
+            onFilterChange={setFilters}
+            pageSize={itemsPerPage}
+            onPageSizeChange={handleItemsPerPageChange}
+          />
         </div>
 
         {/* 메인 콘텐츠 */}
@@ -256,7 +305,7 @@ const MainPage = () => {
                   <div>
                     <h1 className="text-2xl font-bold text-gray-900">옵션 목록</h1>
                     <p className="text-sm text-gray-500 mt-1">
-                      {filteredOptions.length > 0 ? `총 ${filteredOptions.length}개의 옵션` : '조회된 옵션이 없습니다'}
+                      {totalOptions > 0 ? `총 ${totalOptions}개의 옵션` : '조회된 옵션이 없습니다'}
                     </p>
                   </div>
                   {/* 거래완료 표시 체크박스 */}
@@ -366,6 +415,16 @@ const MainPage = () => {
                     />
                   ))}
                 </div>
+              )}
+
+              {/* 페이지네이션 */}
+              {totalOptions > 0 && totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  totalItems={totalOptions}
+                />
               )}
             </div>
           </div>

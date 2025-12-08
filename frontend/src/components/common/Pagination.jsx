@@ -62,19 +62,20 @@ const Pagination = ({
                 </button>
             </div>
 
-            <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">페이지당 보기:</span>
-                <select
-                    value={itemsPerPage}
-                    onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-                    className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                    <option value={10}>10개</option>
-                    <option value={20}>20개</option>
-                    <option value={50}>50개</option>
-                    <option value={100}>100개</option>
-                </select>
-            </div>
+            {onItemsPerPageChange && (
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">페이지당 보기:</span>
+                    <select
+                        value={itemsPerPage}
+                        onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                        <option value={20}>20개</option>
+                        <option value={50}>50개</option>
+                        <option value={100}>100개</option>
+                    </select>
+                </div>
+            )}
         </div>
     );
 };
