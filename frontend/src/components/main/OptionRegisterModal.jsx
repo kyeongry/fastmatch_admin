@@ -381,6 +381,21 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
       return;
     }
 
+    // 크레딧 입력 중인데 추가 안한 경우 경고
+    if (newCredit.amount || (newCredit.type === 'other' && newCredit.customName)) {
+      warning('크레딧이 입력되었지만 추가되지 않았습니다. 추가 버튼을 눌러주세요.');
+      return;
+    }
+
+    // 일회성비용 입력 중인데 추가 안한 경우 경고
+    const feeTypeEntered = newFee.type && newFee.type !== '';
+    const feeAmountEntered = newFee.amount && newFee.amount !== '';
+    const feeCustomTypeEntered = newFee.type === 'custom' && newFee.customType && newFee.customType !== '';
+    if (feeAmountEntered || (feeTypeEntered && (newFee.type !== 'custom' || feeCustomTypeEntered))) {
+      warning('일회성비용이 입력되었지만 추가되지 않았습니다. 추가 버튼을 눌러주세요.');
+      return;
+    }
+
     setLoading(true);
     try {
       const { brand_id, ...restFormData } = formData;

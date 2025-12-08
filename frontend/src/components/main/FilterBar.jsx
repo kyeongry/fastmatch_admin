@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { brandAPI, branchAPI, optionAPI } from '../../services/api';
 
-const FilterBar = ({ filters, onFilterChange }) => {
+const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   const [sortBy, setSortBy] = useState(() => {
     // localStorage에서 정렬 상태 복원
     return localStorage.getItem('filterSortBy') || 'latest';
@@ -595,6 +595,22 @@ const FilterBar = ({ filters, onFilterChange }) => {
             <option value="price_per_person_low">인당 평단가 낮은순</option>
             <option value="price_per_person_high">인당 평단가 높은순</option>
           </select>
+
+          {/* 페이지 크기 선택 */}
+          {onPageSizeChange && (
+            <div className="flex items-center gap-2 ml-2 md:ml-4">
+              <label className="text-gray-700 font-medium text-sm md:text-base whitespace-nowrap">표시:</label>
+              <select
+                value={pageSize}
+                onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                className="px-3 py-2 text-sm md:text-base border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
+              >
+                <option value={20}>20개</option>
+                <option value={50}>50개</option>
+                <option value={100}>100개</option>
+              </select>
+            </div>
+          )}
         </div>
       </div>
     </div>
