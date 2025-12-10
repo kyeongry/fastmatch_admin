@@ -97,12 +97,18 @@ const ProposalRequestCreate = () => {
             const response = await proposalRequestAPI.create(submitData);
 
             if (response.data.success) {
-                alert('제안 요청이 성공적으로 발송되었습니다!');
+                // 부분 성공 케이스 처리
+                if (response.data.partial) {
+                    alert(response.data.message);
+                } else {
+                    alert('제안 요청이 성공적으로 발송되었습니다!');
+                }
                 navigate('/requests');
             }
         } catch (error) {
             console.error('제안 요청 생성 실패:', error);
-            alert('제안 요청 생성에 실패했습니다: ' + (error.response?.data?.message || error.message));
+            const errorMessage = error.response?.data?.message || error.message;
+            alert('제안 요청 발송에 실패했습니다:\n' + errorMessage);
         } finally {
             setLoading(false);
         }

@@ -35,12 +35,26 @@ const getById = async (req, res, next) => {
 // 제안 요청 생성
 const create = async (req, res, next) => {
   try {
-    const request = await createProposalRequest(req.body, req.user.id);
-    res.status(201).json({
-      success: true,
-      message: '제안 요청이 생성되었습니다',
-      request,
-    });
+    const result = await createProposalRequest(req.body, req.user.id);
+
+    // 부분 성공 케이스 처리 (일부 브랜드만 발송 성공)
+    if (result.sendResults && result.sendResults.errors && result.sendResults.errors.length > 0) {
+      const failedBrands = result.sendResults.errors.map(e => e.brand).join(', ');
+      res.status(201).json({
+        success: true,
+        partial: true,
+        message: `제안 요청이 발송되었습니다 (${result.sendResults.emailsSent}/${result.sendResults.total}개 성공). 실패: ${failedBrands}`,
+        request: result.request,
+        sendResults: result.sendResults,
+      });
+    } else {
+      res.status(201).json({
+        success: true,
+        message: '제안 요청이 성공적으로 발송되었습니다',
+        request: result.request,
+        sendResults: result.sendResults,
+      });
+    }
   } catch (error) {
     next(error);
   }
