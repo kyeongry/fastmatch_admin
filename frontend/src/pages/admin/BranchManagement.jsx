@@ -35,6 +35,8 @@ const BranchManagement = () => {
     status: 'active',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // 필터 및 페이지네이션 상태
   const [filters, setFilters] = useState({
@@ -699,6 +701,27 @@ const BranchManagement = () => {
       error(err.response?.data?.message || '지점 수정에 실패했습니다');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeleteBranch = async () => {
+    if (!editBranch?.id) return;
+
+    setDeleting(true);
+    try {
+      await branchAPI.delete(editBranch.id);
+      success('지점이 삭제되었습니다');
+      setShowDeleteConfirm(false);
+      setShowEditModal(false);
+      setEditBranch(null);
+      setSelectedBranch(null);
+      setIsEditingMode(false);
+      fetchBranches();
+    } catch (err) {
+      console.error('지점 삭제 실패:', err);
+      error(err.response?.data?.message || '지점 삭제에 실패했습니다');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -1494,6 +1517,12 @@ const BranchManagement = () => {
               {!isEditingMode ? (
                 <>
                   <Button
+                    variant="danger"
+                    onClick={() => setShowDeleteConfirm(true)}
+                  >
+                    삭제
+                  </Button>
+                  <Button
                     variant="outline"
                     fullWidth
                     onClick={() => {
@@ -1611,6 +1640,42 @@ const BranchManagement = () => {
                 onClick={handleAddImageByUrl}
               >
                 추가
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* 삭제 확인 모달 */}
+        <Modal
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          title="지점 삭제"
+          size="sm"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-700">
+              <span className="font-semibold">{editBranch?.name}</span> 지점을 정말 삭제하시겠습니까?
+            </p>
+            <p className="text-sm text-red-600">
+              삭제된 지점은 복구할 수 없습니다.
+            </p>
+            <div className="flex gap-3 pt-4 border-t">
+              <Button
+                variant="outline"
+                fullWidth
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+              >
+                취소
+              </Button>
+              <Button
+                variant="danger"
+                fullWidth
+                onClick={handleDeleteBranch}
+                disabled={deleting}
+                loading={deleting}
+              >
+                삭제
               </Button>
             </div>
           </div>
