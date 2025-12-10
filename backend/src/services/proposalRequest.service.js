@@ -180,8 +180,9 @@ const createProposalRequest = async (data, userId) => {
     });
 
     // 이메일 발송
+    let sendResults = null;
     try {
-      await sendProposalEmails(proposalRequest, user, selected_brands, 'initial');
+      sendResults = await sendProposalEmails(proposalRequest, user, selected_brands, 'initial');
       await ProposalRequestModel.updateById(proposalRequest._id.toString(), {
         send_status: 'sent',
         sent_at: new Date(),
@@ -193,7 +194,8 @@ const createProposalRequest = async (data, userId) => {
       throw error;
     }
 
-    return getProposalRequestById(proposalRequest._id.toString(), userId);
+    const request = await getProposalRequestById(proposalRequest._id.toString(), userId);
+    return { request, sendResults };
   } catch (error) {
     console.error('❌ Create proposal request error:', error);
     throw error;
@@ -295,7 +297,11 @@ const sendProposalEmails = async (proposalRequest, user, brandIds, sendType) => 
     );
 
     const validBrands = brands.filter(Boolean);
+
+    // 발송 결과 추적
     let emailsSent = 0;
+    const sendResults = [];
+    const errors = [];
 
     for (const brand of validBrands) {
       // 담당자가 있으면 첫 번째 매니저, 없으면 브랜드 기본 이메일 사용
@@ -304,9 +310,12 @@ const sendProposalEmails = async (proposalRequest, user, brandIds, sendType) => 
       // 이메일 주소 결정: 담당자 이메일 > 브랜드 기본 이메일
       const toEmail = manager?.email || brand.default_email;
 
-      // 이메일 주소가 없으면 건너뛰기
+      // 이메일 주소가 없으면 에러 기록
       if (!toEmail) {
-        console.warn(`⚠️ 브랜드 ${brand.name}에 이메일 주소가 없어 발송을 건너뜁니다.`);
+        const errorMsg = `브랜드 ${brand.name}에 이메일 주소가 없습니다`;
+        console.warn(`⚠️ ${errorMsg}`);
+        errors.push({ brand: brand.name, error: errorMsg });
+        sendResults.push({ brand: brand.name, success: false, reason: 'no_email' });
         continue;
       }
 
@@ -350,12 +359,34 @@ const sendProposalEmails = async (proposalRequest, user, brandIds, sendType) => 
         });
 
         emailsSent++;
+        sendResults.push({ brand: brand.name, success: true, email: toEmail });
+        console.log(`✅ 이메일 발송 성공: ${brand.name} -> ${toEmail}`);
       } catch (error) {
-        console.error(`이메일 발송 실패 (${brand.name}):`, error);
+        const errorMsg = error.message || '알 수 없는 오류';
+        console.error(`❌ 이메일 발송 실패 (${brand.name}):`, error);
+        errors.push({ brand: brand.name, error: errorMsg, email: toEmail });
+        sendResults.push({ brand: brand.name, success: false, reason: 'send_failed', error: errorMsg });
       }
     }
 
-    return emailsSent;
+    // 발송 결과 로깅
+    console.log(`📊 이메일 발송 결과: ${emailsSent}/${validBrands.length}개 성공`);
+    if (errors.length > 0) {
+      console.log(`❌ 실패한 브랜드: ${errors.map(e => e.brand).join(', ')}`);
+    }
+
+    // 하나도 발송하지 못했으면 에러 발생
+    if (emailsSent === 0 && validBrands.length > 0) {
+      const errorDetails = errors.map(e => `${e.brand}: ${e.error}`).join('; ');
+      throw new Error(`모든 이메일 발송에 실패했습니다. [${errorDetails}]`);
+    }
+
+    // 브랜드가 없는 경우도 에러
+    if (validBrands.length === 0) {
+      throw new Error('발송할 유효한 브랜드가 없습니다');
+    }
+
+    return { emailsSent, total: validBrands.length, results: sendResults, errors };
   } catch (error) {
     console.error('❌ Send proposal emails error:', error);
     throw error;
