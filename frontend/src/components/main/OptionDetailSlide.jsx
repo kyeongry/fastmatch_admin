@@ -1011,31 +1011,32 @@ const OptionDetailSlide = ({
               </div>
 
               {renderEditableField('오피스정보', 'office_info', 'textarea')}
-            </div>
-          </section>
 
-          {/* 메모 */}
-          <section>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              메모 {isEditMode && <span className="text-sm font-normal text-gray-400">({editData.memo?.length || 0}/{TEXT_MAX_LENGTH}자)</span>}
-            </h3>
-            {isEditMode ? (
-              <textarea
-                value={editData.memo || ''}
-                onChange={(e) => {
-                  if (e.target.value.length <= TEXT_MAX_LENGTH) {
-                    handleInputChange('memo', e.target.value);
-                  }
-                }}
-                maxLength={TEXT_MAX_LENGTH}
-                placeholder="메모를 입력하세요..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[100px]"
-              />
-            ) : (
-              <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
-                {option.memo || '-'}
-              </p>
-            )}
+              {/* 기타 메모 */}
+              <div className="flex">
+                <span className="text-gray-600 w-32">기타 메모:</span>
+                <div className="flex-1">
+                  {isEditMode ? (
+                    <div>
+                      <textarea
+                        value={editData.memo || ''}
+                        onChange={(e) => {
+                          if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                            handleInputChange('memo', e.target.value);
+                          }
+                        }}
+                        maxLength={TEXT_MAX_LENGTH}
+                        placeholder="메모를 입력하세요..."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[80px]"
+                      />
+                      <span className="text-xs text-gray-400">{editData.memo?.length || 0}/{TEXT_MAX_LENGTH}자</span>
+                    </div>
+                  ) : (
+                    <span className="font-semibold whitespace-pre-wrap">{option.memo || '-'}</span>
+                  )}
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* 옵션 평면도 */}
