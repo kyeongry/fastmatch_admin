@@ -363,28 +363,28 @@ const updateOption = async (id, data, userId, userRole) => {
   }
 
   const updateData = {};
-  if (data.name) updateData.name = data.name;
-  if (data.category1) updateData.category1 = data.category1;
-  if (data.category2) updateData.category2 = data.category2;
-  if (data.capacity) updateData.capacity = data.capacity;
-  if (data.monthly_fee) updateData.monthly_fee = parseFloat(data.monthly_fee);
-  if (data.deposit) updateData.deposit = parseFloat(data.deposit);
-  if (data.list_price) updateData.list_price = parseFloat(data.list_price);
-  if (data.one_time_fees) updateData.one_time_fees = data.one_time_fees;
-  if (data.move_in_date_type) updateData.move_in_date_type = data.move_in_date_type;
-  if (data.move_in_date_value) updateData.move_in_date_value = data.move_in_date_value;
-  if (data.contract_period_type) updateData.contract_period_type = data.contract_period_type;
-  if (data.contract_period_value) updateData.contract_period_value = data.contract_period_value;
-  if (data.office_info) updateData.office_info = data.office_info;
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.category1 !== undefined) updateData.category1 = data.category1;
+  if (data.category2 !== undefined) updateData.category2 = data.category2;
+  if (data.capacity !== undefined) updateData.capacity = data.capacity;
+  if (data.monthly_fee !== undefined) updateData.monthly_fee = parseFloat(data.monthly_fee);
+  if (data.deposit !== undefined) updateData.deposit = parseFloat(data.deposit);
+  if (data.list_price !== undefined) updateData.list_price = data.list_price ? parseFloat(data.list_price) : null;
+  if (data.one_time_fees !== undefined) updateData.one_time_fees = data.one_time_fees;
+  if (data.move_in_date_type !== undefined) updateData.move_in_date_type = data.move_in_date_type;
+  if (data.move_in_date_value !== undefined) updateData.move_in_date_value = data.move_in_date_value;
+  if (data.contract_period_type !== undefined) updateData.contract_period_type = data.contract_period_type;
+  if (data.contract_period_value !== undefined) updateData.contract_period_value = data.contract_period_value;
+  if (data.office_info !== undefined) updateData.office_info = data.office_info;
   if (data.credits !== undefined) updateData.credits = data.credits;
-  if (data.hvac_type) updateData.hvac_type = data.hvac_type;
-  if (data.parking_type) updateData.parking_type = data.parking_type;
+  if (data.hvac_type !== undefined) updateData.hvac_type = data.hvac_type;
+  if (data.parking_type !== undefined) updateData.parking_type = data.parking_type;
   if (data.parking_count !== undefined) updateData.parking_count = data.parking_count;
   if (data.parking_cost !== undefined) updateData.parking_cost = data.parking_cost;
   if (data.parking_note !== undefined) updateData.parking_note = data.parking_note;
   if (data.exclusive_area !== undefined) updateData.exclusive_area = data.exclusive_area;
-  if (data.memo) updateData.memo = data.memo;
-  if (data.floor_plan_url) updateData.floor_plan_url = data.floor_plan_url;
+  if (data.memo !== undefined) updateData.memo = data.memo;
+  if (data.floor_plan_url !== undefined) updateData.floor_plan_url = data.floor_plan_url;
   updateData.updater_id = new ObjectId(userId);
   updateData.updated_at = new Date();
 
