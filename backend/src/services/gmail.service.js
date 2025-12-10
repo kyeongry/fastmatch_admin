@@ -5,6 +5,13 @@
 
 const { google } = require('googleapis');
 
+// 환경변수 디버깅 (시작 시 한 번만 출력)
+console.log('📧 Gmail Service 초기화...');
+console.log('   GMAIL_CLIENT_ID:', process.env.GMAIL_CLIENT_ID ? `${process.env.GMAIL_CLIENT_ID.substring(0, 20)}...` : '❌ 없음');
+console.log('   GMAIL_CLIENT_SECRET:', process.env.GMAIL_CLIENT_SECRET ? '✅ 설정됨' : '❌ 없음');
+console.log('   GMAIL_REFRESH_TOKEN:', process.env.GMAIL_REFRESH_TOKEN ? `${process.env.GMAIL_REFRESH_TOKEN.substring(0, 20)}...` : '❌ 없음');
+console.log('   GMAIL_USER:', process.env.GMAIL_USER || '❌ 없음');
+
 // OAuth2 클라이언트 설정
 const oauth2Client = new google.auth.OAuth2(
   process.env.GMAIL_CLIENT_ID,
