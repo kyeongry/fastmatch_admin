@@ -624,11 +624,20 @@ const htmlToPdf = async (html, options = {}) => {
 
     const page = await browser.newPage();
 
-    // HTML 설정
-    await page.setContent(html, {
-      waitUntil: 'networkidle0',
-      timeout: 30000,
+    // 리소스 로딩 실패 무시 (타임아웃 방지)
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      request.continue();
     });
+
+    // HTML 설정 - domcontentloaded로 변경하여 빠른 렌더링
+    await page.setContent(html, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000,
+    });
+
+    // 이미지 로딩을 위해 잠시 대기
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // 카카오맵은 서버 사이드에서 이미 이미지로 삽입되므로 별도 대기 불필요
 
