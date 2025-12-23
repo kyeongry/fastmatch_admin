@@ -5,6 +5,7 @@ const {
   searchAddressHandler,
   reverseGeocodeHandler,
   searchSubwayHandler,
+  searchSubwayExtendedHandler,
   getBuildingHandler,
   getBuildingByLocationHandler,
   getAdminCodeHandler,
@@ -24,6 +25,10 @@ router.get('/address/reverse', reverseGeocodeHandler);
 // GET /api/external/subway/search?latitude=37.4979&longitude=127.0276&radius=1000
 // 근처 지하철역 검색 (KakaoMap)
 router.get('/subway/search', searchSubwayHandler);
+
+// GET /api/external/subway/search-extended?latitude=37.4979&longitude=127.0276&maxRadius=20000
+// 근처 지하철역 확장 검색 (반경 자동 확대, 대중교통 시간 포함)
+router.get('/subway/search-extended', searchSubwayExtendedHandler);
 
 // GET /api/external/building?sigunguCode=11680&buildingNumber=10000-1234
 // 건물 정보 조회 (건축물대장)

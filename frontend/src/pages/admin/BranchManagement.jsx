@@ -151,6 +151,7 @@ const BranchManagement = () => {
   const [subwaySearchResults, setSubwaySearchResults] = useState([]);
   const [showSubwayResults, setShowSubwayResults] = useState(false);
   const [searchingSubway, setSearchingSubway] = useState(false);
+  const [subwaySearchMessage, setSubwaySearchMessage] = useState(''); // 확장 검색 결과 메시지
 
   // 건축물대장 정보 조회 상태
   const [loadingBuildingInfo, setLoadingBuildingInfo] = useState(false);
@@ -365,28 +366,42 @@ const BranchManagement = () => {
     }
   };
 
-  // 근처 지하철역 검색 및 자동 선택
-  const searchNearbySubway = async (latitude, longitude, radius = 1000) => {
+  // 근처 지하철역 검색 및 자동 선택 (확장 검색 API 사용)
+  const searchNearbySubway = async (latitude, longitude) => {
     setSearchingSubway(true);
+    setSubwaySearchMessage('');
     try {
-      const response = await externalAPI.searchSubway(latitude, longitude, radius);
-      const subways = response.data?.subways || [];
-      setSubwaySearchResults(subways);
-      setShowSubwayResults(subways.length > 0);
+      // 확장 검색 API 호출 (반경 자동 확대, 최대 20km)
+      const response = await externalAPI.searchSubwayExtended(latitude, longitude, 20000);
+      const data = response.data;
 
-      // 가장 가까운 지하철역 하나만 자동 선택
-      if (subways.length > 0) {
+      if (data.found && data.subways && data.subways.length > 0) {
+        setSubwaySearchResults(data.subways);
+        setShowSubwayResults(data.subways.length > 0);
+
+        // 검색 범위 메시지 설정 (1km 초과 시)
+        if (data.message) {
+          setSubwaySearchMessage(data.message);
+        }
+
+        // 가장 가까운 지하철역 자동 선택
         const branch = showEditModal ? editBranch : newBranch;
         if (!branch.nearest_subway) {
-          const nearestSubway = subways[0];
+          const nearestSubway = data.subway || data.subways[0];
           handleSelectSubway(nearestSubway);
           setShowSubwayResults(false);
         }
+      } else {
+        // 지하철역을 찾지 못한 경우
+        setSubwaySearchResults([]);
+        setShowSubwayResults(false);
+        setSubwaySearchMessage(data.message || '20km 반경 내에 지하철역이 없습니다');
       }
     } catch (err) {
       console.error('지하철역 검색 실패:', err);
       setSubwaySearchResults([]);
       setShowSubwayResults(false);
+      setSubwaySearchMessage('지하철역 검색에 실패했습니다');
     } finally {
       setSearchingSubway(false);
     }
@@ -405,10 +420,13 @@ const BranchManagement = () => {
       stationName = stationName.slice(0, -1);
     }
 
+    // 도보 15분 이상이면 대중교통 시간 사용 (displayTime 또는 transitTime)
+    const displayTime = subway.displayTime || subway.transitTime || subway.walkingTime;
+
     setBranch({
       ...branch,
       nearest_subway: stationName + '역',
-      walking_distance: subway.walkingTime ? Math.round(subway.walkingTime) : '',
+      walking_distance: displayTime ? Math.round(displayTime) : '',
     });
     setShowSubwayResults(false);
   };
@@ -611,14 +629,13 @@ const BranchManagement = () => {
   };
 
   const handleAddBranch = async () => {
+    // 필수 항목 확인 (지하철역과 도보거리는 선택적 - 외곽지역 지원)
     if (
       !newBranch.brand_id ||
       !newBranch.name ||
       !newBranch.address ||
       !newBranch.latitude ||
-      !newBranch.longitude ||
-      !newBranch.nearest_subway ||
-      newBranch.walking_distance === ''
+      !newBranch.longitude
     ) {
       warning('모든 필수 항목을 입력해주세요');
       return;
@@ -628,9 +645,10 @@ const BranchManagement = () => {
     try {
       const payload = {
         ...newBranch,
-        walking_distance: parseInt(newBranch.walking_distance),
+        walking_distance: newBranch.walking_distance !== '' ? parseInt(newBranch.walking_distance) : null,
         latitude: parseFloat(newBranch.latitude),
         longitude: parseFloat(newBranch.longitude),
+        nearest_subway: newBranch.nearest_subway || null,
         approval_year: newBranch.approval_year ? parseInt(newBranch.approval_year) : null,
         floors_above: newBranch.floors_above ? parseInt(newBranch.floors_above) : null,
         floors_below: newBranch.floors_below ? parseInt(newBranch.floors_below) : null,
@@ -657,14 +675,13 @@ const BranchManagement = () => {
   };
 
   const handleEditBranch = async () => {
+    // 필수 항목 확인 (지하철역과 도보거리는 선택적 - 외곽지역 지원)
     if (
       !editBranch.brand_id ||
       !editBranch.name ||
       !editBranch.address ||
       !editBranch.latitude ||
-      !editBranch.longitude ||
-      !editBranch.nearest_subway ||
-      editBranch.walking_distance === ''
+      !editBranch.longitude
     ) {
       warning('모든 필수 항목을 입력해주세요');
       return;
@@ -674,9 +691,10 @@ const BranchManagement = () => {
     try {
       const payload = {
         ...editBranch,
-        walking_distance: parseInt(editBranch.walking_distance),
+        walking_distance: editBranch.walking_distance !== '' ? parseInt(editBranch.walking_distance) : null,
         latitude: parseFloat(editBranch.latitude),
         longitude: parseFloat(editBranch.longitude),
+        nearest_subway: editBranch.nearest_subway || null,
         approval_year: editBranch.approval_year ? parseInt(editBranch.approval_year) : null,
         floors_above: editBranch.floors_above ? parseInt(editBranch.floors_above) : null,
         floors_below: editBranch.floors_below ? parseInt(editBranch.floors_below) : null,
@@ -942,8 +960,8 @@ const BranchManagement = () => {
           {/* 인근 지하철역 */}
           <div className="md:col-span-2 relative">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              인근 지하철역 <span className="text-red-500">*</span>
-              <span className="text-xs text-gray-500 ml-2">(자동 검색)</span>
+              인근 지하철역
+              <span className="text-xs text-gray-500 ml-2">(자동 검색, 최대 20km)</span>
             </label>
             <div className="relative">
               <input
@@ -970,7 +988,11 @@ const BranchManagement = () => {
                       <div className="font-medium text-sm">{subway.formattedName || subway.name}</div>
                       <div className="text-xs text-gray-500">
                         거리: {subway.distance ? `${(subway.distance / 1000).toFixed(2)}km` : '-'}
-                        {subway.walkingTime && ` (도보 약 ${Math.round(subway.walkingTime)}분)`}
+                        {subway.isLongDistance ? (
+                          <span className="text-blue-600"> (대중교통 약 {Math.round(subway.transitTime)}분)</span>
+                        ) : (
+                          subway.walkingTime && <span> (도보 약 {Math.round(subway.walkingTime)}분)</span>
+                        )}
                       </div>
                     </button>
                   ))}
@@ -979,7 +1001,11 @@ const BranchManagement = () => {
             </div>
             {!branch.latitude || !branch.longitude ? (
               <p className="mt-1 text-xs text-gray-500">주소를 선택하면 자동으로 검색됩니다</p>
-            ) : subwaySearchResults.length === 0 && !searchingSubway ? (
+            ) : subwaySearchMessage ? (
+              <p className={`mt-1 text-xs ${branch.nearest_subway ? 'text-blue-600' : 'text-amber-600'}`}>
+                {subwaySearchMessage}
+              </p>
+            ) : subwaySearchResults.length === 0 && !searchingSubway && !branch.nearest_subway ? (
               <p className="mt-1 text-xs text-amber-600">근처 지하철역을 찾을 수 없습니다</p>
             ) : null}
           </div>
@@ -987,8 +1013,8 @@ const BranchManagement = () => {
           {/* 도보거리 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              도보거리(분) <span className="text-red-500">*</span>
-              <span className="text-xs text-gray-500 ml-2">(자동 계산)</span>
+              도보거리(분)
+              <span className="text-xs text-gray-500 ml-2">(자동 계산, 15분 초과 시 대중교통)</span>
             </label>
             <input
               type="number"
@@ -1486,9 +1512,7 @@ const BranchManagement = () => {
                 !newBranch.name ||
                 !newBranch.address ||
                 !newBranch.latitude ||
-                !newBranch.longitude ||
-                !newBranch.nearest_subway ||
-                newBranch.walking_distance === ''
+                !newBranch.longitude
               }
               loading={submitting}
             >

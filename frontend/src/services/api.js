@@ -193,6 +193,8 @@ export const externalAPI = {
   reverseGeocode: (latitude, longitude) => api.get('/external/address/reverse', { params: { latitude, longitude } }),
   // 근처 지하철역 검색
   searchSubway: (latitude, longitude, radius) => api.get('/external/subway/search', { params: { latitude, longitude, radius } }),
+  // 근처 지하철역 확장 검색 (반경 자동 확대, 대중교통 시간 포함)
+  searchSubwayExtended: (latitude, longitude, maxRadius) => api.get('/external/subway/search-extended', { params: { latitude, longitude, maxRadius } }),
   // 건물 정보 조회
   getBuildingInfo: (sigunguCode, buildingNumber) => api.get('/external/building', { params: { sigunguCode, buildingNumber } }),
   // 위치 기반 건물 정보 조회

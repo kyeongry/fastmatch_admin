@@ -2,6 +2,7 @@ const {
   searchAddress,
   reverseGeocode,
   searchNearbySubway,
+  searchNearbySubwayExtended,
   getBuildingInfo,
   getBuildingsByLocation,
   getAdminCode,
@@ -180,10 +181,42 @@ const getAdminCodeHandler = async (req, res, next) => {
   }
 };
 
+/**
+ * 근처 지하철역 확장 검색 (반경 자동 확대)
+ * 주변에 지하철역이 없을 경우 반경을 점진적으로 확대하여 검색
+ */
+const searchSubwayExtendedHandler = async (req, res, next) => {
+  try {
+    const { latitude, longitude, maxRadius } = req.query;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({
+        success: false,
+        message: '위도와 경도가 필요합니다',
+      });
+    }
+
+    const searchMaxRadius = maxRadius ? parseInt(maxRadius) : 20000;
+    const result = await searchNearbySubwayExtended(
+      parseFloat(latitude),
+      parseFloat(longitude),
+      searchMaxRadius
+    );
+
+    res.json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   searchAddressHandler,
   reverseGeocodeHandler,
   searchSubwayHandler,
+  searchSubwayExtendedHandler,
   getBuildingHandler,
   getBuildingByLocationHandler,
   getAdminCodeHandler,
