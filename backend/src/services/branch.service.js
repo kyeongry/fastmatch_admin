@@ -41,6 +41,8 @@ const getAllBranches = async (filters = {}) => {
             longitude: 1,
             nearest_subway: 1,
             walking_distance: 1,
+            transit_distance: 1,
+            is_transit: 1,
             exterior_image_url: 1,
             interior_image_urls: 1,
             branch_info: 1,
@@ -74,6 +76,8 @@ const getAllBranches = async (filters = {}) => {
         longitude: branch.longitude,
         nearest_subway: branch.nearest_subway,
         walking_distance: branch.walking_distance,
+        transit_distance: branch.transit_distance,
+        is_transit: branch.is_transit || false,
         exterior_image_url: branch.exterior_image_url,
         interior_image_urls: branch.interior_image_urls,
         branch_info: branch.branch_info,
@@ -137,6 +141,8 @@ const getBranchById = async (id) => {
         longitude: branch.longitude,
         nearest_subway: branch.nearest_subway,
         walking_distance: branch.walking_distance,
+        transit_distance: branch.transit_distance,
+        is_transit: branch.is_transit || false,
         exterior_image_url: branch.exterior_image_url,
         interior_image_urls: branch.interior_image_urls,
         branch_info: branch.branch_info,
@@ -174,6 +180,8 @@ const createBranch = async (data, creatorId) => {
       longitude,
       nearest_subway,
       walking_distance,
+      transit_distance,  // 대중교통 시간 (도보 15분 초과 시)
+      is_transit,        // 대중교통 사용 여부
       exterior_image_url,
       interior_image_urls,
       branch_info,
@@ -221,6 +229,13 @@ const createBranch = async (data, creatorId) => {
     }
     if (walking_distance !== undefined && walking_distance !== null && walking_distance !== '') {
       branchData.walking_distance = parseInt(walking_distance);
+    }
+    // 대중교통 관련 필드 (도보 15분 초과 시 사용)
+    if (transit_distance !== undefined && transit_distance !== null && transit_distance !== '') {
+      branchData.transit_distance = parseInt(transit_distance);
+    }
+    if (is_transit !== undefined) {
+      branchData.is_transit = Boolean(is_transit);
     }
     if (exterior_image_url) {
       branchData.exterior_image_url = exterior_image_url;
@@ -281,6 +296,8 @@ const updateBranch = async (id, data, updaterId) => {
       longitude,
       nearest_subway,
       walking_distance,
+      transit_distance,  // 대중교통 시간 (도보 15분 초과 시)
+      is_transit,        // 대중교통 사용 여부
       exterior_image_url,
       interior_image_urls,
       branch_info,
@@ -330,11 +347,18 @@ const updateBranch = async (id, data, updaterId) => {
     if (longitude !== undefined && longitude !== null && longitude !== '') {
       updateData.longitude = parseFloat(longitude);
     }
-    if (nearest_subway) {
-      updateData.nearest_subway = nearest_subway;
+    if (nearest_subway !== undefined) {
+      updateData.nearest_subway = nearest_subway || null;
     }
     if (walking_distance !== undefined && walking_distance !== null && walking_distance !== '') {
       updateData.walking_distance = parseInt(walking_distance);
+    }
+    // 대중교통 관련 필드 (도보 15분 초과 시 사용)
+    if (transit_distance !== undefined && transit_distance !== null && transit_distance !== '') {
+      updateData.transit_distance = parseInt(transit_distance);
+    }
+    if (is_transit !== undefined) {
+      updateData.is_transit = Boolean(is_transit);
     }
     if (exterior_image_url !== undefined) {
       updateData.exterior_image_url = exterior_image_url;

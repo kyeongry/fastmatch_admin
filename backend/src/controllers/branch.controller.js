@@ -52,6 +52,8 @@ const createBranch = async (req, res) => {
       longitude,
       nearest_subway,
       walking_distance,
+      transit_distance,  // 대중교통 시간 (도보 15분 초과 시)
+      is_transit,        // 대중교통 사용 여부
       exterior_image_url,
       interior_image_urls,
       branch_info,
@@ -81,6 +83,8 @@ const createBranch = async (req, res) => {
         longitude,
         nearest_subway,
         walking_distance,
+        transit_distance,
+        is_transit,
         exterior_image_url,
         interior_image_urls,
         branch_info,
@@ -119,6 +123,8 @@ const updateBranch = async (req, res) => {
       longitude,
       nearest_subway,
       walking_distance,
+      transit_distance,  // 대중교통 시간 (도보 15분 초과 시)
+      is_transit,        // 대중교통 사용 여부
       exterior_image_url,
       interior_image_urls,
       branch_info,
@@ -138,8 +144,10 @@ const updateBranch = async (req, res) => {
       !address &&
       !latitude &&
       !longitude &&
-      !nearest_subway &&
+      nearest_subway === undefined &&
       walking_distance === undefined &&
+      transit_distance === undefined &&
+      is_transit === undefined &&
       !exterior_image_url &&
       !interior_image_urls &&
       branch_info === undefined &&
@@ -167,6 +175,8 @@ const updateBranch = async (req, res) => {
         longitude,
         nearest_subway,
         walking_distance,
+        transit_distance,
+        is_transit,
         exterior_image_url,
         interior_image_urls,
         branch_info,
