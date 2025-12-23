@@ -835,7 +835,12 @@ const generateOptionDetail = async (option, templateId, documentName, proposalDa
       '{{지점명}}': option.branch?.name || '',
       '{{옵션명}}': option.name || '',
       '{{주소}}': option.branch?.address || '',
-      '{{교통}}': `${option.branch?.nearest_subway || ''} 도보 ${option.branch?.walking_distance || 0}분 거리`,
+      '{{교통}}': (() => {
+        const subway = option.branch?.nearest_subway || '';
+        const distance = option.branch?.walking_distance || 0;
+        const transportType = distance > 15 ? '대중교통' : '도보';
+        return `${subway} ${transportType} ${distance}분 거리`;
+      })(),
       '{{전용면적}}': `${dedicatedArea.toFixed(2)}㎡ / ${dedicatedAreaPy.toFixed(1)}평`,
       '{{인실}}': `${option.name || ''}(${option.category1 || ''}/${option.category2 || ''})`,
       '{{층수}}': option.floor ? `${option.floor}층` : '',

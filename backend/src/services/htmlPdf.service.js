@@ -1115,7 +1115,12 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1) 
     '담당자 연락처': proposalData.creator?.phone || '',
     '담당자 이메일': proposalData.creator?.email || '',
     '주소': option.branch?.address || '',
-    '교통': `${option.branch?.nearest_subway || ''} 도보 ${option.branch?.walking_distance || 0}분`,
+    '교통': (() => {
+      const subway = option.branch?.nearest_subway || '';
+      const distance = option.branch?.walking_distance || 0;
+      const transportType = distance > 15 ? '대중교통' : '도보';
+      return `${subway} ${transportType} ${distance}분`;
+    })(),
     '인실': formatters.capacity(option.capacity, option.category1, option.category2),
     '보증금': formatters.currency(deposit),
     '정가': formatters.currency(regularPrice),
