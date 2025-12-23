@@ -784,6 +784,166 @@ const getAdminCode = async (address) => {
 };
 
 /**
+ * 대중교통 예상 시간 계산 (도보 15분 이상 거리에 대한 추정)
+ * 카카오 길찾기 API 대신 간단한 추정 공식 사용
+ * @param {number} distanceMeters - 거리 (미터)
+ * @returns {number} 대중교통 예상 시간 (분)
+ */
+const calculateTransitTime = (distanceMeters) => {
+  if (!distanceMeters || distanceMeters <= 0) return 0;
+
+  // 대중교통 평균 속도 (버스/지하철 포함 대기시간 고려)
+  // 약 20km/h = 333m/min (대기시간, 환승 등 포함)
+  const transitSpeedMetersPerMinute = 20000 / 60; // 약 333 m/min
+
+  // 기본 대기 시간 5분 추가
+  const baseWaitTime = 5;
+  const transitTimeMinutes = (distanceMeters / transitSpeedMetersPerMinute) + baseWaitTime;
+
+  // 소수점 반올림
+  return Math.round(transitTimeMinutes);
+};
+
+/**
+ * KakaoMap API - 지하철역 확장 검색 (반경 점진적 확대)
+ * 주변에 지하철역이 없을 경우 반경을 확대하여 가장 가까운 역을 찾음
+ * @param {number} latitude - 위도
+ * @param {number} longitude - 경도
+ * @param {number} maxRadius - 최대 검색 반경 (기본값: 20000m = 20km)
+ * @returns {Promise<Object>} 가장 가까운 지하철역 정보 (확장 정보 포함)
+ */
+const searchNearbySubwayExtended = async (latitude, longitude, maxRadius = 20000) => {
+  try {
+    if (!latitude || !longitude) {
+      throw new Error('좌표가 없습니다');
+    }
+
+    // REST API 키 확인 (서버 사이드용)
+    const apiKey = process.env.KAKAO_REST_API_KEY;
+    if (!apiKey) {
+      throw new Error('카카오맵 REST API 키가 설정되지 않았습니다. 환경 변수 KAKAO_REST_API_KEY를 확인해주세요.');
+    }
+
+    // 검색 반경 단계: 1km → 2km → 5km → 10km → 20km
+    const radiusSteps = [1000, 2000, 5000, 10000, 20000].filter(r => r <= maxRadius);
+
+    let foundSubways = [];
+    let searchedRadius = 0;
+
+    for (const radius of radiusSteps) {
+      searchedRadius = radius;
+
+      // KakaoMap 카테고리 검색 (지하철역: SW8)
+      const response = await axios.get(
+        'https://dapi.kakao.com/v2/local/search/category.json',
+        {
+          params: {
+            category_group_code: 'SW8',
+            x: longitude,
+            y: latitude,
+            radius,
+            sort: 'distance',
+            size: 5,
+          },
+          headers: {
+            Authorization: `KakaoAK ${apiKey}`,
+          },
+        }
+      );
+
+      if (response.data.documents && response.data.documents.length > 0) {
+        foundSubways = response.data.documents;
+        break; // 지하철역을 찾으면 루프 종료
+      }
+    }
+
+    // 지하철역을 찾지 못한 경우
+    if (foundSubways.length === 0) {
+      return {
+        found: false,
+        searchedRadius,
+        message: `${maxRadius / 1000}km 반경 내에 지하철역이 없습니다`,
+        subway: null,
+        subways: [],
+      };
+    }
+
+    // 가장 가까운 지하철역 정보 가공
+    const nearestDoc = foundSubways[0];
+    const distance = nearestDoc.distance ? parseInt(nearestDoc.distance) : null;
+    const formattedName = formatSubwayName(nearestDoc.place_name, nearestDoc.category_name || '');
+    const walkingTime = distance ? calculateWalkingTime(distance) : null;
+
+    // 도보 15분 이상이면 대중교통 시간 계산
+    const isLongDistance = walkingTime && walkingTime > 15;
+    const transitTime = isLongDistance ? calculateTransitTime(distance) : null;
+
+    const nearestSubway = {
+      name: nearestDoc.place_name,
+      formattedName: formattedName,
+      address: nearestDoc.address_name,
+      roadAddress: nearestDoc.road_address_name,
+      phone: nearestDoc.phone,
+      latitude: parseFloat(nearestDoc.y),
+      longitude: parseFloat(nearestDoc.x),
+      distance: distance,
+      walkingTime: walkingTime,
+      transitTime: transitTime,
+      isLongDistance: isLongDistance,
+      transportationType: isLongDistance ? 'transit' : 'walking',
+      displayTime: isLongDistance ? transitTime : walkingTime,
+    };
+
+    // 모든 검색된 역 정보도 포함
+    const allSubways = foundSubways.map(doc => {
+      const dist = doc.distance ? parseInt(doc.distance) : null;
+      const walkTime = dist ? calculateWalkingTime(dist) : null;
+      const isLong = walkTime && walkTime > 15;
+      const transTime = isLong ? calculateTransitTime(dist) : null;
+
+      return {
+        name: doc.place_name,
+        formattedName: formatSubwayName(doc.place_name, doc.category_name || ''),
+        address: doc.address_name,
+        roadAddress: doc.road_address_name,
+        phone: doc.phone,
+        latitude: parseFloat(doc.y),
+        longitude: parseFloat(doc.x),
+        distance: dist,
+        walkingTime: walkTime,
+        transitTime: transTime,
+        isLongDistance: isLong,
+        transportationType: isLong ? 'transit' : 'walking',
+        displayTime: isLong ? transTime : walkTime,
+      };
+    });
+
+    return {
+      found: true,
+      searchedRadius,
+      message: searchedRadius > 1000
+        ? `${searchedRadius / 1000}km 반경에서 지하철역을 찾았습니다`
+        : null,
+      subway: nearestSubway,
+      subways: allSubways,
+    };
+  } catch (error) {
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 401) {
+        console.error('KakaoMap API 인증 실패 (401)');
+        throw new Error('카카오맵 API 인증에 실패했습니다. KAKAO_API_KEY를 확인해주세요.');
+      }
+      console.error('KakaoMap 지하철역 확장 검색 오류:', error.response.data || error.message);
+      throw new Error('지하철역 검색에 실패했습니다');
+    } else {
+      console.error('KakaoMap 지하철역 확장 검색 오류:', error.message);
+      throw error;
+    }
+  }
+};
+
+/**
  * KakaoMap Static Map URL 생성
  * @param {number} latitude - 위도
  * @param {number} longitude - 경도
@@ -815,10 +975,12 @@ module.exports = {
   searchAddress,
   reverseGeocode,
   searchNearbySubway,
+  searchNearbySubwayExtended,
   getBuildingInfo,
   getBuildingsByLocation,
   getAdminCode,
   formatSubwayName,
   calculateWalkingTime,
+  calculateTransitTime,
   getStaticMapUrl,
 };

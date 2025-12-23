@@ -64,8 +64,8 @@ const createBranch = async (req, res) => {
       basic_info_3
     } = req.body;
 
-    // 필수 항목 확인
-    if (!brand_id || !name || !address || !latitude || !longitude || !nearest_subway || walking_distance === undefined) {
+    // 필수 항목 확인 (지하철역과 도보거리는 선택적으로 변경 - 외곽지역 지원)
+    if (!brand_id || !name || !address || !latitude || !longitude) {
       return res.status(400).json({
         success: false,
         message: '모든 필수 항목을 입력해주세요'
