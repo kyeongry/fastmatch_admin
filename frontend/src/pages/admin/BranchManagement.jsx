@@ -23,6 +23,8 @@ const BranchManagement = () => {
     longitude: '',
     nearest_subway: '',
     walking_distance: '',
+    transit_distance: '',  // 대중교통 시간 (도보 15분 초과 시)
+    is_transit: false,     // 대중교통 사용 여부
     exterior_image_url: '',
     interior_image_urls: [],
     basic_info_1: '',
@@ -420,13 +422,17 @@ const BranchManagement = () => {
       stationName = stationName.slice(0, -1);
     }
 
-    // 도보 15분 이상이면 대중교통 시간 사용 (displayTime 또는 transitTime)
-    const displayTime = subway.displayTime || subway.transitTime || subway.walkingTime;
+    // 도보 15분 이상이면 대중교통 사용
+    const walkingTime = subway.walkingTime ? Math.round(subway.walkingTime) : 0;
+    const isLongDistance = subway.isLongDistance || walkingTime > 15;
+    const transitTime = subway.transitTime ? Math.round(subway.transitTime) : walkingTime;
 
     setBranch({
       ...branch,
       nearest_subway: stationName + '역',
-      walking_distance: displayTime ? Math.round(displayTime) : '',
+      walking_distance: walkingTime,  // 실제 도보 시간 (항상 저장)
+      transit_distance: isLongDistance ? transitTime : '',  // 대중교통 시간 (15분 초과 시)
+      is_transit: isLongDistance,  // 대중교통 사용 여부
     });
     setShowSubwayResults(false);
   };
@@ -646,6 +652,8 @@ const BranchManagement = () => {
       const payload = {
         ...newBranch,
         walking_distance: newBranch.walking_distance !== '' ? parseInt(newBranch.walking_distance) : null,
+        transit_distance: newBranch.transit_distance !== '' ? parseInt(newBranch.transit_distance) : null,
+        is_transit: Boolean(newBranch.is_transit),
         latitude: parseFloat(newBranch.latitude),
         longitude: parseFloat(newBranch.longitude),
         nearest_subway: newBranch.nearest_subway || null,
@@ -692,6 +700,8 @@ const BranchManagement = () => {
       const payload = {
         ...editBranch,
         walking_distance: editBranch.walking_distance !== '' ? parseInt(editBranch.walking_distance) : null,
+        transit_distance: editBranch.transit_distance !== '' && editBranch.transit_distance !== undefined ? parseInt(editBranch.transit_distance) : null,
+        is_transit: Boolean(editBranch.is_transit),
         latitude: parseFloat(editBranch.latitude),
         longitude: parseFloat(editBranch.longitude),
         nearest_subway: editBranch.nearest_subway || null,
@@ -963,16 +973,35 @@ const BranchManagement = () => {
               인근 지하철역
               <span className="text-xs text-gray-500 ml-2">(자동 검색, 최대 20km)</span>
             </label>
-            <div className="relative">
+            <div className="relative flex gap-2">
               <input
                 type="text"
                 value={branch.nearest_subway}
                 readOnly
                 placeholder={searchingSubway ? '지하철역 검색 중...' : '위도/경도 입력 시 자동 검색됩니다'}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
               />
+              {/* 재검색 버튼 - 수정 모드에서만 표시 */}
+              {!disabled && branch.latitude && branch.longitude && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const lat = parseFloat(branch.latitude);
+                    const lng = parseFloat(branch.longitude);
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                      // 기존 값 초기화 후 재검색
+                      setBranch(prev => ({ ...prev, nearest_subway: '', walking_distance: '' }));
+                      searchNearbySubway(lat, lng);
+                    }
+                  }}
+                  disabled={searchingSubway}
+                  className="px-3 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {searchingSubway ? '검색중...' : '재검색'}
+                </button>
+              )}
               {searchingSubway && (
-                <div className="absolute right-3 top-2.5">
+                <div className="absolute right-20 top-2.5">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-500"></div>
                 </div>
               )}

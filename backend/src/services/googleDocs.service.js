@@ -837,9 +837,16 @@ const generateOptionDetail = async (option, templateId, documentName, proposalDa
       '{{주소}}': option.branch?.address || '',
       '{{교통}}': (() => {
         const subway = option.branch?.nearest_subway || '';
-        const distance = option.branch?.walking_distance || 0;
-        const transportType = distance > 15 ? '대중교통' : '도보';
-        return `${subway} ${transportType} ${distance}분 거리`;
+        const isTransit = option.branch?.is_transit || false;
+        const walkingDistance = option.branch?.walking_distance || 0;
+        const transitDistance = option.branch?.transit_distance || walkingDistance;
+
+        // is_transit 필드가 있으면 그것을 우선 사용, 없으면 walking_distance > 15로 판단
+        const useTransit = isTransit || walkingDistance > 15;
+        const displayDistance = useTransit ? transitDistance : walkingDistance;
+        const transportType = useTransit ? '대중교통' : '도보';
+
+        return `${subway} ${transportType} ${displayDistance}분 거리`;
       })(),
       '{{전용면적}}': `${dedicatedArea.toFixed(2)}㎡ / ${dedicatedAreaPy.toFixed(1)}평`,
       '{{인실}}': `${option.name || ''}(${option.category1 || ''}/${option.category2 || ''})`,

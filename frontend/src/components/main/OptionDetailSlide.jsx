@@ -620,7 +620,7 @@ const OptionDetailSlide = ({
                 <div className="flex">
                   <span className="text-gray-600 w-32">지하철역:</span>
                   <span className="font-semibold flex-1">
-                    {option.branch.nearest_subway} ({option.branch.walking_distance > 15 ? '대중교통' : '도보'} {option.branch.walking_distance}분)
+                    {option.branch.nearest_subway} ({option.branch.is_transit || option.branch.walking_distance > 15 ? '대중교통' : '도보'} {option.branch.is_transit ? (option.branch.transit_distance || option.branch.walking_distance) : option.branch.walking_distance}분)
                   </span>
                 </div>
               )}
