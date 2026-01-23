@@ -1,7 +1,7 @@
 const { getDatabase } = require('../config/mongodb');
 const { ObjectId } = require('mongodb');
 
-// 옵션 목록 조회
+// 옵션 목록 조회 (브랜드, 지점, 옵션명 통합 검색 개선)
 const getOptions = async (filters = {}) => {
   const {
     brand_ids,
@@ -17,86 +17,60 @@ const getOptions = async (filters = {}) => {
   } = filters;
 
   const skip = (page - 1) * pageSize;
-  // status 파라미터가 명시적으로 전달되지 않은 경우, deleted 상태만 제외 (delete_requested는 포함)
-  const query = status
+  const db = await getDatabase();
+
+  // 1. 기본 필터 쿼리 구성 (options 컬렉션 자체 필드)
+  const baseQuery = status
     ? { status: status }
     : { status: { $nin: ['deleted'] } };
 
-  const db = await getDatabase();
+  // 작성자 필터
+  if (creator_ids && creator_ids.length > 0) {
+    baseQuery.creator_id = { $in: creator_ids.map(id => new ObjectId(id)) };
+  }
 
-  // 여러 브랜드 필터링
+  // 인원 범위 필터
+  if (min_capacity || max_capacity) {
+    baseQuery.capacity = {};
+    if (min_capacity) baseQuery.capacity.$gte = parseInt(min_capacity, 10);
+    if (max_capacity) baseQuery.capacity.$lte = parseInt(max_capacity, 10);
+  }
+
+  // 브랜드/지점 필터 (ID 기반 최적화)
   if (brand_ids && brand_ids.length > 0) {
     const brandObjectIds = brand_ids.map(id => new ObjectId(id));
     // 해당 브랜드들의 지점들을 찾아서 branch_id 목록 생성
-    const branches = await db
-      .collection('branches')
+    const branches = await db.collection('branches')
       .find({ brand_id: { $in: brandObjectIds } })
       .toArray();
-    const branchIds = branches.map(b => b._id);
-    if (branchIds.length > 0) {
-      query.branch_id = { $in: branchIds };
+    const validBranchIds = branches.map(b => b._id);
+    
+    // 기존 branch_id 조건과 병합
+    if (baseQuery.branch_id) {
+       // 이미 지점 필터가 있다면 교집합 필요하지만, 아래 로직에서 처리하므로 여기선 할당
+       baseQuery.branch_id = { $in: validBranchIds };
     } else {
-      // 해당 브랜드에 지점이 없으면 빈 결과 반환
-      query.branch_id = { $in: [] };
+       baseQuery.branch_id = { $in: validBranchIds };
     }
   }
 
-  // 여러 지점 필터링
   if (branch_ids && branch_ids.length > 0) {
     const branchObjectIds = branch_ids.map(id => new ObjectId(id));
-    if (query.branch_id && query.branch_id.$in) {
-      // 브랜드 필터와 지점 필터가 모두 있으면 교집합
-      query.branch_id.$in = query.branch_id.$in.filter(id =>
+    if (baseQuery.branch_id && baseQuery.branch_id.$in) {
+      // 브랜드 필터에 의해 생성된 ID들과 교집합 처리
+      baseQuery.branch_id.$in = baseQuery.branch_id.$in.filter(id =>
         branchObjectIds.some(bid => bid.toString() === id.toString())
       );
     } else {
-      query.branch_id = { $in: branchObjectIds };
-    }
-  }
-  // 여러 작성자 필터링
-  if (creator_ids && creator_ids.length > 0) {
-    const creatorObjectIds = creator_ids.map(id => new ObjectId(id));
-    query.creator_id = { $in: creatorObjectIds };
-  }
-  if (search) {
-    query.$or = [
-      { name: new RegExp(search, 'i') },
-      { 'branch.name': new RegExp(search, 'i') }
-    ];
-  }
-
-  // 인원 범위 필터링
-  if (min_capacity || max_capacity) {
-    query.capacity = {};
-    if (min_capacity) {
-      query.capacity.$gte = parseInt(min_capacity, 10);
-    }
-    if (max_capacity) {
-      query.capacity.$lte = parseInt(max_capacity, 10);
+      baseQuery.branch_id = { $in: branchObjectIds };
     }
   }
 
-  // 인당 평단가 정렬을 위한 플래그
-  const needsPricePerPerson = sort === 'price_per_person_low' || sort === 'price_per_person_high';
-
-  const sortBy =
-    sort === 'latest'
-      ? { created_at: -1 }
-      : sort === 'oldest'
-        ? { created_at: 1 }
-        : sort === 'price_low'
-          ? { monthly_fee: 1 }
-          : sort === 'price_high'
-            ? { monthly_fee: -1 }
-            : sort === 'price_per_person_low'
-              ? { price_per_person: 1 }
-              : sort === 'price_per_person_high'
-                ? { price_per_person: -1 }
-                : { created_at: -1 };
-
-  // aggregation 파이프라인 구성
+  // 2. Aggregation Pipeline 구성
   const pipeline = [
-    { $match: query },
+    { $match: baseQuery }, // 기본 필터링 (Status, Capacity 등)
+
+    // Branch 조인
     {
       $lookup: {
         from: 'branches',
@@ -106,6 +80,8 @@ const getOptions = async (filters = {}) => {
       }
     },
     { $unwind: { path: '$branch', preserveNullAndEmptyArrays: true } },
+
+    // Brand 조인 (Branch 내부)
     {
       $lookup: {
         from: 'brands',
@@ -115,6 +91,8 @@ const getOptions = async (filters = {}) => {
       }
     },
     { $unwind: { path: '$branch.brand', preserveNullAndEmptyArrays: true } },
+
+    // Creator 조인
     {
       $lookup: {
         from: 'users',
@@ -123,10 +101,25 @@ const getOptions = async (filters = {}) => {
         as: 'creator'
       }
     },
-    { $unwind: { path: '$creator', preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: '$creator', preserveNullAndEmptyArrays: true } }
   ];
 
-  // 인당 평단가 계산 필드 추가 (정렬에 필요한 경우)
+  // 3. [핵심] 검색어 필터링 (조인 후에 수행하여 브랜드명 검색 지원)
+  if (search) {
+    const regex = new RegExp(search, 'i');
+    pipeline.push({
+      $match: {
+        $or: [
+          { name: regex },                  // 옵션명
+          { 'branch.name': regex },         // 지점명
+          { 'branch.brand.name': regex }    // 브랜드명 ("패스트파이브")
+        ]
+      }
+    });
+  }
+
+  // 4. 정렬 로직
+  const needsPricePerPerson = sort === 'price_per_person_low' || sort === 'price_per_person_high';
   if (needsPricePerPerson) {
     pipeline.push({
       $addFields: {
@@ -141,21 +134,35 @@ const getOptions = async (filters = {}) => {
     });
   }
 
-  pipeline.push(
-    { $sort: sortBy },
-    { $skip: skip },
-    { $limit: pageSize },
-    {
-      $project: {
-        'creator.password': 0
-      }
-    }
-  );
+  const sortBy =
+    sort === 'latest' ? { created_at: -1 } :
+    sort === 'oldest' ? { created_at: 1 } :
+    sort === 'price_low' ? { monthly_fee: 1 } :
+    sort === 'price_high' ? { monthly_fee: -1 } :
+    sort === 'price_per_person_low' ? { price_per_person: 1 } :
+    sort === 'price_per_person_high' ? { price_per_person: -1 } :
+    { created_at: -1 };
 
-  const [options, total] = await Promise.all([
-    db.collection('options').aggregate(pipeline).toArray(),
-    db.collection('options').countDocuments(query)
-  ]);
+  pipeline.push({ $sort: sortBy });
+
+  // 5. 페이지네이션 및 전체 카운트 ($facet 사용)
+  // 검색어가 있을 경우 countDocuments로는 정확한 개수를 알 수 없으므로 파이프라인 안에서 계산
+  pipeline.push({
+    $facet: {
+      metadata: [{ $count: 'total' }],
+      data: [
+        { $skip: skip },
+        { $limit: pageSize },
+        { $project: { 'creator.password': 0 } } // 비밀번호 제외
+      ]
+    }
+  });
+
+  // 6. 실행 및 결과 반환
+  const result = await db.collection('options').aggregate(pipeline).toArray();
+  
+  const total = result[0].metadata[0] ? result[0].metadata[0].total : 0;
+  const options = result[0].data || [];
 
   return {
     options: options.map(opt => ({
