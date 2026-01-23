@@ -3,11 +3,10 @@ import { brandAPI, branchAPI, optionAPI } from '../../services/api';
 
 const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   const [sortBy, setSortBy] = useState(() => {
-    // localStorage에서 정렬 상태 복원
     return localStorage.getItem('filterSortBy') || 'latest';
   });
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-  const [activeFilterType, setActiveFilterType] = useState(null); // 'brands', 'branches', 'creators'
+  const [activeFilterType, setActiveFilterType] = useState(null);
   const [brands, setBrands] = useState([]);
   const [branches, setBranches] = useState([]);
   const [creators, setCreators] = useState([]);
@@ -16,11 +15,9 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   const [branchNames, setBranchNames] = useState({});
   const [creatorNames, setCreatorNames] = useState({});
 
-  // 인원 범위 필터 상태
   const [minCapacity, setMinCapacity] = useState(filters.minCapacity || '');
   const [maxCapacity, setMaxCapacity] = useState(filters.maxCapacity || '');
 
-  // 검색 상태
   const [searchText, setSearchText] = useState('');
   const [filteredItems, setFilteredItems] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -28,19 +25,16 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   const dropdownRef = useRef(null);
   const filterDropdownRef = useRef(null);
 
-  // 필터 상태를 localStorage에 저장
   useEffect(() => {
     if (filters) {
       localStorage.setItem('filterState', JSON.stringify(filters));
     }
   }, [filters]);
 
-  // 정렬 상태를 localStorage에 저장
   useEffect(() => {
     localStorage.setItem('filterSortBy', sortBy);
   }, [sortBy]);
 
-  // 드롭다운 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -59,14 +53,12 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
     };
   }, []);
 
-  // 필터 옵션 로드
   useEffect(() => {
     if (activeFilterType) {
       fetchFilterOptions();
     }
   }, [activeFilterType]);
 
-  // 검색 필터링 및 정렬
   useEffect(() => {
     let items = [];
 
@@ -78,14 +70,12 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
       items = creators;
     }
 
-    // 가나다순 정렬
     items = [...items].sort((a, b) => {
       const nameA = a.name || '';
       const nameB = b.name || '';
       return nameA.localeCompare(nameB, 'ko-KR');
     });
 
-    // 검색 필터링
     if (searchText.trim() === '') {
       setFilteredItems(items);
     } else {
@@ -98,10 +88,12 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
         )
       );
     }
-    setSelectedIndex(-1);
+    // 검색어가 바뀔 때는 인덱스 초기화, 하지만 선택 시에는 유지하고 싶다면 로직 조정 가능
+    if (selectedIndex >= items.length) {
+      setSelectedIndex(-1);
+    }
   }, [searchText, brands, branches, creators, activeFilterType]);
 
-  // 필터에 있는 ID들의 이름을 조회
   useEffect(() => {
     if (
       filters.brands?.length > 0 ||
@@ -115,17 +107,13 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   const fetchFilterOptions = async () => {
     setLoading(true);
     try {
-      // 지점 필터인 경우, 선택된 브랜드의 지점만 가져오기
       let branchesPromise;
       if (activeFilterType === 'branches' && filters.brands && filters.brands.length > 0) {
-        // 선택된 브랜드들의 지점을 가져옴
         const branchPromises = filters.brands.map(brandId =>
           branchAPI.getAll({ brand_id: brandId })
         );
         branchesPromise = Promise.all(branchPromises).then(results => {
-          // 모든 결과를 하나의 배열로 합침
           const allBranches = results.flatMap(res => res.data?.branches || []);
-          // 중복 제거 (같은 지점이 여러 번 나올 수 있음)
           const uniqueBranches = allBranches.filter((branch, index, self) =>
             index === self.findIndex(b => b.id === branch.id)
           );
@@ -141,13 +129,9 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
         optionAPI.getCreators(),
       ]);
 
-      const brandsData = brandsRes.data?.brands || [];
-      const branchesData = branchesRes.data?.branches || [];
-      const creatorsData = creatorsRes.data?.creators || [];
-
-      setBrands(brandsData);
-      setBranches(branchesData);
-      setCreators(creatorsData);
+      setBrands(brandsRes.data?.brands || []);
+      setBranches(branchesRes.data?.branches || []);
+      setCreators(creatorsRes.data?.creators || []);
     } catch (error) {
       console.error('필터 옵션 로드 실패:', error);
     } finally {
@@ -156,7 +140,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   };
 
   const fetchNames = async () => {
-    // 브랜드 이름 조회
     if (filters.brands?.length > 0) {
       for (const id of filters.brands) {
         if (!brandNames[id]) {
@@ -164,14 +147,12 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
             const res = await brandAPI.getById(id);
             setBrandNames(prev => ({ ...prev, [id]: res.data.brand.name }));
           } catch (e) {
-            console.error('브랜드 조회 실패', e);
             setBrandNames(prev => ({ ...prev, [id]: '알 수 없는 브랜드' }));
           }
         }
       }
     }
 
-    // 지점 이름 조회
     if (filters.branches?.length > 0) {
       for (const id of filters.branches) {
         if (!branchNames[id]) {
@@ -179,14 +160,12 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
             const res = await branchAPI.getById(id);
             setBranchNames(prev => ({ ...prev, [id]: res.data.branch.name }));
           } catch (e) {
-            console.error('지점 조회 실패', e);
             setBranchNames(prev => ({ ...prev, [id]: '알 수 없는 지점' }));
           }
         }
       }
     }
 
-    // 작성자 이름 조회
     if (filters.creators?.length > 0 && creators.length > 0) {
       for (const id of filters.creators) {
         if (!creatorNames[id]) {
@@ -214,11 +193,12 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
     onFilterChange(newFilters);
   };
 
+  // [수정됨] 아이템 선택 시 검색어를 초기화하지 않도록 변경
   const handleItemSelect = (item) => {
     handleToggleFilter(activeFilterType, item.id);
-    setSearchText('');
-    setSelectedIndex(-1);
-    inputRef.current?.focus();
+    // setSearchText(''); // <-- 이 줄을 삭제하여 검색어 유지 (검색창 기능 복구의 핵심)
+    // setSelectedIndex(-1); // <-- 필요시 선택 하이라이트 유지 여부 결정
+    inputRef.current?.focus(); // 연속 선택을 위해 입력창 포커스 유지
   };
 
   const handleKeyDown = (e) => {
@@ -256,7 +236,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   };
 
   const handleRefresh = () => {
-    // 필터 초기화
     const resetFilters = {
       brands: [],
       branches: [],
@@ -268,29 +247,20 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
       refresh: Date.now(),
     };
 
-    // localStorage에서 필터 상태 제거
     localStorage.removeItem('filterState');
-
-    // 이름 캐시 초기화
     setBrandNames({});
     setBranchNames({});
     setCreatorNames({});
-
-    // 인원 범위 초기화
     setMinCapacity('');
     setMaxCapacity('');
-
-    // 활성 필터 타입 닫기
     setActiveFilterType(null);
     setSearchText('');
 
-    // 부모 컴포넌트에 초기화된 필터 전달
     if (onFilterChange) {
       onFilterChange(resetFilters);
     }
   };
 
-  // 인원 범위 필터 적용 (디바운스)
   useEffect(() => {
     const timer = setTimeout(() => {
       const min = minCapacity ? parseInt(minCapacity, 10) : null;
@@ -308,7 +278,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
     return () => clearTimeout(timer);
   }, [minCapacity, maxCapacity]);
 
-  // 필터 상태가 외부에서 변경되면 로컬 상태도 업데이트
   useEffect(() => {
     setMinCapacity(filters.minCapacity || '');
     setMaxCapacity(filters.maxCapacity || '');
@@ -351,7 +320,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   return (
     <div className="px-4 md:px-8 py-3 md:py-4 bg-white border-b border-gray-200">
       <div className="flex items-center gap-3 flex-wrap">
-        {/* 필터 버튼 */}
         <div className="relative" ref={filterDropdownRef}>
           <button
             onClick={() => setShowFilterDropdown(!showFilterDropdown)}
@@ -368,7 +336,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
             </svg>
           </button>
 
-          {/* 필터 타입 선택 드롭다운 */}
           {showFilterDropdown && (
             <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
               <button
@@ -393,7 +360,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
           )}
         </div>
 
-        {/* 활성 필터 타입 표시 */}
         {activeFilterType && (
           <div className="relative" ref={dropdownRef}>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-lg text-sm font-medium">
@@ -409,13 +375,11 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
               </button>
             </div>
 
-            {/* 검색 및 목록 드롭다운 */}
             <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
               {loading ? (
                 <div className="p-4 text-center text-gray-500">로딩 중...</div>
               ) : (
                 <div>
-                  {/* 검색 입력 */}
                   <div className="p-3 border-b border-gray-200">
                     <input
                       ref={inputRef}
@@ -429,7 +393,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
                     />
                   </div>
 
-                  {/* 목록 */}
                   <div className="p-2 max-h-96 overflow-y-auto">
                     {filteredItems.length === 0 ? (
                       <p className="text-xs text-gray-500 text-center py-4">
@@ -437,21 +400,24 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
                       </p>
                     ) : (
                       <div className="space-y-1">
+                        {/* [수정됨] label -> div 변경 및 클릭 이벤트 처리 방식 개선 */}
                         {filteredItems.map((item, index) => (
-                          <label
+                          <div
                             key={item.id}
                             className={`flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition ${index === selectedIndex
                                 ? 'bg-primary-100'
                                 : 'hover:bg-gray-50'
                               }`}
-                            onClick={() => handleItemSelect(item)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleItemSelect(item);
+                            }}
                           >
                             <input
                               type="checkbox"
                               checked={filters[activeFilterType]?.includes(item.id) || false}
-                              onChange={() => handleToggleFilter(activeFilterType, item.id)}
-                              className="w-4 h-4 text-primary-500 rounded"
-                              onClick={(e) => e.stopPropagation()}
+                              readOnly
+                              className="w-4 h-4 text-primary-500 rounded pointer-events-none"
                             />
                             <div className="flex-1">
                               <span className="text-sm text-gray-700 font-medium">{item.name}</span>
@@ -462,7 +428,7 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
                                 <p className="text-xs text-gray-500">{item.email}</p>
                               )}
                             </div>
-                          </label>
+                          </div>
                         ))}
                       </div>
                     )}
@@ -473,7 +439,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
           </div>
         )}
 
-        {/* 새로고침 버튼 */}
         <button
           onClick={handleRefresh}
           className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
@@ -484,7 +449,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
           </svg>
         </button>
 
-        {/* 인원 범위 필터 */}
         <div className="flex items-center gap-2 ml-2">
           <span className="text-sm text-gray-600 whitespace-nowrap">인원 범위:</span>
           <div className="relative">
@@ -530,7 +494,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
           </div>
         </div>
 
-        {/* 필터 태그들 */}
         {hasFilters && (
           <>
             {(filters.brands || []).map((brandId) => (
@@ -580,7 +543,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
           </>
         )}
 
-        {/* 정렬 */}
         <div className="ml-auto flex items-center gap-2 md:gap-4">
           <label className="text-gray-700 font-medium text-sm md:text-base whitespace-nowrap">정렬:</label>
           <select
@@ -596,7 +558,6 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
             <option value="price_per_person_high">인당 평단가 높은순</option>
           </select>
 
-          {/* 페이지 크기 선택 */}
           {onPageSizeChange && (
             <div className="flex items-center gap-2 ml-2 md:ml-4">
               <label className="text-gray-700 font-medium text-sm md:text-base whitespace-nowrap">표시:</label>
