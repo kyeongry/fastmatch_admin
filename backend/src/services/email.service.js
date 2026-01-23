@@ -66,6 +66,7 @@ const sendProposalRequestEmail = async (data, sendType) => {
     replyTo,
     brand,
     manager,
+    managerPosition, // <-- 여기에 변수 추가됨
     company_name,
     contact_name,
     contact_position,
@@ -127,7 +128,7 @@ const sendProposalRequestEmail = async (data, sendType) => {
       <div class="container">
         <div class="header">
           ${manager && manager.trim() ?
-            `<p>안녕하십니까, <strong>${brand}</strong> <strong>${manager}</strong> 매니저님.</p>
+            `<p>안녕하십니까, <strong>${brand}</strong> <strong>${manager}</strong> ${managerPosition}님.</p>
           <p>패스트매치 ${requester_name}${requester_position ? ' ' + requester_position : ''}입니다.</p>` :
             `<p>안녕하십니까, 패스트매치 ${requester_name}${requester_position ? ' ' + requester_position : ''}입니다.</p>`}
         </div>
@@ -199,11 +200,4 @@ const sendProposalRequestEmail = async (data, sendType) => {
     console.error('❌ Proposal email send error:', error);
     throw new Error('제안 요청 이메일 발송에 실패했습니다');
   }
-};
-
-module.exports = {
-  generateVerificationCode,
-  sendVerificationEmail,
-  sendProposalEmail,
-  sendProposalRequestEmail
 };
