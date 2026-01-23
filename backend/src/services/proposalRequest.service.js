@@ -341,6 +341,7 @@ const sendProposalEmails = async (proposalRequest, user, brandIds, sendType) => 
             subject: generateEmailSubject(sendType, proposalRequest.company_name),
             brand: brand.name,
             manager: manager?.name || '', // 담당자가 없으면 빈 문자열
+            managerPosition: manager?.position || '매니저', // 담당자 직함 (없으면 '매니저' 기본값)
             ...proposalRequest,
             requester_name: user?.name || '',
             requester_name_en: user?.name_en || '',
