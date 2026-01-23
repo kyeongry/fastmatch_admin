@@ -166,8 +166,6 @@ const MainPage = () => {
 
   const { success, error, warning } = useToast();
 
-  // ... (기존 코드)
-
   const submitDeleteRequest = async () => {
     if (!deleteReason.trim()) {
       warning('삭제 사유를 입력해주세요');
@@ -285,7 +283,8 @@ const MainPage = () => {
       <div className="flex flex-col h-full overflow-hidden bg-gray-50">
         {/* 상단 검색 & 필터 영역 */}
         <div className="bg-white border-b border-gray-200 shadow-sm">
-          <SearchBar onSearchChange={(search) => setFilters({ ...filters, search })} />
+          {/* [수정 완료] onSearchChange -> onSearch 로 변경하여 이벤트 연결 */}
+          <SearchBar onSearch={(search) => setFilters({ ...filters, search })} />
           <FilterBar
             filters={filters}
             onFilterChange={setFilters}
