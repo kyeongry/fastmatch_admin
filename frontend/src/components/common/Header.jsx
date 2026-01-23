@@ -1,7 +1,7 @@
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import SearchBar from '../main/SearchBar'; // SearchBar 컴포넌트 임포트
+// import SearchBar from '../main/SearchBar'; // [수정] 불필요한 임포트 제거
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -11,23 +11,6 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
-  };
-
-  // 검색 기능 핸들러
-  const handleSearch = (keyword) => {
-    if (!keyword || keyword.trim() === '') {
-      alert('검색어를 입력해주세요.');
-      return;
-    }
-
-    console.log('검색 실행:', keyword);
-    
-    // [TODO] 실제 검색 로직을 여기에 작성하세요.
-    // 예: 옵션 목록 페이지로 이동하며 검색어 전달
-    // navigate(`/my-options?search=${encodeURIComponent(keyword)}`);
-    
-    // 현재는 작동 확인을 위해 알림창을 띄웁니다.
-    alert(`"${keyword}" 검색을 시작합니다!`);
   };
 
   return (
@@ -46,9 +29,9 @@ const Header = () => {
             />
           </div>
 
-          {/* 중앙 검색창 (SearchBar 추가됨) */}
+          {/* [수정] 중앙 서치바 제거됨 (MainPage의 서치바 사용) */}
           <div className="flex-1 max-w-xl mx-auto px-4 hidden md:block">
-            <SearchBar onSearch={handleSearch} />
+            {/* 공백 유지를 위해 빈 div만 남기거나 아예 삭제하셔도 됩니다. */}
           </div>
 
           {/* 사용자 메뉴 */}
