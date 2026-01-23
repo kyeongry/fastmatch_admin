@@ -283,7 +283,7 @@ const MainPage = () => {
       <div className="flex flex-col h-full overflow-hidden bg-gray-50">
         {/* 상단 검색 & 필터 영역 */}
         <div className="bg-white border-b border-gray-200 shadow-sm">
-          {/* [수정 완료] onSearchChange -> onSearch 로 변경하여 이벤트 연결 */}
+          {/* [중요 수정] onSearchChange -> onSearch 로 변경되었습니다 */}
           <SearchBar onSearch={(search) => setFilters({ ...filters, search })} />
           <FilterBar
             filters={filters}
