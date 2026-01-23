@@ -1,6 +1,7 @@
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import SearchBar from '../main/SearchBar'; // SearchBar 컴포넌트 임포트
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -12,13 +13,30 @@ const Header = () => {
     navigate('/login');
   };
 
+  // 검색 기능 핸들러
+  const handleSearch = (keyword) => {
+    if (!keyword || keyword.trim() === '') {
+      alert('검색어를 입력해주세요.');
+      return;
+    }
+
+    console.log('검색 실행:', keyword);
+    
+    // [TODO] 실제 검색 로직을 여기에 작성하세요.
+    // 예: 옵션 목록 페이지로 이동하며 검색어 전달
+    // navigate(`/my-options?search=${encodeURIComponent(keyword)}`);
+    
+    // 현재는 작동 확인을 위해 알림창을 띄웁니다.
+    alert(`"${keyword}" 검색을 시작합니다!`);
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 gap-4">
           {/* 로고 */}
           <div
-            className="flex items-center cursor-pointer"
+            className="flex items-center cursor-pointer flex-shrink-0"
             onClick={() => navigate('/')}
           >
             <img
@@ -28,15 +46,20 @@ const Header = () => {
             />
           </div>
 
+          {/* 중앙 검색창 (SearchBar 추가됨) */}
+          <div className="flex-1 max-w-xl mx-auto px-4 hidden md:block">
+            <SearchBar onSearch={handleSearch} />
+          </div>
+
           {/* 사용자 메뉴 */}
           {user && (
-            <div className="relative">
+            <div className="relative flex-shrink-0">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsMenuOpen(!isMenuOpen);
                 }}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
