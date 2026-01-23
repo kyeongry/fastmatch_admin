@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 로그인
+  // 로그인 (수정된 부분)
   const login = async (email, password) => {
     setError(null);
     try {
@@ -136,13 +136,20 @@ export const AuthProvider = ({ children }) => {
       });
 
       console.log('로그인 응답:', response.data);
-      const { token, user } = response.data;
+      // 수정됨: refreshToken도 함께 받아오도록 변경
+      const { token, refreshToken, user } = response.data;
 
       if (!token || !user) {
         throw new Error('토큰 또는 사용자 정보가 없습니다');
       }
 
       localStorage.setItem('token', token);
+      
+      // 추가됨: 리프레시 토큰이 있다면 저장 (자동 갱신을 위해 필수)
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+
       setUser(user);
       setIsAuthenticated(true);
       console.log('로그인 성공, 토큰 저장 완료');
@@ -172,6 +179,7 @@ export const AuthProvider = ({ children }) => {
       console.error('로그아웃 요청 실패:', err);
     } finally {
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken'); // 로그아웃 시 리프레시 토큰도 삭제
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
