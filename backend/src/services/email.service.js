@@ -201,3 +201,10 @@ const sendProposalRequestEmail = async (data, sendType) => {
     throw new Error('제안 요청 이메일 발송에 실패했습니다');
   }
 };
+
+module.exports = {
+  generateVerificationCode,
+  sendVerificationEmail,
+  sendProposalEmail,
+  sendProposalRequestEmail,
+};
