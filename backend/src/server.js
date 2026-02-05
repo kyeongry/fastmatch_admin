@@ -62,42 +62,49 @@ console.log('========== DIRECTORY DEBUG END ============');
 
 const app = express();
 
-// CORS 설정 - 여러 도메인 허용 (helmet보다 먼저 설정)
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  process.env.CORS_ORIGIN,
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
-app.use(cors({
-  origin: (origin, callback) => {
+// CORS 설정 - 모든 Vercel/fastmatch 도메인 허용
+const corsOptions = {
+  origin: function (origin, callback) {
     // origin이 없는 경우 (서버 간 요청, Postman 등) 허용
     if (!origin) return callback(null, true);
 
-    // Vercel 프리뷰 URL 패턴 허용
-    if (origin.includes('vercel.app') || origin.includes('fastmatch')) {
+    // Vercel 및 fastmatch 도메인 허용
+    if (origin.includes('vercel.app') ||
+        origin.includes('fastmatch') ||
+        origin.includes('localhost')) {
       return callback(null, true);
     }
 
-    // 허용된 origin 체크
+    // 환경 변수로 설정된 도메인 허용
+    const allowedOrigins = [
+      process.env.CORS_ORIGIN,
+      process.env.FRONTEND_URL,
+    ].filter(Boolean);
+
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
+    console.log('CORS 차단된 origin:', origin);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  optionsSuccessStatus: 200
+};
 
-// Preflight 요청 처리
-app.options('*', cors());
+// Preflight 요청을 먼저 처리
+app.options('*', cors(corsOptions));
 
-// Middlewares
+// 모든 요청에 CORS 적용
+app.use(cors(corsOptions));
+
+// Middlewares - helmet은 CORS 이후에
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' }
+  crossOriginResourcePolicy: false,
+  crossOriginOpenerPolicy: false,
+  crossOriginEmbedderPolicy: false
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
