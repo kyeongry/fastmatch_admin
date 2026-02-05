@@ -264,7 +264,7 @@ const updateOption = async (id, data, userId, userRole) => {
     { $set: updateData },
     { returnDocument: 'after' }
   );
-  return result.value;
+  return result;
 };
 
 const requestDeleteOption = async (id, reason, userId, userRole) => {
@@ -275,7 +275,7 @@ const requestDeleteOption = async (id, reason, userId, userRole) => {
         { $set: { status: 'delete_requested', delete_request_reason: reason } },
         { returnDocument: 'after' }
     );
-    return result.value;
+    return result;
 };
 
 const cancelDeleteRequest = async (id, userId, userRole) => {
@@ -286,7 +286,7 @@ const cancelDeleteRequest = async (id, userId, userRole) => {
         { $set: { status: 'active' }, $unset: { delete_request_reason: "" } },
         { returnDocument: 'after' }
     );
-    return result.value;
+    return result;
 };
 
 const markAsCompleted = async (id, userId, userRole) => {
@@ -297,7 +297,7 @@ const markAsCompleted = async (id, userId, userRole) => {
         { $set: { status: 'completed' } },
         { returnDocument: 'after' }
     );
-    return result.value;
+    return result;
 };
 
 const markAsActive = async (id, userId, userRole) => {
@@ -308,7 +308,7 @@ const markAsActive = async (id, userId, userRole) => {
         { $set: { status: 'active' } },
         { returnDocument: 'after' }
     );
-    return result.value;
+    return result;
 };
 
 module.exports = {

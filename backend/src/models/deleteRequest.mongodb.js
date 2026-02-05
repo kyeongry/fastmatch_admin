@@ -95,11 +95,11 @@ class DeleteRequestModel {
             { returnDocument: 'after' }
         );
 
-        if (!result.value) {
+        if (!result) {
             console.error(`❌ 삭제 요청 업데이트 실패: ID=${id}, 문서를 찾을 수 없습니다`);
         }
 
-        return result.value;
+        return result;
     }
 
     static async deleteById(id) {

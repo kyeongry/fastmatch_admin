@@ -81,7 +81,7 @@ class UserModel {
       { returnDocument: 'after' }
     );
 
-    return result.value;
+    return result;
   }
 
   static async updateLastLogin(id) {

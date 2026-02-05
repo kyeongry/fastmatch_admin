@@ -53,7 +53,7 @@ class EmailVerificationModel {
             { returnDocument: 'after' }
         );
 
-        return result.value;
+        return result;
     }
 
     static async deleteByEmail(email) {

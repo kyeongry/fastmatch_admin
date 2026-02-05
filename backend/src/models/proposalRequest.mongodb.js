@@ -78,7 +78,7 @@ class ProposalRequestModel {
             { returnDocument: 'after' }
         );
 
-        return result.value;
+        return result;
     }
 
     static async deleteById(id) {
