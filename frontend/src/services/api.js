@@ -227,4 +227,8 @@ export const adminAPI = {
   updateUser: (id, data) => api.put(`/admin/users/${id}`, data),
 };
 
+// ============ Lease API ============
+// 임대차 계약 관련 API는 leaseApi.js에서 import
+// import { contractAPI, registryAPI, specialTermsAPI, insuranceCertAPI, partyAPI } from './leaseApi';
+
 export default api;

@@ -23,6 +23,10 @@ import ProposalRequestCreate from './pages/requests/ProposalRequestCreate';
 import ProposalRequestList from './pages/requests/ProposalRequestList';
 import ProposalRequestDetail from './pages/requests/ProposalRequestDetail';
 
+// Lease Pages
+import { LeaseListPage, LeaseCreatePage } from './pages/lease';
+import { LeaseContractProvider } from './context/LeaseContractContext';
+
 // Route Components
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminRoute from './components/common/AdminRoute';
@@ -58,6 +62,25 @@ function App() {
               <Route path="/requests/:id" element={<ProposalRequestDetail />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/my-options" element={<MyOptionsPage />} />
+
+              {/* Lease Routes */}
+              <Route path="/lease" element={<LeaseListPage />} />
+              <Route
+                path="/lease/create"
+                element={
+                  <LeaseContractProvider>
+                    <LeaseCreatePage />
+                  </LeaseContractProvider>
+                }
+              />
+              <Route
+                path="/lease/edit/:id"
+                element={
+                  <LeaseContractProvider>
+                    <LeaseCreatePage />
+                  </LeaseContractProvider>
+                }
+              />
             </Route>
 
             {/* Admin Routes */}
