@@ -228,7 +228,7 @@ const updateBrand = async (id, data, updaterId) => {
     return {
       success: true,
       message: '브랜드가 수정되었습니다',
-      data: result.value
+      data: result
     };
   } catch (error) {
     console.error('❌ Update brand error:', error);

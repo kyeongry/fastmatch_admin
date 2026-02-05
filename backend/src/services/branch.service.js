@@ -405,7 +405,7 @@ const updateBranch = async (id, data, updaterId) => {
     return {
       success: true,
       message: '지점이 수정되었습니다',
-      data: result.value
+      data: result
     };
   } catch (error) {
     console.error('❌ Update branch error:', error);

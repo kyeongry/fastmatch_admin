@@ -228,8 +228,7 @@ const updateManager = async (id, data, updaterId) => {
       { returnDocument: 'after' }
     );
 
-    // MongoDB 드라이버 버전에 따라 result 또는 result.value
-    const updatedManager = result?.value || result;
+    const updatedManager = result;
 
     if (!updatedManager) {
       throw new Error('매니저 수정에 실패했습니다');
