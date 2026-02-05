@@ -59,6 +59,7 @@ const OptionDetailSlide = ({
   const [filteredBranches, setFilteredBranches] = useState([]);
   const [focusedBrandIndex, setFocusedBrandIndex] = useState(-1);
   const [focusedBranchIndex, setFocusedBranchIndex] = useState(-1);
+  const [selectedBranch, setSelectedBranch] = useState(null); // 선택된 지점 전체 정보
 
   // 권한 확인
   const isOwner = user && option && user.id === option.creator_id;
@@ -116,6 +117,7 @@ const OptionDetailSlide = ({
       // 브랜드/지점 검색어 초기화
       setBrandSearchQuery(option.branch?.brand?.name || '');
       setBranchSearchQuery(option.branch?.name || '');
+      setSelectedBranch(null); // 초기에는 원본 지점 정보 사용
 
       // 브랜드 목록 로드
       fetchBrands();
@@ -237,6 +239,7 @@ const OptionDetailSlide = ({
     setBranchSearchQuery('');
     setShowBrandDropdown(false);
     setFocusedBrandIndex(-1);
+    setSelectedBranch(null); // 브랜드 변경 시 지점 정보 초기화
     fetchBranchesForBrand(brand.id);
   };
 
@@ -264,6 +267,7 @@ const OptionDetailSlide = ({
     setBranchSearchQuery(branch.name);
     setShowBranchDropdown(false);
     setFocusedBranchIndex(-1);
+    setSelectedBranch(branch); // 선택된 지점 전체 정보 저장
   };
 
   // 키보드 네비게이션 (브랜드)
@@ -844,18 +848,26 @@ const OptionDetailSlide = ({
                   </div>
                 </>
               )}
-              <div className="flex">
-                <span className="text-gray-600 w-32">주소:</span>
-                <span className="font-semibold flex-1">{option.branch?.address}</span>
-              </div>
-              {option.branch?.nearest_subway && (
-                <div className="flex">
-                  <span className="text-gray-600 w-32">지하철역:</span>
-                  <span className="font-semibold flex-1">
-                    {option.branch.nearest_subway} ({option.branch.is_transit || option.branch.walking_distance > 15 ? '대중교통' : '도보'} {option.branch.is_transit ? (option.branch.transit_distance || option.branch.walking_distance) : option.branch.walking_distance}분)
-                  </span>
-                </div>
-              )}
+              {/* 주소와 지하철역은 선택된 지점 정보 또는 원본 지점 정보 표시 */}
+              {(() => {
+                const displayBranch = (isEditMode && selectedBranch) ? selectedBranch : option.branch;
+                return (
+                  <>
+                    <div className="flex">
+                      <span className="text-gray-600 w-32">주소:</span>
+                      <span className="font-semibold flex-1">{displayBranch?.address || '-'}</span>
+                    </div>
+                    {displayBranch?.nearest_subway && (
+                      <div className="flex">
+                        <span className="text-gray-600 w-32">지하철역:</span>
+                        <span className="font-semibold flex-1">
+                          {displayBranch.nearest_subway} ({displayBranch.is_transit || displayBranch.walking_distance > 15 ? '대중교통' : '도보'} {displayBranch.is_transit ? (displayBranch.transit_distance || displayBranch.walking_distance) : displayBranch.walking_distance}분)
+                        </span>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </section>
 
@@ -1393,37 +1405,43 @@ const OptionDetailSlide = ({
           </section>
 
           {/* 지점 외부 사진 */}
-          {option.branch?.exterior_image_url && (
-            <section>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">지점 외부 사진</h3>
-              <div className="flex flex-wrap gap-3">
-                <img
-                  src={option.branch.exterior_image_url}
-                  alt="지점 외부"
-                  className="h-32 w-auto rounded-lg shadow-md cursor-pointer hover:opacity-80 transition object-cover"
-                  onClick={() => handleImageClick(option.branch.exterior_image_url)}
-                />
-              </div>
-            </section>
-          )}
+          {(() => {
+            const displayBranch = (isEditMode && selectedBranch) ? selectedBranch : option.branch;
+            return displayBranch?.exterior_image_url && (
+              <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">지점 외부 사진</h3>
+                <div className="flex flex-wrap gap-3">
+                  <img
+                    src={displayBranch.exterior_image_url}
+                    alt="지점 외부"
+                    className="h-32 w-auto rounded-lg shadow-md cursor-pointer hover:opacity-80 transition object-cover"
+                    onClick={() => handleImageClick(displayBranch.exterior_image_url)}
+                  />
+                </div>
+              </section>
+            );
+          })()}
 
           {/* 지점 내부 사진 */}
-          {option.branch?.interior_image_urls && option.branch.interior_image_urls.length > 0 && (
-            <section>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">지점 내부 사진</h3>
-              <div className="flex flex-wrap gap-3">
-                {option.branch.interior_image_urls.map((url, index) => (
-                  <img
-                    key={index}
-                    src={url}
-                    alt={`지점 내부 ${index + 1}`}
-                    className="h-32 w-auto rounded-lg shadow-md cursor-pointer hover:opacity-80 transition object-cover"
-                    onClick={() => handleImageClick(url, option.branch.interior_image_urls, index)}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+          {(() => {
+            const displayBranch = (isEditMode && selectedBranch) ? selectedBranch : option.branch;
+            return displayBranch?.interior_image_urls && displayBranch.interior_image_urls.length > 0 && (
+              <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">지점 내부 사진</h3>
+                <div className="flex flex-wrap gap-3">
+                  {displayBranch.interior_image_urls.map((url, index) => (
+                    <img
+                      key={index}
+                      src={url}
+                      alt={`지점 내부 ${index + 1}`}
+                      className="h-32 w-auto rounded-lg shadow-md cursor-pointer hover:opacity-80 transition object-cover"
+                      onClick={() => handleImageClick(url, displayBranch.interior_image_urls, index)}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
 
           {/* 등록 정보 */}
           <section className="pt-6 border-t border-gray-200">
