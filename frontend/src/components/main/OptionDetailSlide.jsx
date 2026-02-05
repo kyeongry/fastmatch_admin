@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { optionAPI, uploadAPI } from '../../services/api';
+import { optionAPI, uploadAPI, brandAPI, branchAPI } from '../../services/api';
 import { useToast } from '../../hooks/useToast';
 import {
   formatPrice,
@@ -48,10 +48,23 @@ const OptionDetailSlide = ({
   // 일회성비용 추가용 상태
   const [newFee, setNewFee] = useState({ type: '', amount: '', customType: '' });
 
+  // 브랜드/지점 상태
+  const [brands, setBrands] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [brandSearchQuery, setBrandSearchQuery] = useState('');
+  const [branchSearchQuery, setBranchSearchQuery] = useState('');
+  const [showBrandDropdown, setShowBrandDropdown] = useState(false);
+  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
+  const [filteredBrands, setFilteredBrands] = useState([]);
+  const [filteredBranches, setFilteredBranches] = useState([]);
+  const [focusedBrandIndex, setFocusedBrandIndex] = useState(-1);
+  const [focusedBranchIndex, setFocusedBranchIndex] = useState(-1);
+
   // 권한 확인
   const isOwner = user && option && user.id === option.creator_id;
   const isAdmin = user && user.role === 'admin';
-  const canEdit = (isOwner || isAdmin) && option?.status !== 'completed' && option?.status !== 'delete_requested';
+  // 모든 인증된 사용자에게 옵션 수정 권한 적용
+  const canEdit = user && option?.status !== 'completed' && option?.status !== 'delete_requested';
   const canDelete = (isOwner || isAdmin) && option?.status !== 'completed' && option?.status !== 'delete_requested';
 
   // 숫자 포맷팅 (쉼표 추가)
@@ -69,7 +82,10 @@ const OptionDetailSlide = ({
   // 수정 데이터 초기화
   useEffect(() => {
     if (option && isOpen) {
+      const brandId = option.branch?.brand?.id || option.branch?.brand?._id || '';
       const data = {
+        brand_id: brandId,
+        branch_id: option.branch_id || option.branch?.id || option.branch?._id || '',
         name: option.name || '',
         category1: option.category1 || '',
         category2: option.category2 || '',
@@ -96,6 +112,16 @@ const OptionDetailSlide = ({
       setEditData(data);
       setOriginalData(data);
       setHasChanges(false);
+
+      // 브랜드/지점 검색어 초기화
+      setBrandSearchQuery(option.branch?.brand?.name || '');
+      setBranchSearchQuery(option.branch?.name || '');
+
+      // 브랜드 목록 로드
+      fetchBrands();
+      if (brandId) {
+        fetchBranchesForBrand(brandId);
+      }
     }
   }, [option, isOpen]);
 
@@ -159,6 +185,136 @@ const OptionDetailSlide = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, currentImageIndex, imageGallery]);
+
+  // 브랜드 목록 조회
+  const fetchBrands = async () => {
+    try {
+      const response = await brandAPI.getAll();
+      setBrands(response.data.brands || []);
+      setFilteredBrands(response.data.brands || []);
+    } catch (err) {
+      console.error('브랜드 조회 실패:', err);
+    }
+  };
+
+  // 특정 브랜드의 지점 목록 조회
+  const fetchBranchesForBrand = async (brandId) => {
+    if (!brandId) {
+      setBranches([]);
+      setFilteredBranches([]);
+      return;
+    }
+    try {
+      const response = await branchAPI.getAll({ brand_id: brandId });
+      setBranches(response.data.branches || []);
+      setFilteredBranches(response.data.branches || []);
+    } catch (err) {
+      console.error('지점 조회 실패:', err);
+    }
+  };
+
+  // 브랜드 검색 핸들러
+  const handleBrandSearch = (e) => {
+    const query = e.target.value;
+    setBrandSearchQuery(query);
+    setShowBrandDropdown(true);
+    setFocusedBrandIndex(-1);
+
+    if (!query.trim()) {
+      setFilteredBrands(brands);
+      return;
+    }
+
+    const filtered = brands.filter(brand =>
+      brand.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredBrands(filtered);
+  };
+
+  const handleSelectBrand = (brand) => {
+    setEditData(prev => ({ ...prev, brand_id: String(brand.id), branch_id: '' }));
+    setBrandSearchQuery(brand.name);
+    setBranchSearchQuery('');
+    setShowBrandDropdown(false);
+    setFocusedBrandIndex(-1);
+    fetchBranchesForBrand(brand.id);
+  };
+
+  // 지점 검색 핸들러
+  const handleBranchSearch = (e) => {
+    const query = e.target.value;
+    setBranchSearchQuery(query);
+    setShowBranchDropdown(true);
+    setFocusedBranchIndex(-1);
+
+    if (!query.trim()) {
+      setFilteredBranches(branches);
+      return;
+    }
+
+    const filtered = branches.filter(branch =>
+      branch.name.toLowerCase().includes(query.toLowerCase()) ||
+      (branch.address && branch.address.toLowerCase().includes(query.toLowerCase()))
+    );
+    setFilteredBranches(filtered);
+  };
+
+  const handleSelectBranch = (branch) => {
+    setEditData(prev => ({ ...prev, branch_id: String(branch.id) }));
+    setBranchSearchQuery(branch.name);
+    setShowBranchDropdown(false);
+    setFocusedBranchIndex(-1);
+  };
+
+  // 키보드 네비게이션 (브랜드)
+  const handleBrandKeyDown = (e) => {
+    if (!showBrandDropdown) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        setShowBrandDropdown(true);
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setFocusedBrandIndex(prev => prev < filteredBrands.length - 1 ? prev + 1 : prev);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setFocusedBrandIndex(prev => prev > 0 ? prev - 1 : 0);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (focusedBrandIndex >= 0 && focusedBrandIndex < filteredBrands.length) {
+        handleSelectBrand(filteredBrands[focusedBrandIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      setShowBrandDropdown(false);
+    }
+  };
+
+  // 키보드 네비게이션 (지점)
+  const handleBranchKeyDown = (e) => {
+    if (!showBranchDropdown) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        setShowBranchDropdown(true);
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setFocusedBranchIndex(prev => prev < filteredBranches.length - 1 ? prev + 1 : prev);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setFocusedBranchIndex(prev => prev > 0 ? prev - 1 : 0);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (focusedBranchIndex >= 0 && focusedBranchIndex < filteredBranches.length) {
+        handleSelectBranch(filteredBranches[focusedBranchIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      setShowBranchDropdown(false);
+    }
+  };
 
   const handleCloseAttempt = useCallback(() => {
     if (isEditMode && hasChanges) {
@@ -261,8 +417,9 @@ const OptionDetailSlide = ({
 
     setIsSaving(true);
     try {
+      const { brand_id, ...restEditData } = editData;
       const updatePayload = {
-        ...editData,
+        ...restEditData,
         monthly_fee: parseFloat(parseNumberFromComma(editData.monthly_fee)) || 0,
         deposit: parseFloat(parseNumberFromComma(editData.deposit)) || 0,
         capacity: parseInt(editData.capacity) || 1,
@@ -600,18 +757,93 @@ const OptionDetailSlide = ({
 
         {/* 본문 - 스크롤 영역 */}
         <div className="flex-1 overflow-y-auto p-8 space-y-8">
-          {/* 지점 정보 (수정 불가) */}
+          {/* 지점 정보 */}
           <section>
             <h3 className="text-xl font-bold text-gray-900 mb-4">지점 정보</h3>
             <div className="space-y-3">
-              <div className="flex">
-                <span className="text-gray-600 w-32">브랜드:</span>
-                <span className="font-semibold flex-1">{option.branch?.brand?.name}</span>
-              </div>
-              <div className="flex">
-                <span className="text-gray-600 w-32">지점명:</span>
-                <span className="font-semibold flex-1">{option.branch?.name}</span>
-              </div>
+              {isEditMode ? (
+                <>
+                  {/* 브랜드 선택 */}
+                  <div className="flex items-start">
+                    <span className="text-gray-600 w-32 pt-2">브랜드:</span>
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        value={brandSearchQuery}
+                        onChange={handleBrandSearch}
+                        onFocus={() => {
+                          setShowBrandDropdown(true);
+                          if (!brandSearchQuery) setFilteredBrands(brands);
+                        }}
+                        onBlur={() => setTimeout(() => setShowBrandDropdown(false), 200)}
+                        onKeyDown={handleBrandKeyDown}
+                        placeholder="브랜드를 검색하세요"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                      {showBrandDropdown && filteredBrands.length > 0 && (
+                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          {filteredBrands.map((brand, index) => (
+                            <button
+                              key={brand.id}
+                              type="button"
+                              onMouseDown={() => handleSelectBrand(brand)}
+                              className={`w-full text-left px-4 py-2 border-b border-gray-200 last:border-b-0 ${index === focusedBrandIndex ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
+                            >
+                              <div className="font-medium text-sm">{brand.name}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {/* 지점 선택 */}
+                  <div className="flex items-start">
+                    <span className="text-gray-600 w-32 pt-2">지점명:</span>
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        value={branchSearchQuery}
+                        onChange={handleBranchSearch}
+                        onFocus={() => {
+                          setShowBranchDropdown(true);
+                          if (!branchSearchQuery) setFilteredBranches(branches);
+                        }}
+                        onBlur={() => setTimeout(() => setShowBranchDropdown(false), 200)}
+                        onKeyDown={handleBranchKeyDown}
+                        placeholder={!editData.brand_id ? "브랜드를 먼저 선택해주세요" : "지점을 검색하세요"}
+                        disabled={!editData.brand_id}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
+                      />
+                      {showBranchDropdown && filteredBranches.length > 0 && (
+                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          {filteredBranches.map((branch, index) => (
+                            <button
+                              key={branch.id}
+                              type="button"
+                              onMouseDown={() => handleSelectBranch(branch)}
+                              className={`w-full text-left px-4 py-2 border-b border-gray-200 last:border-b-0 ${index === focusedBranchIndex ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
+                            >
+                              <div className="font-medium text-sm">{branch.name}</div>
+                              {branch.address && <div className="text-xs text-gray-500">{branch.address}</div>}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex">
+                    <span className="text-gray-600 w-32">브랜드:</span>
+                    <span className="font-semibold flex-1">{option.branch?.brand?.name}</span>
+                  </div>
+                  <div className="flex">
+                    <span className="text-gray-600 w-32">지점명:</span>
+                    <span className="font-semibold flex-1">{option.branch?.name}</span>
+                  </div>
+                </>
+              )}
               <div className="flex">
                 <span className="text-gray-600 w-32">주소:</span>
                 <span className="font-semibold flex-1">{option.branch?.address}</span>
