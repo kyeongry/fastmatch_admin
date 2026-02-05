@@ -62,42 +62,63 @@ console.log('========== DIRECTORY DEBUG END ============');
 
 const app = express();
 
-// CORS 설정 - 모든 Vercel/fastmatch 도메인 허용
+// 허용된 origin인지 확인하는 함수
+function isAllowedOrigin(origin) {
+  if (!origin) return true; // 서버 간 요청, Postman 등
+
+  // Vercel 및 fastmatch 도메인 허용
+  if (origin.includes('vercel.app') ||
+      origin.includes('fastmatch') ||
+      origin.includes('localhost')) {
+    return true;
+  }
+
+  // 환경 변수로 설정된 도메인 허용
+  const allowedOrigins = [
+    process.env.CORS_ORIGIN,
+    process.env.FRONTEND_URL,
+  ].filter(Boolean);
+
+  return allowedOrigins.includes(origin);
+}
+
+// 수동 CORS 헤더 설정 - 모든 요청에 대해 먼저 적용
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (isAllowedOrigin(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+    res.header('Access-Control-Max-Age', '86400'); // 24시간 캐시
+  }
+
+  // Preflight 요청 즉시 응답
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  next();
+});
+
+// CORS 설정 - 백업용 (cors 패키지)
 const corsOptions = {
   origin: function (origin, callback) {
-    // origin이 없는 경우 (서버 간 요청, Postman 등) 허용
-    if (!origin) return callback(null, true);
-
-    // Vercel 및 fastmatch 도메인 허용
-    if (origin.includes('vercel.app') ||
-        origin.includes('fastmatch') ||
-        origin.includes('localhost')) {
+    if (isAllowedOrigin(origin)) {
       return callback(null, true);
     }
-
-    // 환경 변수로 설정된 도메인 허용
-    const allowedOrigins = [
-      process.env.CORS_ORIGIN,
-      process.env.FRONTEND_URL,
-    ].filter(Boolean);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
     console.log('CORS 차단된 origin:', origin);
-    callback(new Error('Not allowed by CORS'));
+    // 에러 대신 false 반환 (헤더는 이미 위에서 설정됨)
+    callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   optionsSuccessStatus: 200
 };
 
-// Preflight 요청을 먼저 처리
-app.options('*', cors(corsOptions));
-
-// 모든 요청에 CORS 적용
+// cors 미들웨어도 적용 (이중 보험)
 app.use(cors(corsOptions));
 
 // Middlewares - helmet은 CORS 이후에
