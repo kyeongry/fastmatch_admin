@@ -115,6 +115,9 @@ app.use('/api/external', require('./routes/external.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 // app.use('/api/users', require('./routes/user.routes'));
 
+// 임대차 계약 자동화 모듈
+app.use('/api/lease', require('./routes/leaseRoutes'));
+
 // 404 Handler
 app.use((req, res) => {
   res.status(404).json({
