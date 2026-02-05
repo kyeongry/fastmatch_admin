@@ -266,6 +266,11 @@ const updateOption = async (id, data, userId, userRole) => {
   const updateData = { ...filteredData, updated_at: new Date(), updater_id: new ObjectId(userId) };
   delete updateData._id; // _id 수정 방지
 
+  // branch_id가 있으면 ObjectId로 변환 (문자열 → ObjectId)
+  if (updateData.branch_id) {
+    updateData.branch_id = new ObjectId(updateData.branch_id);
+  }
+
   const result = await db.collection('options').findOneAndUpdate(
     { _id: new ObjectId(id) },
     { $set: updateData },
