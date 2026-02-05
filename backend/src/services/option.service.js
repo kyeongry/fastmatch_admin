@@ -255,10 +255,17 @@ const updateOption = async (id, data, userId, userRole) => {
   const option = await db.collection('options').findOne({ _id: new ObjectId(id) });
   if (!option) throw new Error('옵션을 찾을 수 없습니다');
   // 모든 사용자에게 옵션 수정 권한 적용 (권한 체크 제거)
-  
-  const updateData = { ...data, updated_at: new Date(), updater_id: new ObjectId(userId) };
+
+  // undefined, null, 빈 문자열 값 필터링 (기존 값 보존)
+  const filteredData = Object.fromEntries(
+    Object.entries(data).filter(([key, value]) =>
+      value !== undefined && value !== null && value !== ''
+    )
+  );
+
+  const updateData = { ...filteredData, updated_at: new Date(), updater_id: new ObjectId(userId) };
   delete updateData._id; // _id 수정 방지
-  
+
   const result = await db.collection('options').findOneAndUpdate(
     { _id: new ObjectId(id) },
     { $set: updateData },
