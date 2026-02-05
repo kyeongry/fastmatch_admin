@@ -1,4 +1,4 @@
-const { getDb } = require('../config/database');
+const { getDatabase } = require('../config/mongodb');
 const { ObjectId } = require('mongodb');
 const geminiService = require('../services/geminiService');
 const { generateContractNumber } = require('../models/LeaseContract');
@@ -139,7 +139,7 @@ const leaseController = {
    */
   async searchSpecialTerms(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { keyword, category, limit = 10 } = req.query;
 
       const query = { isActive: true };
@@ -203,7 +203,7 @@ const leaseController = {
    */
   async saveSpecialTerm(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { keywords, category, title, content, favorType, source, contractId } = req.body;
 
       const term = {
@@ -237,7 +237,7 @@ const leaseController = {
    */
   async incrementSpecialTermUsage(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { id } = req.params;
 
       await db.collection('specialTerms').updateOne(
@@ -261,7 +261,7 @@ const leaseController = {
    */
   async getContracts(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { status, page = 1, limit = 20 } = req.query;
 
       const query = {};
@@ -297,7 +297,7 @@ const leaseController = {
    */
   async searchContracts(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { keyword } = req.query;
 
       const contracts = await db.collection('leaseContracts')
@@ -328,7 +328,7 @@ const leaseController = {
    */
   async createContract(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
 
       const contract = {
         ...req.body,
@@ -356,7 +356,7 @@ const leaseController = {
    */
   async getContract(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { id } = req.params;
 
       const contract = await db.collection('leaseContracts').findOne({
@@ -382,7 +382,7 @@ const leaseController = {
    */
   async updateContract(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { id } = req.params;
 
       const result = await db.collection('leaseContracts').updateOne(
@@ -411,7 +411,7 @@ const leaseController = {
    */
   async deleteContract(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { id } = req.params;
 
       const result = await db.collection('leaseContracts').deleteOne({
@@ -434,7 +434,7 @@ const leaseController = {
    */
   async generatePdf(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { id } = req.params;
 
       const contract = await db.collection('leaseContracts').findOne({
@@ -484,7 +484,7 @@ const leaseController = {
         ).end(req.file.buffer);
       });
 
-      const db = getDb();
+      const db = await getDatabase();
       const cert = {
         name: req.file.originalname,
         fileUrl: uploadResult.secure_url,
@@ -512,7 +512,7 @@ const leaseController = {
    */
   async getInsuranceCerts(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
 
       const certs = await db.collection('insuranceCerts')
         .find()
@@ -534,7 +534,7 @@ const leaseController = {
    */
   async activateInsuranceCert(req, res) {
     try {
-      const db = getDb();
+      const db = await getDatabase();
       const { id } = req.params;
 
       // 기존 활성화된 것 비활성화
@@ -561,7 +561,7 @@ const leaseController = {
    */
   async initializeDefaultTerms() {
     try {
-      const db = getDb();
+      const db = await getDatabase();
 
       for (const term of DefaultSpecialTerms) {
         const exists = await db.collection('specialTerms').findOne({
