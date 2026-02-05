@@ -62,10 +62,7 @@ console.log('========== DIRECTORY DEBUG END ============');
 
 const app = express();
 
-// Middlewares
-app.use(helmet());
-
-// CORS 설정 - 여러 도메인 허용
+// CORS 설정 - 여러 도메인 허용 (helmet보다 먼저 설정)
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
@@ -90,7 +87,17 @@ app.use(cors({
 
     callback(new Error('Not allowed by CORS'));
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Preflight 요청 처리
+app.options('*', cors());
+
+// Middlewares
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
