@@ -233,6 +233,14 @@ export const adminAPI = {
   updateUser: (id, data) => api.put(`/admin/users/${id}`, data),
 };
 
+// ============ Review API ============
+export const reviewAPI = {
+  getByBranch: (branchId) => api.get(`/reviews/branch/${branchId}`),
+  create: (data) => api.post('/reviews', data),
+  update: (id, data) => api.put(`/reviews/${id}`, data),
+  delete: (id) => api.delete(`/reviews/${id}`),
+};
+
 // ============ Lease API ============
 // 임대차 계약 관련 API는 leaseApi.js에서 import
 // import { contractAPI, registryAPI, specialTermsAPI, insuranceCertAPI, partyAPI } from './leaseApi';
