@@ -11,6 +11,33 @@ const getDeleteRequests = async (filters = {}) => {
     const { status, page = 1, pageSize = 20 } = filters;
     const skip = (page - 1) * pageSize;
 
+    // 자동 동기화: options 컬렉션에서 status='delete_requested'인데
+    // delete_requests 레코드가 없는 옵션에 대해 자동 생성
+    const { getDatabase } = require('../config/mongodb');
+    const db = await getDatabase();
+    const orphanedOptions = await db.collection('options')
+      .find({ status: 'delete_requested' })
+      .toArray();
+
+    for (const opt of orphanedOptions) {
+      const optId = opt._id.toString();
+      const existing = await DeleteRequestModel.findByOptionId(optId);
+      if (!existing) {
+        try {
+          await DeleteRequestModel.create({
+            option_id: optId,
+            requester_id: (opt.creator_id || opt._id).toString(),
+            request_reason: opt.delete_request_reason || '',
+            status: 'pending',
+            created_at: opt.updated_at || new Date(),
+          });
+          console.log(`✅ 누락된 delete_requests 레코드 자동 생성: option_id=${optId}`);
+        } catch (syncErr) {
+          console.error(`⚠️ 자동 동기화 실패: option_id=${optId}`, syncErr);
+        }
+      }
+    }
+
     const filter = {};
     if (status) {
       filter.status = status;
