@@ -260,6 +260,11 @@ const ProposalCreateSlide = ({
 
   // === OPTION ACTIONS ===
   const handleRemoveOption = (optionId) => {
+    const option = selectedOptions.find(o => (o.id || o._id) === optionId);
+    const optionLabel = option
+      ? `${option.branch?.brand?.alias || option.branch?.brand?.name || ''} ${option.branch?.name || ''} ${option.name || ''}`
+      : '';
+    if (!window.confirm(`${optionLabel.trim()} 옵션을 제거하시겠습니까?`)) return;
     setSelectedOptions(prev => prev.filter(o => (o.id || o._id) !== optionId));
     if (onRemoveOption) onRemoveOption(optionId);
   };
