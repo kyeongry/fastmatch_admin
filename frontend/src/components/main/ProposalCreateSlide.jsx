@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { optionAPI, proposalDocumentAPI } from '../../services/api';
 import { useToast } from '../../hooks/useToast';
-import { formatPrice } from '../../utils/formatters';
+import { formatPrice, formatCategory1, formatContractPeriod } from '../../utils/formatters';
 
 const ProposalCreateSlide = ({
   isOpen,
@@ -433,9 +433,6 @@ const ProposalCreateSlide = ({
                     )}
                   </div>
 
-                  <button className="px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    순서 변경/삭제
-                  </button>
                 </div>
               </div>
 
@@ -491,25 +488,27 @@ const ProposalCreateSlide = ({
                           <div className="w-10 h-10 rounded bg-gray-100 shrink-0" />
                         )}
 
-                        {/* Option info */}
+                        {/* Option info: 브랜드 지점 옵션명 주소 */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm text-gray-900 truncate">
-                              {branchName} · {option.name}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-semibold text-sm text-gray-900">
+                              {brandAlias}
                             </span>
-                            <span className="text-xs text-gray-500 shrink-0">
-                              {option.branch?.address || ''}
+                            <span className="text-sm text-gray-700">
+                              {branchName}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                              {option.name}
                             </span>
                             {getStatusBadge(option)}
                           </div>
+                          <div className="text-xs text-gray-400 mt-0.5 truncate">
+                            {option.branch?.address || ''}
+                          </div>
                         </div>
 
-                        {/* Status */}
+                        {/* Actions */}
                         <div className="flex items-center gap-2 shrink-0">
-                          {option._isModified && (
-                            <span className="text-xs text-orange-500">(수정됨)</span>
-                          )}
-
                           {/* View detail (opens OptionDetailSlide) */}
                           <button
                             onClick={(e) => {
@@ -540,26 +539,67 @@ const ProposalCreateSlide = ({
                         </div>
                       </div>
 
-                      {/* Expanded content */}
+                      {/* Expanded content: 상세 정보 */}
                       {isExpanded && (
                         <div className="px-4 pb-4 pt-0 border-t border-gray-100">
-                          <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
+                          <div className="grid grid-cols-3 gap-x-6 gap-y-2 mt-3 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-500">브랜드</span>
-                              <span className="font-medium">{brandAlias}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">인실</span>
-                              <span className="font-medium">{option.capacity}인</span>
+                              <span className="text-gray-500">보증금</span>
+                              <span className="font-medium">{formatPrice(option.deposit)}원</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-500">월 고정비</span>
                               <span className="font-medium text-orange-600">{formatPrice(option.monthly_fee)}원</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-500">보증금</span>
-                              <span className="font-medium">{formatPrice(option.deposit)}원</span>
+                              <span className="text-gray-500">옵션타입</span>
+                              <span className="font-medium">{formatCategory1(option.category1)}</span>
                             </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">인실</span>
+                              <span className="font-medium">{option.capacity}인</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">계약기간</span>
+                              <span className="font-medium">{formatContractPeriod(option.contract_period_type, option.contract_period_value)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">전용면적</span>
+                              <span className="font-medium">
+                                {option.exclusive_area?.value
+                                  ? `${option.exclusive_area.value}${option.exclusive_area.unit === 'pyeong' ? '평' : '㎡'}`
+                                  : '-'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">인단가</span>
+                              <span className="font-medium">
+                                {option.capacity && option.monthly_fee
+                                  ? `${formatPrice(Math.round(option.monthly_fee / option.capacity))}원`
+                                  : '-'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between col-span-2">
+                              <span className="text-gray-500">크레딧</span>
+                              <span className="font-medium">
+                                {option.credits && option.credits.length > 0
+                                  ? option.credits.map((c, i) => (
+                                    <span key={i}>
+                                      {c.type === 'other'
+                                        ? `${c.customName || '기타'}: 월 ${c.amount}${c.unit || '크레딧'}`
+                                        : `${c.type === 'monthly' ? '크레딧' : c.type === 'printing' ? '프린팅' : '미팅룸'}: 월 ${c.amount}크레딧`}
+                                      {i < option.credits.length - 1 && ', '}
+                                    </span>
+                                  ))
+                                  : '-'}
+                              </span>
+                            </div>
+                            {option.office_info && (
+                              <div className="flex justify-between col-span-3">
+                                <span className="text-gray-500 shrink-0 mr-2">오피스정보</span>
+                                <span className="font-medium text-right">{option.office_info}</span>
+                              </div>
+                            )}
                           </div>
 
                           {/* Custom name for comparison table */}
