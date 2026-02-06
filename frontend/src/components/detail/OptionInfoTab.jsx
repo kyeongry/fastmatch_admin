@@ -1,17 +1,14 @@
+import { useState } from 'react';
 import InfoTable from './InfoTable';
-import ImageGallery from './ImageGallery';
 import {
   formatPrice,
   formatCategory1,
-  formatCategory2,
-  formatMoveInDate,
-  formatContractPeriod,
   formatDate,
 } from '../../utils/formatters';
 
 /**
- * OptionInfoTab - 옵션(매물) 상세 정보 탭
- * 기본 정보, 거래 정보, 상세 정보, 평가 정보를 구조화된 테이블로 표시
+ * OptionInfoTab - 옵션 상세 정보 탭
+ * 평면도 이미지, 기본 정보(인실/유형), 거래 정보, 상세 정보
  *
  * @param {object} option - 옵션 데이터
  * @param {object} branch - 지점 데이터
@@ -58,60 +55,50 @@ const OptionInfoTab = ({ option, branch, onImageClick }) => {
     ));
   };
 
-  // 옵션 평면도 이미지
+  // 인단가 계산 (월고정비 / 인실)
+  const getPerPersonCost = () => {
+    const fee = option.monthly_fee || 0;
+    const cap = option.capacity || 0;
+    if (!fee || !cap) return '-';
+    return `${formatPrice(Math.round(fee / cap))}원`;
+  };
+
+  // 인당 면적 계산 (전용면적 / 인실)
+  const getPerPersonArea = () => {
+    const area = option.exclusive_area;
+    const cap = option.capacity || 0;
+    if (!area?.value || !cap) return '-';
+    const val = (parseFloat(area.value) / cap).toFixed(1);
+    return `${val} ${area.unit === 'pyeong' ? '평' : '㎡'}`;
+  };
+
+  // 옵션 평면도 이미지만
   const floorPlanUrls = option.floor_plan_urls || (option.floor_plan_url ? [option.floor_plan_url] : []);
 
-  // 지점 내부 이미지 (지점 사진)
-  const allBranchImages = [
-    ...(branch?.exterior_image_url ? [branch.exterior_image_url] : []),
-    ...(branch?.interior_image_urls || []),
-  ];
-
-  // 카테고리 뱃지
-  const categoryBadge = option.category1 ? (
-    <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded mr-1">
-      {formatCategory1(option.category1)}
-    </span>
-  ) : null;
-
-  // 월 고정비 계산 (월사용료 + 관리비 같은 것이 있다면)
-  const monthlyTotal = option.monthly_fee || 0;
-
-  // 매물 기본 정보
+  // 옵션 기본 정보 (인실, 유형만)
   const basicInfoRows = [
-    { label: '상세주소', value: branch?.address || '-' },
-    { label: '매물 유형', value: categoryBadge || '-' },
+    { label: '인실', value: option.capacity ? `${option.capacity}인` : '-' },
+    { label: '유형', value: option.category1 ? formatCategory1(option.category1) : '-' },
   ];
 
-  // 매물 거래 정보
+  // 옵션 거래 정보
   const transactionRows = [
-    { label: '해당 옵션', value: option.name || '-' },
-    { label: '거래 유형', value: '월 임대' },
-    { label: '인실', value: option.capacity ? `${option.capacity}인` : '-' },
     { label: '전용면적', value: formatExclusiveArea(option.exclusive_area) },
-    { label: '보증금', value: option.deposit ? `${formatPrice(option.deposit)}원` : '-' },
-    { label: '월 임대료', value: option.monthly_fee ? `${formatPrice(option.monthly_fee)}원` : '-' },
-    { label: '정가', value: option.list_price ? `${formatPrice(option.list_price)}원` : '-' },
     {
       label: '월 고정비',
-      value: monthlyTotal ? `${formatPrice(monthlyTotal)}원` : '-',
+      value: option.monthly_fee ? `${formatPrice(option.monthly_fee)}원` : '-',
       highlight: true,
     },
-    { label: 'NOC', value: '-' },
-    { label: '실질 NOC', value: '-' },
-    { label: '시설비', value: formatOneTimeFees(option.one_time_fees) },
-    { label: '권리금', value: '-' },
-    { label: '계약 기간', value: formatContractPeriod(option.contract_period_type, option.contract_period_value) },
-    { label: '입주가능일', value: formatMoveInDate(option.move_in_date_type, option.move_in_date_value) },
-    { label: '렌트프리', value: '-' },
-    { label: '핏아웃', value: '-' },
-    { label: 'TI (전용평당)', value: '-' },
-    { label: '공동중개', value: 'N' },
+    { label: '보증금', value: option.deposit ? `${formatPrice(option.deposit)}원` : '-' },
+    { label: '정가', value: option.list_price ? `${formatPrice(option.list_price)}원` : '-' },
+    { label: '일회성 비용', value: formatOneTimeFees(option.one_time_fees) },
+    { label: '크레딧', value: formatCredits(option.credits) },
+    { label: '인단가', value: getPerPersonCost() },
+    { label: '인당 면적', value: getPerPersonArea() },
   ];
 
-  // 매물 상세 정보
+  // 옵션 상세 정보 (주차, 냉난방, 옵션 설명만)
   const detailRows = [
-    { label: '특징', value: option.category2 ? formatCategory2(option.category2) : '-' },
     { label: '주차', value: (() => {
       if (!option.parking_type) return '-';
       const parts = [formatParkingType(option.parking_type)];
@@ -120,29 +107,13 @@ const OptionInfoTab = ({ option, branch, onImageClick }) => {
       if (option.parking_note) parts.push(option.parking_note);
       return parts.join(', ');
     })() },
-    { label: '인테리어', value: '-' },
     { label: '냉난방', value: formatHvacType(option.hvac_type) },
-    { label: '화장실 구분', value: '-' },
-    { label: '화장실 위치', value: '-' },
-    { label: '층고', value: '-' },
-    { label: '독립 공간 개수', value: '-' },
     {
-      label: '매물 설명',
+      label: '옵션 설명',
       value: option.office_info || option.memo || '-',
       colSpan: true,
     },
   ];
-
-  // 매물 평가 정보
-  const evaluationRows = [
-    { label: '인테리어 등급', value: '확인 필요' },
-    { label: '매물 추천', value: 'N' },
-  ];
-
-  // 크레딧 정보
-  const creditRows = option.credits && option.credits.length > 0
-    ? [{ label: '크레딧', value: formatCredits(option.credits), colSpan: true }]
-    : [];
 
   // 등록 정보
   const registrationRows = [
@@ -155,46 +126,29 @@ const OptionInfoTab = ({ option, branch, onImageClick }) => {
 
   return (
     <div className="space-y-6">
-      {/* 이미지 영역 - 평면도 + 지점 사진 탭 */}
-      {(floorPlanUrls.length > 0 || allBranchImages.length > 0) && (
-        <div className="mb-6">
-          <ImageGalleryTabs
-            floorPlans={floorPlanUrls}
-            branchImages={allBranchImages}
-            onImageClick={onImageClick}
-          />
-        </div>
-      )}
-
-      {/* 매물 기본 정보 */}
-      <InfoTable title="매물 기본 정보" rows={basicInfoRows} />
-
-      {/* 매물 거래 정보 */}
-      <InfoTable title="매물 거래 정보" rows={transactionRows} />
-
-      {/* 매물 상세 정보 */}
-      <InfoTable title="매물 상세 정보" rows={detailRows} />
-
-      {/* 매물 평가 정보 */}
-      <InfoTable title="매물 평가 정보" rows={evaluationRows} />
-
-      {/* 크레딧 정보 */}
-      {creditRows.length > 0 && (
-        <InfoTable title="크레딧 정보" rows={creditRows} />
-      )}
-
-      {/* 매물 메모 */}
-      {option.memo && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <h3 className="text-lg font-bold text-gray-900">매물 메모</h3>
-            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">비공개</span>
+      {/* 평면도 이미지 영역 */}
+      <div className="mb-6">
+        {floorPlanUrls.length > 0 ? (
+          <FloorPlanGallery images={floorPlanUrls} onImageClick={onImageClick} />
+        ) : (
+          <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg h-48 flex flex-col items-center justify-center text-gray-400">
+            <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span className="text-sm font-medium">사진을 업로드 하세요</span>
+            <span className="text-xs text-gray-300 mt-1">수정 모드에서 평면도를 등록할 수 있습니다</span>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap">
-            {option.memo}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* 옵션 기본 정보 */}
+      <InfoTable title="옵션 기본 정보" rows={basicInfoRows} />
+
+      {/* 옵션 거래 정보 */}
+      <InfoTable title="옵션 거래 정보" rows={transactionRows} />
+
+      {/* 옵션 상세 정보 */}
+      <InfoTable title="옵션 상세 정보" rows={detailRows} />
 
       {/* 등록 정보 */}
       <div className="pt-4 border-t border-gray-200">
@@ -209,24 +163,52 @@ const OptionInfoTab = ({ option, branch, onImageClick }) => {
 };
 
 /**
- * ImageGalleryTabs - 이미지 갤러리 탭 (평면도 / 지점 사진)
+ * FloorPlanGallery - 평면도 이미지 전용 갤러리 (썸네일 없음)
  */
-const ImageGalleryTabs = ({ floorPlans, branchImages, onImageClick }) => {
-  const hasBoth = floorPlans.length > 0 && branchImages.length > 0;
+const FloorPlanGallery = ({ images, onImageClick }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  if (!hasBoth) {
-    const images = floorPlans.length > 0 ? floorPlans : branchImages;
-    const title = floorPlans.length > 0 ? '옵션 평면도' : '지점 사진';
-    return <ImageGallery images={images} title={title} onImageClick={onImageClick} />;
-  }
+  if (!images || images.length === 0) return null;
+
+  const handlePrev = () => setCurrentIndex(prev => (prev > 0 ? prev - 1 : images.length - 1));
+  const handleNext = () => setCurrentIndex(prev => (prev < images.length - 1 ? prev + 1 : 0));
 
   return (
-    <div>
-      <ImageGallery
-        images={[...floorPlans, ...branchImages]}
-        title="매물 내부 사진"
-        onImageClick={onImageClick}
+    <div className="relative rounded-lg overflow-hidden bg-gray-100 cursor-pointer group"
+      onClick={() => onImageClick && onImageClick(images[currentIndex], images, currentIndex)}
+    >
+      <img
+        src={images[currentIndex]}
+        alt={`평면도 ${currentIndex + 1}`}
+        className="w-full h-[300px] object-contain bg-white"
       />
+      {/* 이미지 카운터 */}
+      {images.length > 1 && (
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded-full">
+          {currentIndex + 1}/{images.length}
+        </div>
+      )}
+      {/* 네비게이션 */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-40 hover:bg-opacity-60 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleNext(); }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-40 hover:bg-opacity-60 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
     </div>
   );
 };

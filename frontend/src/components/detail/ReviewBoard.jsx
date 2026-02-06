@@ -8,8 +8,9 @@ import { formatDateTime } from '../../utils/formatters';
  * ReviewBoard - 지점 리뷰 게시판 컴포넌트
  *
  * @param {string} branchId - 지점 ID
+ * @param {boolean} compact - 좌측 패널용 컴팩트 모드
  */
-const ReviewBoard = ({ branchId }) => {
+const ReviewBoard = ({ branchId, compact = false }) => {
   const { user } = useAuth();
   const { success, error: showError } = useToast();
 
@@ -107,7 +108,7 @@ const ReviewBoard = ({ branchId }) => {
             className={`${interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'} transition`}
           >
             <svg
-              className={`w-5 h-5 ${star <= count ? 'text-yellow-400' : 'text-gray-300'}`}
+              className={`${compact ? 'w-3.5 h-3.5' : 'w-5 h-5'} ${star <= count ? 'text-yellow-400' : 'text-gray-300'}`}
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -121,14 +122,14 @@ const ReviewBoard = ({ branchId }) => {
 
   return (
     <div>
-      <h3 className="text-lg font-bold text-gray-900 mb-4">지점 리뷰</h3>
+      {!compact && <h3 className="text-lg font-bold text-gray-900 mb-4">지점 리뷰</h3>}
 
       {/* 리뷰 작성 폼 */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-sm font-medium text-gray-700">평점:</span>
+      <div className={`bg-white border border-gray-200 rounded-lg ${compact ? 'p-2 mb-2' : 'p-4 mb-4'}`}>
+        <div className={`flex items-center gap-2 ${compact ? 'mb-2' : 'gap-3 mb-3'}`}>
+          <span className={`font-medium text-gray-700 ${compact ? 'text-xs' : 'text-sm'}`}>평점:</span>
           {renderStars(rating, true, setRating)}
-          <span className="text-sm text-gray-500">{rating}점</span>
+          <span className={`text-gray-500 ${compact ? 'text-xs' : 'text-sm'}`}>{rating}점</span>
         </div>
         <div className="relative">
           <textarea
@@ -139,34 +140,34 @@ const ReviewBoard = ({ branchId }) => {
               }
             }}
             maxLength={REVIEW_MAX_LENGTH}
-            placeholder="지점에 대한 리뷰를 작성해주세요..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none min-h-[80px] text-sm"
-            rows={3}
+            placeholder="리뷰를 작성해주세요..."
+            className={`w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none ${compact ? 'px-2 py-2 min-h-[50px] text-xs' : 'px-4 py-3 min-h-[80px] text-sm'}`}
+            rows={compact ? 2 : 3}
           />
-          <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center justify-between mt-1">
             <span className="text-xs text-gray-400">
               {newReview.length}/{REVIEW_MAX_LENGTH}자
             </span>
             <button
               onClick={handleSubmit}
               disabled={submitting || !newReview.trim()}
-              className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition disabled:opacity-50 disabled:cursor-not-allowed ${compact ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'}`}
             >
-              {submitting ? '등록 중...' : '리뷰 등록'}
+              {submitting ? '등록 중...' : '등록'}
             </button>
           </div>
         </div>
       </div>
 
       {/* 리뷰 리스트 */}
-      <div className="space-y-3">
+      <div className={compact ? 'space-y-2' : 'space-y-3'}>
         {loading ? (
-          <div className="text-center py-8 text-gray-400 text-sm">
+          <div className={`text-center text-gray-400 ${compact ? 'py-4 text-xs' : 'py-8 text-sm'}`}>
             리뷰를 불러오는 중...
           </div>
         ) : reviews.length === 0 ? (
-          <div className="text-center py-8 text-gray-400 text-sm">
-            아직 작성된 리뷰가 없습니다. 첫 번째 리뷰를 남겨보세요.
+          <div className={`text-center text-gray-400 ${compact ? 'py-4 text-xs' : 'py-8 text-sm'}`}>
+            아직 작성된 리뷰가 없습니다.
           </div>
         ) : (
           reviews.map((review) => {
@@ -178,22 +179,24 @@ const ReviewBoard = ({ branchId }) => {
             return (
               <div
                 key={reviewId}
-                className="bg-white border border-gray-200 rounded-lg p-4"
+                className={`bg-white border border-gray-200 rounded-lg ${compact ? 'p-2' : 'p-4'}`}
               >
-                <div className="flex items-start justify-between mb-2">
+                <div className={`flex items-start justify-between ${compact ? 'mb-1' : 'mb-2'}`}>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
-                      {(review.author?.name || review.author_name || '')[0] || '?'}
-                    </div>
+                    {!compact && (
+                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
+                        {(review.author?.name || review.author_name || '')[0] || '?'}
+                      </div>
+                    )}
                     <div>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className={`font-medium text-gray-900 ${compact ? 'text-xs' : 'text-sm'}`}>
                         {review.author?.name || review.author_name || '익명'}
                       </span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         {renderStars(review.rating)}
                         {review.created_at && (
                           <span className="text-xs text-gray-400">
-                            {formatDateTime(review.created_at)}
+                            {compact ? new Date(review.created_at).toLocaleDateString('ko-KR') : formatDateTime(review.created_at)}
                           </span>
                         )}
                       </div>
@@ -232,7 +235,7 @@ const ReviewBoard = ({ branchId }) => {
                         }
                       }}
                       maxLength={REVIEW_MAX_LENGTH}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none min-h-[60px] focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className={`w-full border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 ${compact ? 'px-2 py-1 text-xs min-h-[40px]' : 'px-3 py-2 text-sm min-h-[60px]'}`}
                       rows={2}
                     />
                     <div className="flex justify-end gap-2 mt-2">
@@ -251,7 +254,7 @@ const ReviewBoard = ({ branchId }) => {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap pl-10">
+                  <p className={`text-gray-700 whitespace-pre-wrap ${compact ? 'text-xs pl-0' : 'text-sm pl-10'}`}>
                     {review.content}
                   </p>
                 )}

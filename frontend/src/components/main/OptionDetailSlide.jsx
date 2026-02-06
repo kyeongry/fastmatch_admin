@@ -6,13 +6,10 @@ import {
   formatPrice,
   formatCategory1,
   formatCategory2,
-  formatMoveInDate,
-  formatContractPeriod,
 } from '../../utils/formatters';
 import { MEMO_MAX_LENGTH } from '../pdf/OptionDetailPage';
 import DetailLeftPanel from '../detail/DetailLeftPanel';
 import OptionInfoTab from '../detail/OptionInfoTab';
-import BranchInfoTab from '../detail/BranchInfoTab';
 import AllOptionsTab from '../detail/AllOptionsTab';
 import ImageModal from '../detail/ImageModal';
 
@@ -38,7 +35,7 @@ const OptionDetailSlide = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // ======== 레이아웃 상태 ========
-  const [activeTab, setActiveTab] = useState('option'); // 'option' | 'branch' | 'all'
+  const [activeTab, setActiveTab] = useState('option'); // 'option' | 'all'
   const [selectedOptionData, setSelectedOptionData] = useState(null); // 좌측 패널에서 선택한 옵션
   const [branchOptions, setBranchOptions] = useState([]); // 해당 지점의 모든 옵션
   const [loadingBranchOptions, setLoadingBranchOptions] = useState(false);
@@ -162,6 +159,15 @@ const OptionDetailSlide = ({
       setActiveTab('option');
     }
   }, [option?.id, isOpen]);
+
+  // 옵션 상태 변경 시 (실시간 반영) 좌측 패널 옵션 목록도 갱신
+  useEffect(() => {
+    if (option && isOpen && option.status) {
+      setBranchOptions(prev => prev.map(opt =>
+        (opt.id || opt._id) === (option.id || option._id) ? { ...opt, status: option.status } : opt
+      ));
+    }
+  }, [option?.status]);
 
   // 변경사항 체크
   useEffect(() => {
@@ -659,13 +665,6 @@ const OptionDetailSlide = ({
             onImageClick={handleImageClick}
           />
         );
-      case 'branch':
-        return (
-          <BranchInfoTab
-            branch={displayBranch}
-            onImageClick={handleImageClick}
-          />
-        );
       case 'all':
         return (
           <AllOptionsTab
@@ -1016,7 +1015,7 @@ const OptionDetailSlide = ({
       />
 
       {/* 우측 슬라이드 패널 - 확장된 너비 */}
-      <div className="fixed right-0 top-0 h-full w-[960px] max-w-[95vw] bg-white shadow-2xl flex flex-col z-[100]">
+      <div className="fixed right-0 top-0 h-full w-[1040px] max-w-[95vw] bg-white shadow-2xl flex flex-col z-[100]">
         {/* 헤더 */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
@@ -1079,6 +1078,7 @@ const OptionDetailSlide = ({
             selectedOptionId={currentOption?.id || currentOption?._id}
             onSelectOption={handleSelectOption}
             loadingOptions={loadingBranchOptions}
+            onImageClick={handleImageClick}
           />
 
           {/* 중앙 컨텐츠 */}
@@ -1088,8 +1088,7 @@ const OptionDetailSlide = ({
               <div className="border-b border-gray-200 bg-white px-6">
                 <nav className="flex gap-6">
                   {[
-                    { key: 'option', label: '기본정보' },
-                    { key: 'branch', label: '지점 정보' },
+                    { key: 'option', label: '옵션 정보' },
                     { key: 'all', label: '전체 공실 한 번에 보기' },
                   ].map((tab) => (
                     <button

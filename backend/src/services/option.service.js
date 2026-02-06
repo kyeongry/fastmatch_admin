@@ -220,7 +220,13 @@ const getOptionById = async (id) => {
     { $project: { 'creator.password': 0 } }
   ]).toArray();
   if (!option || option.length === 0) throw new Error('옵션을 찾을 수 없습니다');
-  return option[0];
+  const opt = option[0];
+  return {
+    ...opt,
+    id: opt._id.toString(),
+    branch_id: opt.branch_id?.toString(),
+    creator_id: opt.creator_id?.toString(),
+  };
 };
 
 const getMyOptions = async (userId, page = 1, pageSize = 20) => {
@@ -312,7 +318,12 @@ const updateOption = async (id, data, userId, userRole) => {
     { $set: setFields },
     { returnDocument: 'after' }
   );
-  return result;
+  return {
+    ...result,
+    id: result._id.toString(),
+    branch_id: result.branch_id?.toString(),
+    creator_id: result.creator_id?.toString(),
+  };
 };
 
 const requestDeleteOption = async (id, reason, userId, userRole) => {
@@ -323,7 +334,12 @@ const requestDeleteOption = async (id, reason, userId, userRole) => {
         { $set: { status: 'delete_requested', delete_request_reason: reason } },
         { returnDocument: 'after' }
     );
-    return result;
+    return {
+        ...result,
+        id: result._id.toString(),
+        branch_id: result.branch_id?.toString(),
+        creator_id: result.creator_id?.toString(),
+    };
 };
 
 const cancelDeleteRequest = async (id, userId, userRole) => {
@@ -334,7 +350,12 @@ const cancelDeleteRequest = async (id, userId, userRole) => {
         { $set: { status: 'active' }, $unset: { delete_request_reason: "" } },
         { returnDocument: 'after' }
     );
-    return result;
+    return {
+        ...result,
+        id: result._id.toString(),
+        branch_id: result.branch_id?.toString(),
+        creator_id: result.creator_id?.toString(),
+    };
 };
 
 const markAsCompleted = async (id, userId, userRole) => {
@@ -345,7 +366,12 @@ const markAsCompleted = async (id, userId, userRole) => {
         { $set: { status: 'completed' } },
         { returnDocument: 'after' }
     );
-    return result;
+    return {
+        ...result,
+        id: result._id.toString(),
+        branch_id: result.branch_id?.toString(),
+        creator_id: result.creator_id?.toString(),
+    };
 };
 
 const markAsActive = async (id, userId, userRole) => {
@@ -356,7 +382,12 @@ const markAsActive = async (id, userId, userRole) => {
         { $set: { status: 'active' } },
         { returnDocument: 'after' }
     );
-    return result;
+    return {
+        ...result,
+        id: result._id.toString(),
+        branch_id: result.branch_id?.toString(),
+        creator_id: result.creator_id?.toString(),
+    };
 };
 
 module.exports = {

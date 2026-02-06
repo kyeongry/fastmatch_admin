@@ -78,7 +78,7 @@ const ServiceGuidePage = () => {
           <View style={styles.bulletContainer}>
             <Text style={styles.bulletPoint}>•</Text>
             <Text style={styles.sectionText}>
-              고객님의 니즈에 맞는 최적의 매물을 선별하여 투어를 제공합니다.
+              고객님의 니즈에 맞는 최적의 옵션을 선별하여 투어를 제공합니다.
             </Text>
           </View>
           <View style={styles.bulletContainer}>

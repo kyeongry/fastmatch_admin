@@ -191,8 +191,8 @@ const MainPage = () => {
       success('삭제 요청이 완료되었습니다');
       setDeleteModalOpen(false);
       setDeleteReason('');
-      // 목록 새로고침하여 상태 업데이트 반영
-      fetchOptions();
+      // 패널 내 실시간 반영
+      await handleDetailUpdate();
     } catch (err) {
       console.error('삭제 요청 실패:', err);
       error(err.response?.data?.message || '삭제 요청에 실패했습니다');
@@ -225,8 +225,7 @@ const MainPage = () => {
     try {
       await optionAPI.complete(optionId);
       success('거래가 완료되었습니다');
-      fetchOptions(); // 목록 새로고침
-      setIsDetailOpen(false); // 상세창 닫기
+      await handleDetailUpdate(); // 패널 내 실시간 반영
     } catch (err) {
       console.error('거래완료 처리 실패:', err);
       error(err.response?.data?.message || '거래완료 처리에 실패했습니다');
@@ -237,8 +236,7 @@ const MainPage = () => {
     try {
       await optionAPI.reactivate(optionId);
       success('거래가 재개되었습니다');
-      fetchOptions(); // 목록 새로고침
-      setIsDetailOpen(false); // 상세창 닫기
+      await handleDetailUpdate(); // 패널 내 실시간 반영
     } catch (err) {
       console.error('거래재개 처리 실패:', err);
       error(err.response?.data?.message || '거래재개 처리에 실패했습니다');
@@ -249,8 +247,7 @@ const MainPage = () => {
     try {
       await optionAPI.cancelDeleteRequest(optionId);
       success('삭제 요청이 취소되었습니다');
-      fetchOptions(); // 목록 새로고침
-      setIsDetailOpen(false); // 상세창 닫기
+      await handleDetailUpdate(); // 패널 내 실시간 반영
     } catch (err) {
       console.error('삭제 요청 취소 실패:', err);
       error(err.response?.data?.message || '삭제 요청 취소에 실패했습니다');
@@ -261,9 +258,10 @@ const MainPage = () => {
   const handleDetailUpdate = async () => {
     await fetchOptions(); // 목록 새로고침
     // detailOption이 열려있으면 최신 데이터로 업데이트
-    if (detailOption && detailOption.id) {
+    const optionId = detailOption?.id || detailOption?._id;
+    if (detailOption && optionId) {
       try {
-        const response = await optionAPI.getById(detailOption.id);
+        const response = await optionAPI.getById(optionId);
         if (response.data?.option) {
           setDetailOption(response.data.option);
         }
