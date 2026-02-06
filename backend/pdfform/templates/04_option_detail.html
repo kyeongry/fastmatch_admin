@@ -112,17 +112,7 @@
             font-size: var(--header-title-size);
             font-weight: 600;
             color: #222;
-            line-height: 1.2;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: var(--header-height);
-        }
-
-        .page-title .option-title-sub {
-            font-size: 8pt;
-            font-weight: 500;
-            color: #555;
+            line-height: var(--header-height);
         }
 
         .header-right {
@@ -529,10 +519,7 @@
     <!-- 옵션 상세 페이지 -->
     <div class="page option-page">
         <div class="page-header">
-            <div class="page-title">
-                <span>옵션 {{옵션번호}}. {{지점}} - 상세안내</span>
-                <span class="option-title-sub">{{옵션명}}</span>
-            </div>
+            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 상세안내</div>
             <div class="header-right">
                 <div class="manager-info">
                     <span class="label">담당 매니저</span>
@@ -658,10 +645,7 @@
     <!-- 내부 사진 페이지 -->
     <div class="page photos-page">
         <div class="page-header">
-            <div class="page-title">
-                <span>옵션 {{옵션번호}}. {{지점}} - 내부사진</span>
-                <span class="option-title-sub">{{옵션명}}</span>
-            </div>
+            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 내부사진</div>
             <div class="header-right">
                 <div class="manager-info">
                     <span class="label">담당 매니저</span>
@@ -703,10 +687,7 @@
     <!-- 평면도 페이지 -->
     <div class="page floorplan-page">
         <div class="page-header">
-            <div class="page-title">
-                <span>옵션 {{옵션번호}}. {{지점}} - 평면도</span>
-                <span class="option-title-sub">{{옵션명}}</span>
-            </div>
+            <div class="page-title">옵션{{옵션번호}}. {{브랜드}} {{지점}} {{인실}} - 평면도</div>
             <div class="header-right">
                 <div class="manager-info">
                     <span class="label">담당 매니저</span>

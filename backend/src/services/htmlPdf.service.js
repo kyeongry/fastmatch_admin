@@ -1009,10 +1009,7 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
 <!-- FLOOR_PLAN_EXTRA_${fpIdx} -->
 <div class="page floorplan-page">
     <div class="page-header">
-        <div class="page-title">
-            <span>옵션 ${optionNumber}. ${option.branch?.name || ''} - 평면도 ${fpIdx + 1}</span>
-            <span class="option-title-sub">${option.name || ''}</span>
-        </div>
+        <div class="page-title">옵션${optionNumber}. ${option.branch?.brand?.alias || option.branch?.brand?.name || ''} ${option.branch?.name || ''} ${option.capacity || ''}인실 - 평면도 ${fpIdx + 1}</div>
     </div>
     <div class="page-content">
         <div class="floorplan-box">
@@ -1181,7 +1178,6 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
   const variables = {
     'KAKAO_JS_KEY': KAKAO_JS_KEY || '',
     '옵션번호': optionNumber,
-    '옵션명': option.name || '',
     '위도': latitude,
     '경도': longitude,
     '브랜드': brandAbbr,
