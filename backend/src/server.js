@@ -148,6 +148,7 @@ app.use('/api/proposals/documents', require('./routes/proposalDocument.routes'))
 app.use('/api/upload', require('./routes/upload.routes'));
 app.use('/api/external', require('./routes/external.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
+app.use('/api/reviews', require('./routes/review.routes'));
 // app.use('/api/users', require('./routes/user.routes'));
 
 // 임대차 계약 자동화 모듈
