@@ -167,6 +167,43 @@ const reactivate = async (req, res, next) => {
   }
 };
 
+// 옵션 월 고정비 변경 히스토리 조회
+const getMonthlyFeeHistory = async (req, res, next) => {
+  try {
+    const { getDatabase } = require('../config/mongodb');
+    const { ObjectId } = require('mongodb');
+    const db = await getDatabase();
+
+    const option = await db.collection('options').findOne(
+      { _id: new ObjectId(req.params.id) },
+      { projection: { monthly_fee_history: 1, monthly_fee: 1 } }
+    );
+
+    if (!option) {
+      return res.status(404).json({ success: false, message: '옵션을 찾을 수 없습니다' });
+    }
+
+    const history = (option.monthly_fee_history || []).map(h => ({
+      previous_amount: h.previous_amount,
+      new_amount: h.new_amount,
+      changed_by: h.changed_by?.toString(),
+      changed_by_name: h.changed_by_name || '',
+      changed_at: h.changed_at,
+    }));
+
+    // 최신순 정렬
+    history.sort((a, b) => new Date(b.changed_at) - new Date(a.changed_at));
+
+    res.json({
+      success: true,
+      current_amount: option.monthly_fee,
+      history,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   list,
   getById,
@@ -178,4 +215,5 @@ module.exports = {
   getCreators,
   complete,
   reactivate,
+  getMonthlyFeeHistory,
 };

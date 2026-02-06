@@ -1008,14 +1008,14 @@ const OptionDetailSlide = ({
   // ======== 메인 렌더링 ========
   return (
     <>
-      {/* 배경 오버레이 */}
+      {/* 배경 오버레이 - 헤더 아래부터 */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-40 z-[90]"
+        className="fixed inset-0 top-16 bg-black bg-opacity-40 z-[90]"
         onClick={handleCloseAttempt}
       />
 
-      {/* 우측 슬라이드 패널 - 확장된 너비 */}
-      <div className="fixed right-0 top-0 h-full w-[1040px] max-w-[95vw] bg-white shadow-2xl flex flex-col z-[100]">
+      {/* 우측 슬라이드 패널 - 헤더 높이만큼 아래로 */}
+      <div className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-[1040px] max-w-[95vw] bg-white shadow-2xl flex flex-col z-[100]">
         {/* 헤더 */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">

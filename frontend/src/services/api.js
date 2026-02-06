@@ -133,6 +133,7 @@ export const optionAPI = {
   cancelDeleteRequest: (id) => api.post(`/options/${id}/cancel-delete`),
   complete: (id) => api.post(`/options/${id}/complete`),
   reactivate: (id) => api.post(`/options/${id}/reactivate`),
+  getMonthlyFeeHistory: (id) => api.get(`/options/${id}/monthly-fee-history`),
 };
 
 // ============ Delete Request API ============
@@ -235,7 +236,7 @@ export const adminAPI = {
 
 // ============ Review API ============
 export const reviewAPI = {
-  getByBranch: (branchId) => api.get(`/reviews/branch/${branchId}`),
+  getByBranch: (branchId, params) => api.get(`/reviews/branch/${branchId}`, { params }),
   create: (data) => api.post('/reviews', data),
   update: (id, data) => api.put(`/reviews/${id}`, data),
   delete: (id) => api.delete(`/reviews/${id}`),

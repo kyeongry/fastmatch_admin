@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../hooks/useToast';
 import { reviewAPI } from '../../services/api';
@@ -22,25 +22,75 @@ const ReviewBoard = ({ branchId, compact = false }) => {
   const [editingId, setEditingId] = useState(null);
   const [editContent, setEditContent] = useState('');
 
+  // 페이지네이션 & 캐시
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const cacheRef = useRef({}); // branchId별 캐시
+  const PAGE_SIZE = 20;
+
   const REVIEW_MAX_LENGTH = 500;
 
   useEffect(() => {
     if (branchId) {
-      fetchReviews();
+      // 캐시가 있으면 캐시 사용, 없으면 fetch
+      if (cacheRef.current[branchId]) {
+        const cached = cacheRef.current[branchId];
+        setReviews(cached.reviews);
+        setTotal(cached.total);
+        setPage(cached.page);
+        setHasMore(cached.reviews.length < cached.total);
+        setLoading(false);
+      } else {
+        setReviews([]);
+        setPage(1);
+        setTotal(0);
+        fetchReviews(1, true);
+      }
     }
   }, [branchId]);
 
-  const fetchReviews = async () => {
-    setLoading(true);
+  const fetchReviews = useCallback(async (targetPage = 1, isInitial = false) => {
+    if (isInitial) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
     try {
-      const response = await reviewAPI.getByBranch(branchId);
-      setReviews(response.data?.reviews || []);
+      const response = await reviewAPI.getByBranch(branchId, { page: targetPage, pageSize: PAGE_SIZE });
+      const newReviews = response.data?.reviews || [];
+      const newTotal = response.data?.total || 0;
+
+      const updatedReviews = isInitial ? newReviews : [...reviews, ...newReviews];
+      setReviews(updatedReviews);
+      setTotal(newTotal);
+      setPage(targetPage);
+      setHasMore(updatedReviews.length < newTotal);
+
+      // 캐시 업데이트
+      cacheRef.current[branchId] = {
+        reviews: updatedReviews,
+        total: newTotal,
+        page: targetPage,
+      };
     } catch (err) {
       console.error('리뷰 조회 실패:', err);
-      setReviews([]);
+      if (isInitial) setReviews([]);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  }, [branchId, reviews]);
+
+  const handleLoadMore = () => {
+    if (!loadingMore && hasMore) {
+      fetchReviews(page + 1, false);
+    }
+  };
+
+  const invalidateCache = () => {
+    delete cacheRef.current[branchId];
   };
 
   const handleSubmit = async () => {
@@ -56,7 +106,8 @@ const ReviewBoard = ({ branchId, compact = false }) => {
       success('리뷰가 등록되었습니다');
       setNewReview('');
       setRating(5);
-      fetchReviews();
+      invalidateCache();
+      fetchReviews(1, true);
     } catch (err) {
       console.error('리뷰 등록 실패:', err);
       showError(err.response?.data?.message || '리뷰 등록에 실패했습니다');
@@ -70,7 +121,8 @@ const ReviewBoard = ({ branchId, compact = false }) => {
     try {
       await reviewAPI.delete(reviewId);
       success('리뷰가 삭제되었습니다');
-      fetchReviews();
+      invalidateCache();
+      fetchReviews(1, true);
     } catch (err) {
       console.error('리뷰 삭제 실패:', err);
       showError('리뷰 삭제에 실패했습니다');
@@ -89,7 +141,8 @@ const ReviewBoard = ({ branchId, compact = false }) => {
       success('리뷰가 수정되었습니다');
       setEditingId(null);
       setEditContent('');
-      fetchReviews();
+      invalidateCache();
+      fetchReviews(1, true);
     } catch (err) {
       console.error('리뷰 수정 실패:', err);
       showError('리뷰 수정에 실패했습니다');
@@ -170,97 +223,110 @@ const ReviewBoard = ({ branchId, compact = false }) => {
             아직 작성된 리뷰가 없습니다.
           </div>
         ) : (
-          reviews.map((review) => {
-            const reviewId = review.id || review._id;
-            const isAuthor = user && (user.id === review.author_id || user.id === review.author?.id);
-            const isAdmin = user && user.role === 'admin';
-            const isEditing = editingId === reviewId;
+          <>
+            {reviews.map((review) => {
+              const reviewId = review.id || review._id;
+              const isAuthor = user && (user.id === review.author_id || user.id === review.author?.id);
+              const isAdmin = user && user.role === 'admin';
+              const isEditing = editingId === reviewId;
 
-            return (
-              <div
-                key={reviewId}
-                className={`bg-white border border-gray-200 rounded-lg ${compact ? 'p-2' : 'p-4'}`}
-              >
-                <div className={`flex items-start justify-between ${compact ? 'mb-1' : 'mb-2'}`}>
-                  <div className="flex items-center gap-2">
-                    {!compact && (
-                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
-                        {(review.author?.name || review.author_name || '')[0] || '?'}
+              return (
+                <div
+                  key={reviewId}
+                  className={`bg-white border border-gray-200 rounded-lg ${compact ? 'p-2' : 'p-4'}`}
+                >
+                  <div className={`flex items-start justify-between ${compact ? 'mb-1' : 'mb-2'}`}>
+                    <div className="flex items-center gap-2">
+                      {!compact && (
+                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
+                          {(review.author?.name || review.author_name || '')[0] || '?'}
+                        </div>
+                      )}
+                      <div>
+                        <span className={`font-medium text-gray-900 ${compact ? 'text-xs' : 'text-sm'}`}>
+                          {review.author?.name || review.author_name || '익명'}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          {renderStars(review.rating)}
+                          {review.created_at && (
+                            <span className="text-xs text-gray-400">
+                              {compact ? new Date(review.created_at).toLocaleDateString('ko-KR') : formatDateTime(review.created_at)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 수정/삭제 버튼 */}
+                    {(isAuthor || isAdmin) && !isEditing && (
+                      <div className="flex gap-1">
+                        {isAuthor && (
+                          <button
+                            onClick={() => handleEdit(review)}
+                            className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1"
+                          >
+                            수정
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(reviewId)}
+                          className="text-xs text-gray-400 hover:text-red-500 px-2 py-1"
+                        >
+                          삭제
+                        </button>
                       </div>
                     )}
+                  </div>
+
+                  {/* 리뷰 내용 */}
+                  {isEditing ? (
                     <div>
-                      <span className={`font-medium text-gray-900 ${compact ? 'text-xs' : 'text-sm'}`}>
-                        {review.author?.name || review.author_name || '익명'}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        {renderStars(review.rating)}
-                        {review.created_at && (
-                          <span className="text-xs text-gray-400">
-                            {compact ? new Date(review.created_at).toLocaleDateString('ko-KR') : formatDateTime(review.created_at)}
-                          </span>
-                        )}
+                      <textarea
+                        value={editContent}
+                        onChange={(e) => {
+                          if (e.target.value.length <= REVIEW_MAX_LENGTH) {
+                            setEditContent(e.target.value);
+                          }
+                        }}
+                        maxLength={REVIEW_MAX_LENGTH}
+                        className={`w-full border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 ${compact ? 'px-2 py-1 text-xs min-h-[40px]' : 'px-3 py-2 text-sm min-h-[60px]'}`}
+                        rows={2}
+                      />
+                      <div className="flex justify-end gap-2 mt-2">
+                        <button
+                          onClick={() => { setEditingId(null); setEditContent(''); }}
+                          className="px-3 py-1 text-xs text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                        >
+                          취소
+                        </button>
+                        <button
+                          onClick={() => handleSaveEdit(reviewId)}
+                          className="px-3 py-1 text-xs text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition"
+                        >
+                          저장
+                        </button>
                       </div>
                     </div>
-                  </div>
-
-                  {/* 수정/삭제 버튼 */}
-                  {(isAuthor || isAdmin) && !isEditing && (
-                    <div className="flex gap-1">
-                      {isAuthor && (
-                        <button
-                          onClick={() => handleEdit(review)}
-                          className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1"
-                        >
-                          수정
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleDelete(reviewId)}
-                        className="text-xs text-gray-400 hover:text-red-500 px-2 py-1"
-                      >
-                        삭제
-                      </button>
-                    </div>
+                  ) : (
+                    <p className={`text-gray-700 whitespace-pre-wrap ${compact ? 'text-xs pl-0' : 'text-sm pl-10'}`}>
+                      {review.content}
+                    </p>
                   )}
                 </div>
+              );
+            })}
 
-                {/* 리뷰 내용 */}
-                {isEditing ? (
-                  <div>
-                    <textarea
-                      value={editContent}
-                      onChange={(e) => {
-                        if (e.target.value.length <= REVIEW_MAX_LENGTH) {
-                          setEditContent(e.target.value);
-                        }
-                      }}
-                      maxLength={REVIEW_MAX_LENGTH}
-                      className={`w-full border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 ${compact ? 'px-2 py-1 text-xs min-h-[40px]' : 'px-3 py-2 text-sm min-h-[60px]'}`}
-                      rows={2}
-                    />
-                    <div className="flex justify-end gap-2 mt-2">
-                      <button
-                        onClick={() => { setEditingId(null); setEditContent(''); }}
-                        className="px-3 py-1 text-xs text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-                      >
-                        취소
-                      </button>
-                      <button
-                        onClick={() => handleSaveEdit(reviewId)}
-                        className="px-3 py-1 text-xs text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition"
-                      >
-                        저장
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <p className={`text-gray-700 whitespace-pre-wrap ${compact ? 'text-xs pl-0' : 'text-sm pl-10'}`}>
-                    {review.content}
-                  </p>
-                )}
-              </div>
-            );
-          })
+            {/* 더보기 버튼 */}
+            {hasMore && (
+              <button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className={`w-full text-center py-2 text-gray-500 hover:text-gray-700 transition ${compact ? 'text-xs' : 'text-sm'}`}
+              >
+                {loadingMore ? '불러오는 중...' : `더보기 (${reviews.length}/${total})`}
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

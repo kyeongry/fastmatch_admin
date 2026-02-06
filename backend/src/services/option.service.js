@@ -314,9 +314,34 @@ const updateOption = async (id, data, userId, userRole) => {
     setFields.branch_id = new ObjectId(setFields.branch_id);
   }
 
+  // 월 고정비 변경 히스토리 기록
+  const updateOps = { $set: setFields };
+  if (setFields.monthly_fee !== undefined && option.monthly_fee !== undefined) {
+    const oldFee = parseFloat(option.monthly_fee);
+    const newFee = parseFloat(setFields.monthly_fee);
+    if (oldFee !== newFee) {
+      // 수정자 이름 조회
+      let changerName = '';
+      try {
+        const changer = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+        changerName = changer?.name || changer?.email || '';
+      } catch (_) {}
+
+      updateOps.$push = {
+        monthly_fee_history: {
+          previous_amount: oldFee,
+          new_amount: newFee,
+          changed_by: new ObjectId(userId),
+          changed_by_name: changerName,
+          changed_at: new Date(),
+        },
+      };
+    }
+  }
+
   const result = await db.collection('options').findOneAndUpdate(
     { _id: new ObjectId(id) },
-    { $set: setFields },
+    updateOps,
     { returnDocument: 'after' }
   );
   return {

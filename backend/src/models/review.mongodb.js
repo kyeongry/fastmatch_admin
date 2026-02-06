@@ -11,6 +11,8 @@ class ReviewModel {
         await collection.createIndex({ branch_id: 1 });
         await collection.createIndex({ author_id: 1 });
         await collection.createIndex({ created_at: -1 });
+        // 복합 인덱스: branch_id 조회 + created_at 정렬 최적화
+        await collection.createIndex({ branch_id: 1, created_at: -1 });
 
         console.log('Review MongoDB indexes created');
     }
@@ -81,6 +83,33 @@ class ReviewModel {
         const db = await getDatabase();
         const collection = db.collection(COLLECTION_NAME);
         return collection.countDocuments({ branch_id: new ObjectId(branchId) });
+    }
+
+    // 단일 aggregation으로 리뷰 조회 + 카운트 동시 처리 (성능 최적화)
+    static async findByBranchIdWithCount(branchId, options = {}) {
+        const db = await getDatabase();
+        const collection = db.collection(COLLECTION_NAME);
+
+        const { skip = 0, limit = 50, sort = { created_at: -1 } } = options;
+
+        const result = await collection.aggregate([
+            { $match: { branch_id: new ObjectId(branchId) } },
+            {
+                $facet: {
+                    metadata: [{ $count: 'total' }],
+                    data: [
+                        { $sort: sort },
+                        { $skip: skip },
+                        { $limit: limit },
+                    ],
+                },
+            },
+        ]).toArray();
+
+        const total = result[0]?.metadata[0]?.total || 0;
+        const reviews = result[0]?.data || [];
+
+        return { reviews, total };
     }
 }
 

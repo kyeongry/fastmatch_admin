@@ -27,17 +27,17 @@ const getReviewsByBranch = async (req, res) => {
         const pageSize = Math.min(parseInt(req.query.pageSize) || 50, 100);
         const skip = (page - 1) * pageSize;
 
-        const reviews = await ReviewModel.findByBranchId(branchId, {
+        // 단일 aggregation으로 리뷰 + 카운트 동시 조회 (성능 최적화)
+        const result = await ReviewModel.findByBranchIdWithCount(branchId, {
             skip,
             limit: pageSize,
             sort: { created_at: -1 },
         });
-        const total = await ReviewModel.countByBranchId(branchId);
 
         res.json({
             success: true,
-            reviews: reviews.map(formatReview),
-            total,
+            reviews: result.reviews.map(formatReview),
+            total: result.total,
             page,
             pageSize,
         });

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/auth.middleware');
-const { list, getById, getMy, create, update, requestDelete, cancelDelete, getCreators, complete, reactivate } = require('../controllers/option.controller');
+const { list, getById, getMy, create, update, requestDelete, cancelDelete, getCreators, complete, reactivate, getMonthlyFeeHistory } = require('../controllers/option.controller');
 
 // 모든 라우트에 인증 필요
 router.use(authMiddleware);
@@ -17,6 +17,9 @@ router.get('/my', getMy);
 
 // POST /api/options - 옵션 생성
 router.post('/', create);
+
+// GET /api/options/:id/monthly-fee-history - 월 고정비 변경 히스토리
+router.get('/:id/monthly-fee-history', getMonthlyFeeHistory);
 
 // GET /api/options/:id - 옵션 상세 조회
 router.get('/:id', getById);
