@@ -891,8 +891,14 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0, sha
 
       // 전역 옵션 번호 (1부터 시작)
       const globalOptionNumber = startIndex + i + 1;
-      // 옵션명: "옵션n. S사 지점명" 형식
-      const optionTitle = `옵션${globalOptionNumber}. ${brandAbbr} ${branchName}`;
+      // 옵션명: "옵션n. S사 지점명 +옵션명" 형식
+      // option_custom_info에 custom_names가 있으면 추가
+      const customNames = proposalData?.option_custom_info?.custom_names || {};
+      const optId = option._id?.toString() || option.id?.toString() || '';
+      const customName = customNames[optId] || '';
+      const optionTitle = customName
+        ? `옵션${globalOptionNumber}. ${brandAbbr} ${branchName} +${customName}`
+        : `옵션${globalOptionNumber}. ${brandAbbr} ${branchName}`;
 
       const optionVariables = {
         [`옵션명${idx}`]: optionTitle,
@@ -952,10 +958,14 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
 
   let html = await readTemplate('04_option_detail.html');
 
+  // 복수 평면도 지원: floor_plan_urls 배열 또는 단일 floor_plan_url
+  const floorPlanUrls = option.floor_plan_urls && option.floor_plan_urls.length > 0
+    ? option.floor_plan_urls
+    : (option.floor_plan_url ? [option.floor_plan_url] : []);
+
   // 평면도가 없으면 평면도 페이지 제거
-  if (!option.floor_plan_url) {
+  if (floorPlanUrls.length === 0) {
     console.log(`   ⚠️ 평면도 없음 - 평면도 페이지 제거`);
-    // 평면도 페이지 전체 블록 제거 (마커 사용)
     const startMarker = '<!-- FLOOR_PLAN_START -->';
     const endMarker = '<!-- FLOOR_PLAN_END -->';
 
@@ -966,6 +976,29 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
       html = html.substring(0, startIndex) + html.substring(endIndex + endMarker.length);
     } else {
       console.warn('   ⚠️ 평면도 페이지 마커를 찾을 수 없습니다.');
+    }
+  } else if (floorPlanUrls.length > 1) {
+    // 복수 평면도: 첫 번째는 기존 위치에, 나머지는 추가 페이지로 생성
+    console.log(`   📐 복수 평면도 ${floorPlanUrls.length}장 - 추가 페이지 생성`);
+    const endMarker = '<!-- FLOOR_PLAN_END -->';
+    const endIndex = html.indexOf(endMarker);
+    if (endIndex !== -1) {
+      let additionalPages = '';
+      for (let fpIdx = 1; fpIdx < floorPlanUrls.length; fpIdx++) {
+        additionalPages += `
+<!-- FLOOR_PLAN_EXTRA_${fpIdx} -->
+<div class="page floorplan-page">
+    <div class="page-header">
+        <div class="page-title">옵션${optionNumber}. ${option.branch?.brand?.alias || option.branch?.brand?.name || ''} ${option.branch?.name || ''} ${option.capacity || ''}인실 - 평면도 ${fpIdx + 1}</div>
+    </div>
+    <div class="page-content">
+        <div class="floorplan-box">
+            <img src="" alt="평면도${fpIdx + 1}" data-placeholder="{{평면도${fpIdx + 1}}}">
+        </div>
+    </div>
+</div>`;
+      }
+      html = html.substring(0, endIndex + endMarker.length) + additionalPages + html.substring(endIndex + endMarker.length);
     }
   }
 
@@ -1201,11 +1234,19 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
     interiorImages[1] ? urlImageToBase64(interiorImages[1]) : Promise.resolve(''),
     interiorImages[2] ? urlImageToBase64(interiorImages[2]) : Promise.resolve(''),
     interiorImages[3] ? urlImageToBase64(interiorImages[3]) : Promise.resolve(''),
-    // 평면도
-    option.floor_plan_url ? urlImageToBase64(option.floor_plan_url) : Promise.resolve(''),
+    // 평면도 (복수 지원)
+    ...floorPlanUrls.map(url => url ? urlImageToBase64(url) : Promise.resolve('')),
   ];
 
-  const [exteriorImgSrc, mapImageBase64, interior1, interior2, interior3, interior4, floorPlanBase64] = await Promise.all(imagePromises);
+  const baseResults = await Promise.all(imagePromises);
+  const exteriorImgSrc = baseResults[0];
+  const mapImageBase64 = baseResults[1];
+  const interior1 = baseResults[2];
+  const interior2 = baseResults[3];
+  const interior3 = baseResults[4];
+  const interior4 = baseResults[5];
+  const floorPlanBase64Array = baseResults.slice(6);
+  const floorPlanBase64 = floorPlanBase64Array[0] || '';
   console.log(`   ✅ 이미지 병렬 다운로드 완료`);
 
   // 외관 사진 적용
@@ -1246,12 +1287,22 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
     }
   }
 
-  // 평면도 적용
+  // 평면도 적용 (복수 지원)
   if (floorPlanBase64) {
     html = html.replace(
       /<img\s+src="[^"]*"\s+alt="평면도"\s+data-placeholder="{{평면도}}">/g,
       `<img src="${floorPlanBase64}" alt="평면도">`
     );
+  }
+  // 추가 평면도 적용
+  for (let fpIdx = 1; fpIdx < floorPlanBase64Array.length; fpIdx++) {
+    const fpBase64 = floorPlanBase64Array[fpIdx];
+    if (fpBase64) {
+      html = html.replace(
+        new RegExp(`<img\\s+src="[^"]*"\\s+alt="평면도${fpIdx + 1}"\\s+data-placeholder="{{평면도${fpIdx + 1}}}">`, 'g'),
+        `<img src="${fpBase64}" alt="평면도${fpIdx + 1}">`
+      );
+    }
   }
 
   return await htmlToPdf(html, {}, sharedBrowser);
@@ -1266,6 +1317,16 @@ const generateFullProposalPDF = async (proposalData) => {
   console.log(`📄 제안서 PDF 생성 시작: ${proposalData.document_name}`);
   console.log(`📊 옵션 개수: ${proposalData.options?.length || 0}개`);
 
+  // 페이지 구성 설정 (option_custom_info.page_config)
+  const pageConfig = proposalData?.option_custom_info?.page_config || {};
+  const includeCover = pageConfig.cover !== false;
+  const includeComparison = pageConfig.comparison !== false;
+  const includeServiceGuide = pageConfig.serviceGuide !== false;
+  const includeOptionDetail = pageConfig.optionDetail !== false;
+  const includePhotosAndFloorPlan = pageConfig.photosAndFloorPlan !== false;
+
+  console.log(`📋 페이지 구성: 표지=${includeCover}, 비교표=${includeComparison}, 서비스안내=${includeServiceGuide}, 상세=${includeOptionDetail}, 사진/평면도=${includePhotosAndFloorPlan}`);
+
   const pdfBuffers = [];
   let browser = null;
 
@@ -1275,33 +1336,41 @@ const generateFullProposalPDF = async (proposalData) => {
     browser = await puppeteer.launch(getPuppeteerOptions());
 
     // 1 & 2. 표지 + 서비스 안내 병렬 생성
-    const [coverPdf, servicePdf] = await Promise.all([
-      generateCoverPage(proposalData, browser),
-      generateServicePage(proposalData, browser),
-    ]);
-    pdfBuffers.push(coverPdf);
-    pdfBuffers.push(servicePdf);
+    const parallelPages = [];
+    if (includeCover) parallelPages.push(generateCoverPage(proposalData, browser));
+    else parallelPages.push(Promise.resolve(null));
+    if (includeServiceGuide) parallelPages.push(generateServicePage(proposalData, browser));
+    else parallelPages.push(Promise.resolve(null));
+
+    const [coverPdf, servicePdf] = await Promise.all(parallelPages);
+    if (coverPdf) pdfBuffers.push(coverPdf);
+    if (servicePdf) pdfBuffers.push(servicePdf);
 
     // 3. 비교표 생성 (5개씩 나눠서)
     const options = proposalData.options || [];
-    const pageSize = 5;
-    for (let i = 0; i < options.length; i += pageSize) {
-      const pageOptions = options.slice(i, i + pageSize);
-      const comparisonPdf = await generateComparisonPage(pageOptions, proposalData, i, browser);
-      pdfBuffers.push(comparisonPdf);
+    if (includeComparison) {
+      const pageSize = 5;
+      for (let i = 0; i < options.length; i += pageSize) {
+        const pageOptions = options.slice(i, i + pageSize);
+        const comparisonPdf = await generateComparisonPage(pageOptions, proposalData, i, browser);
+        pdfBuffers.push(comparisonPdf);
+      }
     }
 
     // 4. 옵션 상세 페이지 생성 (2개씩 병렬 처리하여 메모리 부담 제한)
-    const PARALLEL_BATCH_SIZE = 2;
-    for (let i = 0; i < options.length; i += PARALLEL_BATCH_SIZE) {
-      const batch = options.slice(i, i + PARALLEL_BATCH_SIZE);
-      const batchResults = await Promise.all(
-        batch.map((option, j) => {
-          const optionNumber = i + j + 1;
-          return generateOptionDetailPage(option, proposalData, optionNumber, browser);
-        })
-      );
-      pdfBuffers.push(...batchResults);
+    // optionDetail 또는 photosAndFloorPlan이 하나라도 true이면 상세 페이지 생성
+    if (includeOptionDetail || includePhotosAndFloorPlan) {
+      const PARALLEL_BATCH_SIZE = 2;
+      for (let i = 0; i < options.length; i += PARALLEL_BATCH_SIZE) {
+        const batch = options.slice(i, i + PARALLEL_BATCH_SIZE);
+        const batchResults = await Promise.all(
+          batch.map((option, j) => {
+            const optionNumber = i + j + 1;
+            return generateOptionDetailPage(option, proposalData, optionNumber, browser);
+          })
+        );
+        pdfBuffers.push(...batchResults);
+      }
     }
 
     // 5. PDF 병합

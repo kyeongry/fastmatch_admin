@@ -7,6 +7,7 @@ import OptionCard from '../../components/main/OptionCard';
 import OptionListItem from '../../components/main/OptionListItem';
 import OptionDetailSlide from '../../components/main/OptionDetailSlide';
 import OptionRegisterModal from '../../components/main/OptionRegisterModal';
+import ProposalCreateSlide from '../../components/main/ProposalCreateSlide';
 import Footer from '../../components/main/Footer';
 import Pagination from '../../components/common/Pagination';
 import { Modal, Button } from '../../components/common';
@@ -27,6 +28,7 @@ const MainPage = () => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingOption, setEditingOption] = useState(null);
+  const [isProposalPanelOpen, setIsProposalPanelOpen] = useState(false);
 
   const [showCompleted, setShowCompleted] = useState(true); // 거래완료 표시 여부 (기본값 true)
   const [viewMode, setViewMode] = useState(() => {
@@ -149,6 +151,10 @@ const MainPage = () => {
   };
 
   const handleViewDetail = (option) => {
+    // If proposal panel is open, close it first (state saved automatically)
+    if (isProposalPanelOpen) {
+      setIsProposalPanelOpen(false);
+    }
     setDetailOption(option);
     setIsDetailOpen(true);
   };
@@ -195,9 +201,19 @@ const MainPage = () => {
       warning('선택된 옵션이 없습니다');
       return;
     }
-    // 선택된 옵션을 로컬스토리지에 저장하고 제안서 생성 페이지로 이동
-    localStorage.setItem('selectedOptionsForProposal', JSON.stringify(selectedOptions));
-    navigate('/proposals/create');
+    setIsProposalPanelOpen(true);
+  };
+
+  // Handle removing an option from proposal panel (uncheck in MainPage)
+  const handleProposalRemoveOption = (optionId) => {
+    setSelectedOptions((prev) => prev.filter((id) => id !== optionId));
+  };
+
+  // Handle viewing option detail from proposal panel
+  const handleProposalViewDetail = (option) => {
+    setIsProposalPanelOpen(false);
+    setDetailOption(option);
+    setIsDetailOpen(true);
   };
 
   const handleComplete = async (optionId) => {
@@ -438,6 +454,15 @@ const MainPage = () => {
           )}
         </div>
       </div>
+
+      {/* 제안서 생성 슬라이딩 패널 */}
+      <ProposalCreateSlide
+        isOpen={isProposalPanelOpen}
+        onClose={() => setIsProposalPanelOpen(false)}
+        selectedOptionIds={selectedOptions}
+        onRemoveOption={handleProposalRemoveOption}
+        onViewOptionDetail={handleProposalViewDetail}
+      />
 
       {/* 상세 슬라이드 */}
       <OptionDetailSlide

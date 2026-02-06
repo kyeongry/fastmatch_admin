@@ -15,7 +15,6 @@ import ProfilePage from './pages/ProfilePage';
 import MyOptionsPage from './pages/MyOptionsPage';
 
 // Proposal Pages
-import ProposalCreate from './pages/proposals/ProposalCreate';
 import ProposalListPage from './pages/proposals/ProposalListPage';
 
 // Request Pages
@@ -55,7 +54,6 @@ function App() {
               <Route path="/" element={<MainPage />} />
               <Route path="/options/register" element={<OptionRegister />} />
               <Route path="/options/edit/:id" element={<OptionEdit />} />
-              <Route path="/proposals/create" element={<ProposalCreate />} />
               <Route path="/proposals" element={<ProposalListPage />} />
               <Route path="/requests" element={<ProposalRequestList />} />
               <Route path="/requests/create" element={<ProposalRequestCreate />} />
