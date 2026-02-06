@@ -131,6 +131,33 @@ const generatePDF = async (req, res, next) => {
   }
 };
 
+// 제안서 생성 + PDF 생성 통합 (단일 요청으로 커넥션 리셋 방지)
+const createAndGeneratePDF = async (req, res, next) => {
+  try {
+    req.setTimeout(600000);
+    res.setTimeout(600000);
+
+    console.log('🚀 제안서 생성+PDF 통합 요청 수신:', req.body);
+
+    // 1. 제안서 문서 생성
+    const document = await createProposalDocument(req.body, req.user.id);
+    const docId = document.id || document._id;
+    console.log(`✅ 제안서 문서 생성 완료: ${docId}`);
+
+    // 2. PDF 생성
+    const result = await generateProposalPDF(docId, req.user.id);
+
+    // 3. PDF 버퍼 응답
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(result.fileName)}"`);
+    res.send(result.pdfBuffer);
+  } catch (error) {
+    console.error('❌ 제안서 생성+PDF 오류:', error);
+    console.error('Error stack:', error.stack);
+    next(error);
+  }
+};
+
 module.exports = {
   list,
   getById,
@@ -138,4 +165,5 @@ module.exports = {
   update,
   remove,
   generatePDF,
+  createAndGeneratePDF,
 };

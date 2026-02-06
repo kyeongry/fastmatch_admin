@@ -947,7 +947,7 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0, sha
  * @param {Object} proposalData - 제안서 데이터
  * @returns {Promise<Buffer>} - PDF 버퍼
  */
-const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, sharedBrowser = null) => {
+const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, sharedBrowser = null, pageFlags = null) => {
   console.log(`📝 옵션 상세 생성 중: ${option.name}`);
   console.log(`🔍 Branch basic_info 디버그:`, {
     basic_info_1: option.branch?.basic_info_1,
@@ -956,16 +956,52 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
     branch_id: option.branch?._id?.toString() || option.branch?.id,
   });
 
+  // 페이지 포함 여부 (기본값 true)
+  const includeOptionDetail = pageFlags?.includeOptionDetail !== false;
+  const includeInteriorPhotos = pageFlags?.includeInteriorPhotos !== false;
+  const includeFloorPlan = pageFlags?.includeFloorPlan !== false;
+
+  // 상세정보, 내부사진, 평면도 모두 제외되면 null 반환
+  if (!includeOptionDetail && !includeInteriorPhotos && !includeFloorPlan) {
+    console.log(`   ⏭️ 옵션 ${optionNumber} - 모든 상세 페이지 제외됨`);
+    return null;
+  }
+
   let html = await readTemplate('04_option_detail.html');
+
+  // 상세정보 페이지 제거 (pageFlags 기반)
+  if (!includeOptionDetail) {
+    console.log(`   ⏭️ 상세정보 페이지 제외`);
+    const startMarker = '<!-- OPTION_DETAIL_START -->';
+    const endMarker = '<!-- OPTION_DETAIL_END -->';
+    const startIdx = html.indexOf(startMarker);
+    const endIdx = html.indexOf(endMarker);
+    if (startIdx !== -1 && endIdx !== -1) {
+      html = html.substring(0, startIdx) + html.substring(endIdx + endMarker.length);
+    }
+  }
+
+  // 내부사진 페이지 제거 (pageFlags 기반)
+  if (!includeInteriorPhotos) {
+    console.log(`   ⏭️ 내부사진 페이지 제외`);
+    const startMarker = '<!-- INTERIOR_PHOTOS_START -->';
+    const endMarker = '<!-- INTERIOR_PHOTOS_END -->';
+    const startIdx = html.indexOf(startMarker);
+    const endIdx = html.indexOf(endMarker);
+    if (startIdx !== -1 && endIdx !== -1) {
+      html = html.substring(0, startIdx) + html.substring(endIdx + endMarker.length);
+    }
+  }
 
   // 복수 평면도 지원: floor_plan_urls 배열 또는 단일 floor_plan_url
   const floorPlanUrls = option.floor_plan_urls && option.floor_plan_urls.length > 0
     ? option.floor_plan_urls
     : (option.floor_plan_url ? [option.floor_plan_url] : []);
 
-  // 평면도가 없으면 평면도 페이지 제거
-  if (floorPlanUrls.length === 0) {
-    console.log(`   ⚠️ 평면도 없음 - 평면도 페이지 제거`);
+  // 평면도가 없거나 페이지 구성에서 제외된 경우 평면도 페이지 제거
+  if (!includeFloorPlan || floorPlanUrls.length === 0) {
+    const reason = !includeFloorPlan ? '페이지 구성에서 제외' : '평면도 없음';
+    console.log(`   ⚠️ ${reason} - 평면도 페이지 제거`);
     const startMarker = '<!-- FLOOR_PLAN_START -->';
     const endMarker = '<!-- FLOOR_PLAN_END -->';
 
@@ -1323,9 +1359,11 @@ const generateFullProposalPDF = async (proposalData) => {
   const includeComparison = pageConfig.comparison !== false;
   const includeServiceGuide = pageConfig.serviceGuide !== false;
   const includeOptionDetail = pageConfig.optionDetail !== false;
-  const includePhotosAndFloorPlan = pageConfig.photosAndFloorPlan !== false;
+  // 하위 호환: photosAndFloorPlan이 존재하면 interiorPhotos/floorPlan 둘 다 적용
+  const includeInteriorPhotos = pageConfig.interiorPhotos !== undefined ? pageConfig.interiorPhotos !== false : pageConfig.photosAndFloorPlan !== false;
+  const includeFloorPlan = pageConfig.floorPlan !== undefined ? pageConfig.floorPlan !== false : pageConfig.photosAndFloorPlan !== false;
 
-  console.log(`📋 페이지 구성: 표지=${includeCover}, 비교표=${includeComparison}, 서비스안내=${includeServiceGuide}, 상세=${includeOptionDetail}, 사진/평면도=${includePhotosAndFloorPlan}`);
+  console.log(`📋 페이지 구성: 표지=${includeCover}, 서비스안내=${includeServiceGuide}, 비교표=${includeComparison}, 상세=${includeOptionDetail}, 내부사진=${includeInteriorPhotos}, 평면도=${includeFloorPlan}`);
 
   const pdfBuffers = [];
   let browser = null;
@@ -1358,18 +1396,19 @@ const generateFullProposalPDF = async (proposalData) => {
     }
 
     // 4. 옵션 상세 페이지 생성 (2개씩 병렬 처리하여 메모리 부담 제한)
-    // optionDetail 또는 photosAndFloorPlan이 하나라도 true이면 상세 페이지 생성
-    if (includeOptionDetail || includePhotosAndFloorPlan) {
+    // optionDetail, interiorPhotos, floorPlan 중 하나라도 true이면 상세 페이지 생성
+    if (includeOptionDetail || includeInteriorPhotos || includeFloorPlan) {
+      const pageFlags = { includeOptionDetail, includeInteriorPhotos, includeFloorPlan };
       const PARALLEL_BATCH_SIZE = 2;
       for (let i = 0; i < options.length; i += PARALLEL_BATCH_SIZE) {
         const batch = options.slice(i, i + PARALLEL_BATCH_SIZE);
         const batchResults = await Promise.all(
           batch.map((option, j) => {
             const optionNumber = i + j + 1;
-            return generateOptionDetailPage(option, proposalData, optionNumber, browser);
+            return generateOptionDetailPage(option, proposalData, optionNumber, browser, pageFlags);
           })
         );
-        pdfBuffers.push(...batchResults);
+        pdfBuffers.push(...batchResults.filter(Boolean));
       }
     }
 

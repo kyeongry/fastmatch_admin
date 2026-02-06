@@ -30,13 +30,13 @@ const ProposalCreateSlide = ({
 
   // Step 2 state
   const [proposalName, setProposalName] = useState('');
-  const [showVacancy, setShowVacancy] = useState(false);
   const [pageConfig, setPageConfig] = useState({
     cover: true,
     comparison: true,
     serviceGuide: true,
     optionDetail: true,
-    photosAndFloorPlan: true,
+    interiorPhotos: true,
+    floorPlan: true,
   });
 
   // Custom option names for comparison table
@@ -131,7 +131,6 @@ const ProposalCreateSlide = ({
         setOptionCustomNames(savedCustomNames || {});
         setCurrentStep(savedStateRef.current.step || 1);
         setProposalName(savedStateRef.current.proposalName || proposalName);
-        setShowVacancy(savedStateRef.current.showVacancy || false);
         setPageConfig(savedStateRef.current.pageConfig || pageConfig);
       } else {
         setSelectedOptions(options);
@@ -162,7 +161,6 @@ const ProposalCreateSlide = ({
       customNames: optionCustomNames,
       step: currentStep,
       proposalName,
-      showVacancy,
       pageConfig,
     };
     onClose();
@@ -306,21 +304,13 @@ const ProposalCreateSlide = ({
         option_custom_info: {
           custom_names: optionCustomNames,
           page_config: pageConfig,
-          show_vacancy: showVacancy,
         },
       };
 
-      // 1. Create proposal document
-      const response = await proposalDocumentAPI.create(payload);
-      const createdProposal = response.data.document;
-      success('제안서가 생성되었습니다');
+      // 단일 요청으로 문서 생성 + PDF 생성 통합 (커넥션 리셋 방지)
+      const pdfResponse = await proposalDocumentAPI.createAndGeneratePDF(payload);
 
-      // 2. Generate PDF
-      const pdfResponse = await proposalDocumentAPI.generatePDF(
-        createdProposal.id || createdProposal._id
-      );
-
-      // 3. Download PDF
+      // Download PDF
       const safeFileName = proposalName
         .replace(/[<>:"/\\|?*]/g, '_')
         .replace(/\s+/g, '_')
@@ -334,6 +324,8 @@ const ProposalCreateSlide = ({
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      success('제안서가 생성되었습니다');
     } catch (err) {
       console.error('제안서 생성 실패:', err);
       showError('제안서 생성에 실패했습니다');
@@ -360,11 +352,12 @@ const ProposalCreateSlide = ({
   };
 
   const pageConfigItems = [
-    { key: 'cover', label: '표지', description: '제안서 표지 페이지' },
-    { key: 'comparison', label: '비교표', description: '매물 비교표' },
-    { key: 'serviceGuide', label: '위치 안내', description: '서비스 안내 페이지' },
-    { key: 'optionDetail', label: '상세 정보', description: '옵션별 상세 정보' },
-    { key: 'photosAndFloorPlan', label: '사진 및 평면도', description: '내부 사진 및 평면도' },
+    { key: 'cover', label: '표지', icon: 'cover' },
+    { key: 'serviceGuide', label: '서비스 안내', icon: 'service' },
+    { key: 'comparison', label: '비교표', icon: 'comparison' },
+    { key: 'optionDetail', label: '상세정보', icon: 'detail' },
+    { key: 'interiorPhotos', label: '내부사진', icon: 'photos' },
+    { key: 'floorPlan', label: '평면도', icon: 'floorplan' },
   ];
 
   return (
@@ -653,54 +646,51 @@ const ProposalCreateSlide = ({
                 </div>
               </section>
 
-              {/* Vacancy display option */}
-              <section className="mb-6">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">건물 내 공실 표시</h3>
-                <div className="flex items-center gap-4 border border-gray-200 rounded-lg p-3">
-                  <span className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded">표시 옵션</span>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="vacancy"
-                      checked={showVacancy}
-                      onChange={() => setShowVacancy(true)}
-                      className="w-4 h-4 accent-orange-500"
-                    />
-                    <span className="text-sm">모두 표기</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="vacancy"
-                      checked={!showVacancy}
-                      onChange={() => setShowVacancy(false)}
-                      className="w-4 h-4 accent-orange-500"
-                    />
-                    <span className="text-sm text-orange-500 font-medium">표기 안함</span>
-                  </label>
-                </div>
-              </section>
-
               {/* Page configuration */}
               <section className="mb-6">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">페이지 구성</h3>
-                <div className="grid grid-cols-5 gap-4">
+                <div className="grid grid-cols-6 gap-3">
                   {pageConfigItems.map((item) => (
                     <div key={item.key} className="flex flex-col items-center">
                       <div
                         onClick={() => togglePageConfig(item.key)}
-                        className={`w-full aspect-[3/4] rounded-lg border-2 cursor-pointer transition-all overflow-hidden flex items-center justify-center bg-gray-50 ${
+                        className={`w-full aspect-[3/4] rounded-lg border-2 cursor-pointer transition-all overflow-hidden flex flex-col items-center justify-center bg-gray-50 ${
                           pageConfig[item.key]
                             ? 'border-orange-400 shadow-md'
                             : 'border-gray-200 opacity-50'
                         }`}
                       >
-                        <div className="text-center p-2">
-                          <div className="text-xs text-gray-400 mb-1">{item.description}</div>
-                          <svg className="w-8 h-8 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {item.icon === 'cover' && (
+                          <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                          </svg>
+                        )}
+                        {item.icon === 'service' && (
+                          <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        )}
+                        {item.icon === 'comparison' && (
+                          <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M3 14h18M3 6h18M3 18h18M8 6v12M16 6v12" />
+                          </svg>
+                        )}
+                        {item.icon === 'detail' && (
+                          <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
-                        </div>
+                        )}
+                        {item.icon === 'photos' && (
+                          <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        )}
+                        {item.icon === 'floorplan' && (
+                          <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 9h16M9 4v16" />
+                          </svg>
+                        )}
+                        <div className="text-[10px] text-gray-400 mt-1">{item.label}</div>
                       </div>
                       <div className="flex items-center gap-1.5 mt-2">
                         <div

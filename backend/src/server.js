@@ -166,12 +166,17 @@ const errorMiddleware = require('./middlewares/error.middleware');
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 
   // 제안서 자동 삭제 스케줄러 시작
   const { startScheduler } = require('./schedulers/proposalCleanup.scheduler');
   startScheduler();
 });
+
+// PDF 생성 등 장시간 요청을 위한 서버 타임아웃 설정 (10분)
+server.timeout = 600000;
+server.keepAliveTimeout = 620000;
+server.headersTimeout = 630000;
 
 // Restart trigger
