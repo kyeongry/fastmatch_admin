@@ -81,6 +81,10 @@ const remove = async (req, res, next) => {
 // 제안서 PDF 생성 및 다운로드
 const generatePDF = async (req, res, next) => {
   try {
+    // PDF 생성은 옵션 수에 따라 수 분 소요 → 소켓 타임아웃 10분으로 연장
+    req.setTimeout(600000);
+    res.setTimeout(600000);
+
     const { id } = req.params;
     const userId = req.user.id;
 

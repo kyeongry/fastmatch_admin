@@ -164,6 +164,7 @@ export const proposalDocumentAPI = {
     api.get(`/proposals/documents/${id}/pdf`, {
       params: { regenerate },
       responseType: 'blob',
+      timeout: 600000, // PDF 생성은 옵션 수에 따라 수 분 소요
     }),
 };
 
