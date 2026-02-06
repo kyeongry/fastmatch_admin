@@ -258,24 +258,31 @@ const updateOption = async (id, data, userId, userRole) => {
   if (!option) throw new Error('옵션을 찾을 수 없습니다');
   // 모든 사용자에게 옵션 수정 권한 적용 (권한 체크 제거)
 
-  // undefined, null, 빈 문자열 값 필터링 (기존 값 보존)
-  const filteredData = Object.fromEntries(
-    Object.entries(data).filter(([key, value]) =>
-      value !== undefined && value !== null && value !== ''
-    )
-  );
+  // undefined, null 필터링 (기존 값 보존), 빈 문자열은 명시적 삭제로 처리
+  const setFields = {};
+  const unsetFields = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (key === '_id') continue; // _id 수정 방지
+    if (value === undefined || value === null) continue;
+    if (value === '' && typeof option[key] === 'string') {
+      // 빈 문자열은 필드 삭제(null로 설정)로 처리
+      setFields[key] = null;
+    } else if (value !== '') {
+      setFields[key] = value;
+    }
+  }
 
-  const updateData = { ...filteredData, updated_at: new Date(), updater_id: new ObjectId(userId) };
-  delete updateData._id; // _id 수정 방지
+  setFields.updated_at = new Date();
+  setFields.updater_id = new ObjectId(userId);
 
   // branch_id가 있으면 ObjectId로 변환 (문자열 → ObjectId)
-  if (updateData.branch_id) {
-    updateData.branch_id = new ObjectId(updateData.branch_id);
+  if (setFields.branch_id) {
+    setFields.branch_id = new ObjectId(setFields.branch_id);
   }
 
   const result = await db.collection('options').findOneAndUpdate(
     { _id: new ObjectId(id) },
-    { $set: updateData },
+    { $set: setFields },
     { returnDocument: 'after' }
   );
   return result;

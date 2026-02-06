@@ -1317,6 +1317,16 @@ const generateFullProposalPDF = async (proposalData) => {
   console.log(`📄 제안서 PDF 생성 시작: ${proposalData.document_name}`);
   console.log(`📊 옵션 개수: ${proposalData.options?.length || 0}개`);
 
+  // 페이지 구성 설정 (option_custom_info.page_config)
+  const pageConfig = proposalData?.option_custom_info?.page_config || {};
+  const includeCover = pageConfig.cover !== false;
+  const includeComparison = pageConfig.comparison !== false;
+  const includeServiceGuide = pageConfig.serviceGuide !== false;
+  const includeOptionDetail = pageConfig.optionDetail !== false;
+  const includePhotosAndFloorPlan = pageConfig.photosAndFloorPlan !== false;
+
+  console.log(`📋 페이지 구성: 표지=${includeCover}, 비교표=${includeComparison}, 서비스안내=${includeServiceGuide}, 상세=${includeOptionDetail}, 사진/평면도=${includePhotosAndFloorPlan}`);
+
   const pdfBuffers = [];
   let browser = null;
 
@@ -1326,33 +1336,41 @@ const generateFullProposalPDF = async (proposalData) => {
     browser = await puppeteer.launch(getPuppeteerOptions());
 
     // 1 & 2. 표지 + 서비스 안내 병렬 생성
-    const [coverPdf, servicePdf] = await Promise.all([
-      generateCoverPage(proposalData, browser),
-      generateServicePage(proposalData, browser),
-    ]);
-    pdfBuffers.push(coverPdf);
-    pdfBuffers.push(servicePdf);
+    const parallelPages = [];
+    if (includeCover) parallelPages.push(generateCoverPage(proposalData, browser));
+    else parallelPages.push(Promise.resolve(null));
+    if (includeServiceGuide) parallelPages.push(generateServicePage(proposalData, browser));
+    else parallelPages.push(Promise.resolve(null));
+
+    const [coverPdf, servicePdf] = await Promise.all(parallelPages);
+    if (coverPdf) pdfBuffers.push(coverPdf);
+    if (servicePdf) pdfBuffers.push(servicePdf);
 
     // 3. 비교표 생성 (5개씩 나눠서)
     const options = proposalData.options || [];
-    const pageSize = 5;
-    for (let i = 0; i < options.length; i += pageSize) {
-      const pageOptions = options.slice(i, i + pageSize);
-      const comparisonPdf = await generateComparisonPage(pageOptions, proposalData, i, browser);
-      pdfBuffers.push(comparisonPdf);
+    if (includeComparison) {
+      const pageSize = 5;
+      for (let i = 0; i < options.length; i += pageSize) {
+        const pageOptions = options.slice(i, i + pageSize);
+        const comparisonPdf = await generateComparisonPage(pageOptions, proposalData, i, browser);
+        pdfBuffers.push(comparisonPdf);
+      }
     }
 
     // 4. 옵션 상세 페이지 생성 (2개씩 병렬 처리하여 메모리 부담 제한)
-    const PARALLEL_BATCH_SIZE = 2;
-    for (let i = 0; i < options.length; i += PARALLEL_BATCH_SIZE) {
-      const batch = options.slice(i, i + PARALLEL_BATCH_SIZE);
-      const batchResults = await Promise.all(
-        batch.map((option, j) => {
-          const optionNumber = i + j + 1;
-          return generateOptionDetailPage(option, proposalData, optionNumber, browser);
-        })
-      );
-      pdfBuffers.push(...batchResults);
+    // optionDetail 또는 photosAndFloorPlan이 하나라도 true이면 상세 페이지 생성
+    if (includeOptionDetail || includePhotosAndFloorPlan) {
+      const PARALLEL_BATCH_SIZE = 2;
+      for (let i = 0; i < options.length; i += PARALLEL_BATCH_SIZE) {
+        const batch = options.slice(i, i + PARALLEL_BATCH_SIZE);
+        const batchResults = await Promise.all(
+          batch.map((option, j) => {
+            const optionNumber = i + j + 1;
+            return generateOptionDetailPage(option, proposalData, optionNumber, browser);
+          })
+        );
+        pdfBuffers.push(...batchResults);
+      }
     }
 
     // 5. PDF 병합

@@ -4,7 +4,6 @@ const {
   createProposalDocument,
   updateProposalDocument,
   deleteProposalDocument,
-  getProposalDocumentWithOptions,
 } = require('../services/proposalDocument.service');
 const { generateProposalPDF, getExistingPDFUrl } = require('../services/proposalPDF.service');
 
@@ -26,7 +25,7 @@ const list = async (req, res, next) => {
 // 제안서 상세 조회 (옵션 정보 포함)
 const getById = async (req, res, next) => {
   try {
-    const document = await getProposalDocumentWithOptions(req.params.id, req.user.id);
+    const document = await getProposalDocumentById(req.params.id, req.user.id);
     res.json({ success: true, document });
   } catch (error) {
     next(error);
