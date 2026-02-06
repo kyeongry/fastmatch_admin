@@ -112,9 +112,12 @@ const OptionListItem = ({
             <div className="truncate">{formatContractPeriod(option.contract_period_type, option.contract_period_value)}</div>
           </div>
 
-          {/* 생성일 */}
-          <div className="hidden md:block w-24 flex-shrink-0 text-xs text-gray-400 text-right">
-            {formatDate(option.created_at)}
+          {/* 생성일 / 수정일 */}
+          <div className="hidden md:block w-28 flex-shrink-0 text-xs text-gray-400 text-right">
+            <div>{formatDate(option.created_at)}</div>
+            {option.updated_at && option.updated_at !== option.created_at && (
+              <div className="text-orange-400">수정 {formatDate(option.updated_at)}</div>
+            )}
           </div>
         </div>
 

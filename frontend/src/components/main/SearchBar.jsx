@@ -51,7 +51,7 @@ const SearchBar = ({ onSearch }) => {
       <input
         type="text"
         className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-        placeholder="브랜드, 지점, 옵션명으로 검색..."
+        placeholder="브랜드, 지점, 옵션명 조합 검색 (예: 위워크 강남)..."
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
       />

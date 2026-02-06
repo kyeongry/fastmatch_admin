@@ -11,6 +11,7 @@ const getOptions = async (filters = {}) => {
     brand_ids,
     branch_ids,
     creator_ids,
+    category1_list,
     status,
     search,
     min_capacity,
@@ -36,6 +37,11 @@ const getOptions = async (filters = {}) => {
     baseQuery.capacity = {};
     if (min_capacity) baseQuery.capacity.$gte = parseInt(min_capacity, 10);
     if (max_capacity) baseQuery.capacity.$lte = parseInt(max_capacity, 10);
+  }
+
+  // 옵션 타입(category1) 필터링
+  if (category1_list && category1_list.length > 0) {
+    baseQuery.category1 = { $in: category1_list };
   }
 
   // 브랜드/지점 ID 필터링
@@ -106,18 +112,38 @@ const getOptions = async (filters = {}) => {
   ];
 
   // 3. [핵심] 검색어 필터링 ($lookup 이후에 실행되어야 브랜드명 검색 가능)
+  //    복합 키워드 검색 지원: 공백으로 구분된 각 키워드가 모두 매칭되어야 함
+  //    예: "위워크 강남" → "위워크"가 어딘가에 매칭 AND "강남"이 어딘가에 매칭
   if (search) {
     console.log(`Applying Search Regex for: "${search}"`);
-    const regex = new RegExp(search, 'i');
-    pipeline.push({
-      $match: {
-        $or: [
-          { name: regex },                  // 옵션명
-          { 'branch.name': regex },         // 지점명
-          { 'branch.brand.name': regex }    // 브랜드명
-        ]
-      }
-    });
+    const keywords = search.trim().split(/\s+/).filter(k => k.length > 0);
+
+    if (keywords.length === 1) {
+      // 단일 키워드: 기존과 동일하게 OR 매칭
+      const regex = new RegExp(keywords[0], 'i');
+      pipeline.push({
+        $match: {
+          $or: [
+            { name: regex },                  // 옵션명
+            { 'branch.name': regex },         // 지점명
+            { 'branch.brand.name': regex }    // 브랜드명
+          ]
+        }
+      });
+    } else {
+      // 복합 키워드: 각 키워드가 모두 매칭되어야 함 (AND 조건)
+      const andConditions = keywords.map(keyword => {
+        const regex = new RegExp(keyword, 'i');
+        return {
+          $or: [
+            { name: regex },
+            { 'branch.name': regex },
+            { 'branch.brand.name': regex }
+          ]
+        };
+      });
+      pipeline.push({ $match: { $and: andConditions } });
+    }
   }
 
   // 4. 정렬
@@ -139,6 +165,7 @@ const getOptions = async (filters = {}) => {
   const sortBy =
     sort === 'latest' ? { created_at: -1 } :
     sort === 'oldest' ? { created_at: 1 } :
+    sort === 'recently_updated' ? { updated_at: -1 } :
     sort === 'price_low' ? { monthly_fee: 1 } :
     sort === 'price_high' ? { monthly_fee: -1 } :
     sort === 'price_per_person_low' ? { price_per_person: 1 } :
