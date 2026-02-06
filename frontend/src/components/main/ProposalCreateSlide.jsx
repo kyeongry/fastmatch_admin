@@ -39,8 +39,6 @@ const ProposalCreateSlide = ({
     floorPlan: true,
   });
 
-  // Custom option names for comparison table
-  const [optionCustomNames, setOptionCustomNames] = useState({});
 
   // PDF generation state
   const [isGenerating, setIsGenerating] = useState(false);
@@ -110,7 +108,6 @@ const ProposalCreateSlide = ({
       // If we have saved state, preserve the order and add new ones at the end
       if (savedStateRef.current) {
         const savedOrder = savedStateRef.current.optionOrder;
-        const savedCustomNames = savedStateRef.current.customNames;
         const orderedOptions = [];
 
         // Restore saved order
@@ -128,7 +125,6 @@ const ProposalCreateSlide = ({
         });
 
         setSelectedOptions(orderedOptions);
-        setOptionCustomNames(savedCustomNames || {});
         setCurrentStep(savedStateRef.current.step || 1);
         setProposalName(savedStateRef.current.proposalName || proposalName);
         setPageConfig(savedStateRef.current.pageConfig || pageConfig);
@@ -158,7 +154,6 @@ const ProposalCreateSlide = ({
     // Save temporary state
     savedStateRef.current = {
       optionOrder: selectedOptions.map(o => o.id || o._id),
-      customNames: optionCustomNames,
       step: currentStep,
       proposalName,
       pageConfig,
@@ -284,10 +279,6 @@ const ProposalCreateSlide = ({
     setPageConfig(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // === CUSTOM OPTION NAME ===
-  const handleCustomNameChange = (optionId, value) => {
-    setOptionCustomNames(prev => ({ ...prev, [optionId]: value }));
-  };
 
   // === PDF GENERATION ===
   const handleGenerate = async () => {
@@ -302,7 +293,6 @@ const ProposalCreateSlide = ({
         document_name: proposalName,
         selected_options: selectedOptions.map(opt => opt.id || opt._id),
         option_custom_info: {
-          custom_names: optionCustomNames,
           page_config: pageConfig,
         },
       };
@@ -600,17 +590,6 @@ const ProposalCreateSlide = ({
                             )}
                           </div>
 
-                          {/* Custom name for comparison table */}
-                          <div className="mt-3">
-                            <label className="text-xs text-gray-500 block mb-1">비교표 추가 표기명</label>
-                            <input
-                              type="text"
-                              value={optionCustomNames[optId] || ''}
-                              onChange={(e) => handleCustomNameChange(optId, e.target.value)}
-                              placeholder={`${brandAlias} ${branchName}`}
-                              className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
-                            />
-                          </div>
                         </div>
                       )}
                     </div>

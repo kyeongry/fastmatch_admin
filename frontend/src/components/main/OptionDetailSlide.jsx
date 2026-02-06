@@ -525,45 +525,45 @@ const OptionDetailSlide = ({
 
   // 이미지 업로드 핸들러 (복수 평면도 지원)
   const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    // 파일 크기 체크 (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      showError('파일 크기는 10MB 이하여야 합니다');
-      return;
+    const filesToUpload = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.size > 10 * 1024 * 1024) {
+        showError(`${file.name}: 파일 크기는 10MB 이하여야 합니다`);
+        continue;
+      }
+      if (!file.type.startsWith('image/')) {
+        showError(`${file.name}: 이미지 파일만 업로드 가능합니다`);
+        continue;
+      }
+      filesToUpload.push(file);
     }
 
-    // 이미지 파일 체크
-    if (!file.type.startsWith('image/')) {
-      showError('이미지 파일만 업로드 가능합니다');
-      return;
-    }
-
-    // 최대 3장 제한
-    if ((editData.floor_plan_urls || []).length >= 3) {
-      showError('평면도는 최대 3장까지 첨부할 수 있습니다');
-      return;
-    }
+    if (filesToUpload.length === 0) return;
 
     setIsUploading(true);
     try {
-      const response = await uploadAPI.image(file);
-      const imageUrl = response.data?.image?.url || response.data?.url;
-
-      if (!imageUrl) {
-        throw new Error('이미지 URL을 받지 못했습니다');
+      const uploadedUrls = [];
+      for (const file of filesToUpload) {
+        const response = await uploadAPI.image(file);
+        const imageUrl = response.data?.image?.url || response.data?.url;
+        if (imageUrl) uploadedUrls.push(imageUrl);
       }
 
-      setEditData(prev => {
-        const urls = [...(prev.floor_plan_urls || []), imageUrl];
-        return {
-          ...prev,
-          floor_plan_urls: urls,
-          floor_plan_url: urls[0] || imageUrl,
-        };
-      });
-      success('이미지가 업로드되었습니다');
+      if (uploadedUrls.length > 0) {
+        setEditData(prev => {
+          const urls = [...(prev.floor_plan_urls || []), ...uploadedUrls];
+          return {
+            ...prev,
+            floor_plan_urls: urls,
+            floor_plan_url: urls[0],
+          };
+        });
+        success(`평면도 ${uploadedUrls.length}장이 업로드되었습니다`);
+      }
     } catch (err) {
       console.error('이미지 업로드 실패:', err);
       const errorMessage = err.response?.data?.message || err.message || '이미지 업로드에 실패했습니다';
@@ -1314,7 +1314,6 @@ const OptionDetailSlide = ({
           <section>
             <h3 className="text-xl font-bold text-gray-900 mb-4">
               옵션 평면도
-              {isEditMode && <span className="text-sm font-normal text-gray-400 ml-2">(최대 3장)</span>}
             </h3>
             {isEditMode ? (
               <div className="space-y-3">
@@ -1340,7 +1339,7 @@ const OptionDetailSlide = ({
                 )}
 
                 {/* 추가 업로드 영역 (3장 미만일 때만 표시) */}
-                {(!editData.floor_plan_urls || editData.floor_plan_urls.length < 3) && (
+                {(
                   <div
                     className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:bg-blue-50 transition-colors outline-none cursor-pointer"
                     onClick={(e) => e.currentTarget.focus()}
@@ -1359,9 +1358,12 @@ const OptionDetailSlide = ({
                       e.stopPropagation();
                       e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
                       const files = e.dataTransfer.files;
-                      if (files && files[0] && files[0].type.startsWith('image/')) {
-                        const fakeEvent = { target: { files: [files[0]] } };
-                        await handleImageUpload(fakeEvent);
+                      if (files && files.length > 0) {
+                        const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+                        if (imageFiles.length > 0) {
+                          const fakeEvent = { target: { files: imageFiles } };
+                          await handleImageUpload(fakeEvent);
+                        }
                       }
                     }}
                     onPaste={async (e) => {
@@ -1411,6 +1413,7 @@ const OptionDetailSlide = ({
                           ref={fileInputRef}
                           type="file"
                           accept="image/*"
+                          multiple
                           onChange={handleImageUpload}
                           className="hidden"
                           id="floor-plan-upload"

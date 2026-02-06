@@ -884,21 +884,16 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0, sha
       // 최대 3개 항목을 줄바꿈으로 연결
       const remarkText = remarkItems.slice(0, 3).join('\n');
 
-      // 브랜드 약어 생성
-      const brandName = option.branch?.brand?.name || '';
-      const brandAbbr = formatters.brandAbbr(brandName);
+      // 브랜드명, 지점명, 옵션명
+      const brandName = option.branch?.brand?.alias || option.branch?.brand?.name || '';
+      const brandAbbr = formatters.brandAbbr(option.branch?.brand?.name || '');
       const branchName = option.branch?.name || '';
+      const optionName = option.name || '';
 
       // 전역 옵션 번호 (1부터 시작)
       const globalOptionNumber = startIndex + i + 1;
-      // 옵션명: "옵션n. S사 지점명 +옵션명" 형식
-      // option_custom_info에 custom_names가 있으면 추가
-      const customNames = proposalData?.option_custom_info?.custom_names || {};
-      const optId = option._id?.toString() || option.id?.toString() || '';
-      const customName = customNames[optId] || '';
-      const optionTitle = customName
-        ? `옵션${globalOptionNumber}. ${brandAbbr} ${branchName} +${customName}`
-        : `옵션${globalOptionNumber}. ${brandAbbr} ${branchName}`;
+      // 옵션명: "옵션N. 브랜드 지점명 옵션명" 형식
+      const optionTitle = `옵션${globalOptionNumber}. ${brandName} ${branchName} ${optionName}`.trim();
 
       const optionVariables = {
         [`옵션명${idx}`]: optionTitle,
@@ -1416,7 +1411,11 @@ const generateFullProposalPDF = async (proposalData) => {
     console.log('📦 PDF 병합 중...');
     const finalPdf = await mergePDFs(pdfBuffers);
 
-    const fileName = `proposal_${proposalData.id || Date.now()}.pdf`;
+    const safeDocName = (proposalData.document_name || 'proposal')
+      .replace(/[<>:"/\\|?*]/g, '_')
+      .replace(/\s+/g, '_')
+      .substring(0, 100);
+    const fileName = `${safeDocName}.pdf`;
 
     console.log('✅ 제안서 PDF 생성 완료');
 
