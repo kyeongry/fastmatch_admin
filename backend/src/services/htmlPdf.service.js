@@ -62,6 +62,12 @@ const IMAGE_ASSET_DIR = path.join(PDFFORM_DIR, 'image-asset');
 const KAKAO_REST_API_KEY = process.env.KAKAO_REST_API_KEY;
 const KAKAO_JS_KEY = process.env.KAKAO_JS_KEY;
 
+// 메모리 캐시 (템플릿, 이미지 에셋)
+const _cache = {
+  templates: new Map(),
+  imageAssets: new Map(),
+};
+
 /**
  * 포맷팅 유틸리티 함수들
  */
@@ -386,29 +392,14 @@ const fetchKakaoMapImage = async (latitude, longitude, sharedBrowser = null) => 
     const page = await browser.newPage();
 
     try {
-      // 콘솔 로그 캡처 (디버깅용)
-      page.on('console', msg => console.log('   [브라우저]', msg.text()));
-      page.on('pageerror', error => console.error('   [브라우저 에러]', error.message));
-
       await page.setViewport({ width: 600, height: 620 });
-
-      console.log('   HTML 설정 중...');
       await page.setContent(mapHtml, { waitUntil: 'load', timeout: 15000 });
 
-      console.log('   카카오맵 SDK 로딩 대기 중...');
-      // 약간 대기 (SDK 로드 시간)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // 현재 상태 확인
-      const status = await page.evaluate(() => {
-        return {
-          kakaoExists: typeof kakao !== 'undefined',
-          kakaoMapsExists: typeof kakao !== 'undefined' && typeof kakao.maps !== 'undefined',
-          mapLoaded: window.mapLoaded,
-          mapLoadFailed: window.mapLoadFailed,
-        };
-      });
-      console.log('   페이지 상태:', status);
+      // SDK 로드 완료까지 대기 (waitForFunction으로 정확히 감지)
+      await page.waitForFunction(
+        () => typeof kakao !== 'undefined' && typeof kakao.maps !== 'undefined',
+        { timeout: 5000 }
+      ).catch(() => {});
 
       // 지도 로드 대기
       await page.waitForFunction(
@@ -426,10 +417,8 @@ const fetchKakaoMapImage = async (latitude, longitude, sharedBrowser = null) => 
         return '';
       }
 
-      console.log('   ✅ 지도 로드 성공');
-
-      // 약간의 지연 (지도 타일 로딩 대기)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 지도 타일 로딩 대기 (최소한의 시간)
+      await new Promise(resolve => setTimeout(resolve, 300));
 
       // 지도 영역 스크린샷
       const mapElement = await page.$('#map');
@@ -456,9 +445,13 @@ const fetchKakaoMapImage = async (latitude, longitude, sharedBrowser = null) => 
  * @returns {Promise<string>} - HTML 문자열
  */
 const readTemplate = async (templateName) => {
+  if (_cache.templates.has(templateName)) {
+    return _cache.templates.get(templateName);
+  }
   const templatePath = path.join(TEMPLATE_DIR, templateName);
   try {
     const html = await fs.readFile(templatePath, 'utf-8');
+    _cache.templates.set(templateName, html);
     return html;
   } catch (error) {
     console.error(`❌ 템플릿 읽기 실패: ${templateName}`, error.message);
@@ -472,6 +465,9 @@ const readTemplate = async (templateName) => {
  * @returns {Promise<string>} - Base64 데이터 URL
  */
 const imageToBase64 = async (imagePath) => {
+  if (_cache.imageAssets.has(imagePath)) {
+    return _cache.imageAssets.get(imagePath);
+  }
   try {
     const absolutePath = path.isAbsolute(imagePath)
       ? imagePath
@@ -480,7 +476,9 @@ const imageToBase64 = async (imagePath) => {
     const imageBuffer = await fs.readFile(absolutePath);
     const ext = path.extname(absolutePath).toLowerCase().slice(1);
     const mimeType = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
-    return `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
+    const base64 = `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
+    _cache.imageAssets.set(imagePath, base64);
+    return base64;
   } catch (error) {
     console.warn(`⚠️ 이미지 변환 실패: ${imagePath}`, error.message);
     return '';
@@ -498,7 +496,7 @@ const urlImageToBase64 = async (imageUrl) => {
   }
 
   try {
-    console.log(`   🖼️ 이미지 다운로드 중: ${imageUrl.substring(0, 100)}...`);
+    // 이미지 다운로드
 
     // 브라우저처럼 동작하도록 헤더 추가 (패스트파이브 등 일부 CDN에서 필요)
     const response = await axios.get(imageUrl, {
@@ -547,7 +545,6 @@ const urlImageToBase64 = async (imageUrl) => {
 
     const base64 = buffer.toString('base64');
 
-    console.log(`   ✅ 이미지 다운로드 성공 (${(buffer.length / 1024).toFixed(1)}KB, ${contentType})`);
     return `data:${contentType};base64,${base64}`;
   } catch (error) {
     console.warn(`   ⚠️ URL 이미지 변환 실패: ${imageUrl.substring(0, 80)}...`, error.message);
@@ -650,8 +647,8 @@ const htmlToPdf = async (html, options = {}, sharedBrowser = null) => {
         timeout: 60000,
       });
 
-      // 이미지 로딩을 위해 잠시 대기
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 이미지 로딩 대기 (이미 Base64 임베딩된 상태이므로 최소 대기)
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       // 카카오맵은 서버 사이드에서 이미 이미지로 삽입되므로 별도 대기 불필요
 
@@ -784,6 +781,14 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0, sha
   };
   html = replaceVariables(html, commonVariables);
 
+  // 모든 옵션의 외관 사진을 병렬 다운로드 (성능 최적화)
+  const exteriorImagePromises = options.slice(0, 5).map(option => {
+    if (!option) return Promise.resolve('');
+    const url = option.branch?.exterior_image_url || option.branch?.interior_image_urls?.[0] || '';
+    return url ? urlImageToBase64(url) : Promise.resolve('');
+  });
+  const exteriorImageResults = await Promise.all(exteriorImagePromises);
+
   // 각 옵션별 변수 치환 (최대 5개)
   for (let i = 0; i < 5; i++) {
     const option = options[i] || null;
@@ -813,19 +818,9 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0, sha
       const areaPerPerson = capacity > 0 ? (dedicatedAreaPy / capacity).toFixed(1) : '0';
       const pricePerPerson = capacity > 0 ? Math.round(monthlyFee / capacity) : 0;
 
-      // 외관 사진 처리
-      let exteriorImage = '';
-      if (option.branch?.exterior_image_url) {
-        const imgBase64 = await urlImageToBase64(option.branch.exterior_image_url);
-        if (imgBase64) {
-          exteriorImage = `<img src="${imgBase64}" alt="외관">`;
-        }
-      } else if (option.branch?.interior_image_urls?.length > 0) {
-        const imgBase64 = await urlImageToBase64(option.branch.interior_image_urls[0]);
-        if (imgBase64) {
-          exteriorImage = `<img src="${imgBase64}" alt="외관">`;
-        }
-      }
+      // 외관 사진 (이미 병렬 다운로드 완료)
+      const imgBase64 = exteriorImageResults[i];
+      const exteriorImage = imgBase64 ? `<img src="${imgBase64}" alt="외관">` : '';
 
       // 비고/특이사항 항목 - 최대 4개 항목을 줄바꿈으로 표시
       const remarkItems = [];
@@ -892,8 +887,8 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0, sha
 
       // 전역 옵션 번호 (1부터 시작)
       const globalOptionNumber = startIndex + i + 1;
-      // 옵션명: "옵션N. 브랜드 지점명 옵션명" 형식
-      const optionTitle = `옵션${globalOptionNumber}. ${brandName} ${branchName} ${optionName}`.trim();
+      // 옵션명: "옵션 N. 지점명\n옵션명" 형식 (줄바꿈)
+      const optionTitle = `옵션 ${globalOptionNumber}. ${branchName}\n${optionName}`.trim();
 
       const optionVariables = {
         [`옵션명${idx}`]: optionTitle,
@@ -944,12 +939,6 @@ const generateComparisonPage = async (options, proposalData, startIndex = 0, sha
  */
 const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, sharedBrowser = null, pageFlags = null) => {
   console.log(`📝 옵션 상세 생성 중: ${option.name}`);
-  console.log(`🔍 Branch basic_info 디버그:`, {
-    basic_info_1: option.branch?.basic_info_1,
-    basic_info_2: option.branch?.basic_info_2,
-    basic_info_3: option.branch?.basic_info_3,
-    branch_id: option.branch?._id?.toString() || option.branch?.id,
-  });
 
   // 페이지 포함 여부 (기본값 true)
   const includeOptionDetail = pageFlags?.includeOptionDetail !== false;
@@ -996,7 +985,7 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
   // 평면도가 없거나 페이지 구성에서 제외된 경우 평면도 페이지 제거
   if (!includeFloorPlan || floorPlanUrls.length === 0) {
     const reason = !includeFloorPlan ? '페이지 구성에서 제외' : '평면도 없음';
-    console.log(`   ⚠️ ${reason} - 평면도 페이지 제거`);
+    // 평면도 페이지 제거
     const startMarker = '<!-- FLOOR_PLAN_START -->';
     const endMarker = '<!-- FLOOR_PLAN_END -->';
 
@@ -1250,8 +1239,7 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
     return cssClass ? `<td class="remark-cell ${cssClass}">` : '<td class="remark-cell">';
   });
 
-  // 이미지 병렬 다운로드 (성능 최적화)
-  console.log(`   📸 이미지 병렬 다운로드 시작...`);
+  // 이미지 병렬 다운로드
   const interiorImages = option.branch?.interior_image_urls || [];
   const exteriorUrl = option.branch?.exterior_image_url || interiorImages[0] || '';
 
@@ -1278,7 +1266,6 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
   const interior4 = baseResults[5];
   const floorPlanBase64Array = baseResults.slice(6);
   const floorPlanBase64 = floorPlanBase64Array[0] || '';
-  console.log(`   ✅ 이미지 병렬 다운로드 완료`);
 
   // 외관 사진 적용
   if (exteriorImgSrc) {
@@ -1292,13 +1279,10 @@ const generateOptionDetailPage = async (option, proposalData, optionNumber = 1, 
   let mapContent = '';
   if (mapImageBase64) {
     mapContent = `<img src="${mapImageBase64}" alt="지도" style="width:100%;height:100%;object-fit:cover;">`;
-    console.log(`   ✅ 카카오맵 이미지 가져오기 성공`);
   } else if (latitude && longitude) {
     mapContent = '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#999;font-size:8pt;">지도 로드 실패</div>';
-    console.log(`   ⚠️ 카카오맵 이미지 가져오기 실패 - 기본 메시지 표시`);
   } else {
     mapContent = '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#999;font-size:8pt;">지도 정보 없음</div>';
-    console.log(`   ⚠️ 좌표 정보 없음 - 지도 표시 안 함`);
   }
 
   html = html.replace(
@@ -1394,7 +1378,7 @@ const generateFullProposalPDF = async (proposalData) => {
     // optionDetail, interiorPhotos, floorPlan 중 하나라도 true이면 상세 페이지 생성
     if (includeOptionDetail || includeInteriorPhotos || includeFloorPlan) {
       const pageFlags = { includeOptionDetail, includeInteriorPhotos, includeFloorPlan };
-      const PARALLEL_BATCH_SIZE = 2;
+      const PARALLEL_BATCH_SIZE = 3;
       for (let i = 0; i < options.length; i += PARALLEL_BATCH_SIZE) {
         const batch = options.slice(i, i + PARALLEL_BATCH_SIZE);
         const batchResults = await Promise.all(
