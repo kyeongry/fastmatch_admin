@@ -15,6 +15,7 @@ class OptionModel {
         await collection.createIndex({ capacity: 1 });
         await collection.createIndex({ monthly_fee: 1 });
         await collection.createIndex({ created_at: -1 });
+        await collection.createIndex({ updated_at: -1 });
 
         console.log('✅ Option MongoDB indexes created');
     }

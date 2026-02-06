@@ -91,10 +91,15 @@ const OptionCard = ({
           )}
         </div>
 
-        {/* 등록자 <-> 등록일자 */}
+        {/* 등록자 <-> 등록일자 / 수정일자 */}
         <div className="flex items-center justify-between text-xs text-gray-400">
           <span>{option.creator?.name || option.creator?.email || '-'}</span>
-          <span>{formatDate(option.created_at)}</span>
+          <div className="text-right">
+            <div>{formatDate(option.created_at)}</div>
+            {option.updated_at && option.updated_at !== option.created_at && (
+              <div className="text-orange-400">수정 {formatDate(option.updated_at)}</div>
+            )}
+          </div>
         </div>
       </div>
     </div>

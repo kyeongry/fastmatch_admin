@@ -1,5 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { brandAPI, branchAPI, optionAPI } from '../../services/api';
+import { formatCategory1 } from '../../utils/formatters';
+
+const CATEGORY1_OPTIONS = [
+  { id: 'exclusive_floor', name: '전용층' },
+  { id: 'separate_floor', name: '분리층' },
+  { id: 'connected_floor', name: '연층' },
+  { id: 'exclusive_room', name: '전용호실' },
+  { id: 'separate_room', name: '분리호실' },
+  { id: 'connected_room', name: '연접호실' },
+];
 
 const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   const [sortBy, setSortBy] = useState(() => {
@@ -62,9 +72,9 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
     };
   }, []);
 
-  // 필터 옵션 데이터 로드
+  // 필터 옵션 데이터 로드 (카테고리는 로컬 데이터이므로 API 호출 불필요)
   useEffect(() => {
-    if (activeFilterType) {
+    if (activeFilterType && activeFilterType !== 'categories') {
       fetchFilterOptions();
     }
   }, [activeFilterType]);
@@ -79,14 +89,18 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
       items = branches;
     } else if (activeFilterType === 'creators') {
       items = creators;
+    } else if (activeFilterType === 'categories') {
+      items = CATEGORY1_OPTIONS;
     }
 
-    // 가나다순 정렬
-    items = [...items].sort((a, b) => {
-      const nameA = a.name || '';
-      const nameB = b.name || '';
-      return nameA.localeCompare(nameB, 'ko-KR');
-    });
+    // 가나다순 정렬 (카테고리는 고정 순서 유지)
+    if (activeFilterType !== 'categories') {
+      items = [...items].sort((a, b) => {
+        const nameA = a.name || '';
+        const nameB = b.name || '';
+        return nameA.localeCompare(nameB, 'ko-KR');
+      });
+    }
 
     // 검색어로 리스트 필터링
     if (searchText.trim() === '') {
@@ -241,6 +255,8 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
       newFilters.branches = newFilters.branches.filter((item) => item !== id);
     } else if (type === 'creators') {
       newFilters.creators = newFilters.creators.filter((item) => item !== id);
+    } else if (type === 'categories') {
+      newFilters.categories = newFilters.categories.filter((item) => item !== id);
     }
     onFilterChange(newFilters);
   };
@@ -250,6 +266,7 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
       brands: [],
       branches: [],
       creators: [],
+      categories: [],
       search: '',
       sort: sortBy,
       minCapacity: null,
@@ -311,12 +328,14 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   const hasFilters =
     (filters.brands?.length > 0) ||
     (filters.branches?.length > 0) ||
-    (filters.creators?.length > 0);
+    (filters.creators?.length > 0) ||
+    (filters.categories?.length > 0);
 
   const getFilterLabel = (type) => {
     if (type === 'brands') return '브랜드';
     if (type === 'branches') return '지점';
     if (type === 'creators') return '사용자';
+    if (type === 'categories') return '옵션타입';
     return '';
   };
 
@@ -324,6 +343,7 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
     if (type === 'brands') return '브랜드명을 입력하세요...';
     if (type === 'branches') return '지점명을 입력하세요...';
     if (type === 'creators') return '사용자명을 입력하세요...';
+    if (type === 'categories') return '옵션타입을 검색하세요...';
     return '';
   };
 
@@ -362,9 +382,15 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
               </button>
               <button
                 onClick={() => handleFilterTypeClick('creators')}
-                className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 transition border-t border-gray-100 last:rounded-b-lg"
+                className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 transition border-t border-gray-100"
               >
                 사용자
+              </button>
+              <button
+                onClick={() => handleFilterTypeClick('categories')}
+                className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 transition border-t border-gray-100 last:rounded-b-lg"
+              >
+                옵션타입
               </button>
             </div>
           )}
@@ -551,6 +577,21 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
                 </button>
               </div>
             ))}
+
+            {(filters.categories || []).map((categoryId) => (
+              <div
+                key={`category-${categoryId}`}
+                className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs md:text-sm hover:bg-orange-200 transition"
+              >
+                <span>{formatCategory1(categoryId)}</span>
+                <button
+                  onClick={() => handleRemoveFilter('categories', categoryId)}
+                  className="text-orange-700 hover:text-orange-900 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
           </>
         )}
 
@@ -563,6 +604,7 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
           >
             <option value="latest">최신순</option>
             <option value="oldest">오래된순</option>
+            <option value="recently_updated">업데이트순</option>
             <option value="price_low">가격 낮은순</option>
             <option value="price_high">가격 높은순</option>
             <option value="price_per_person_low">인당 평단가 낮은순</option>

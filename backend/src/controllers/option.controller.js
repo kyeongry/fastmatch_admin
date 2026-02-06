@@ -18,10 +18,13 @@ const list = async (req, res, next) => {
     const branchIds = req.query.branch_ids || req.query.branch_id;
     const creatorIds = req.query.creator_ids || req.query.creator_id;
     
+    const category1Values = req.query.category1_list || req.query.category1;
+
     const filters = {
       brand_ids: Array.isArray(brandIds) ? brandIds : brandIds ? [brandIds] : undefined,
       branch_ids: Array.isArray(branchIds) ? branchIds : branchIds ? [branchIds] : undefined,
       creator_ids: Array.isArray(creatorIds) ? creatorIds : creatorIds ? [creatorIds] : undefined,
+      category1_list: Array.isArray(category1Values) ? category1Values : category1Values ? [category1Values] : undefined,
       status: req.query.status,
       search: req.query.search,
       min_capacity: req.query.min_capacity,
