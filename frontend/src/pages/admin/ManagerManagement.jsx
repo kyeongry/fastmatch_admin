@@ -34,13 +34,9 @@ const ManagerManagement = () => {
     setLoading(true);
     try {
       const response = await managerAPI.getAll();
-      console.log('매니저 API 응답:', response.data);
-      // API 응답: { success: true, managers: [...] }
       const managersArray = response.data?.managers || [];
       setManagers(Array.isArray(managersArray) ? managersArray : []);
     } catch (err) {
-      console.error('매니저 목록 조회 실패:', err);
-      console.error('에러 상세:', err.response?.data);
       error(err.response?.data?.message || '매니저 목록을 불러오는데 실패했습니다');
       setManagers([]);
     } finally {

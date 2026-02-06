@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import {
   formatPrice,
@@ -9,7 +10,7 @@ import {
   formatStatus
 } from '../../utils/formatters';
 
-const OptionListItem = ({
+const OptionListItem = memo(({
   option,
   selected,
   onSelect,
@@ -124,6 +125,8 @@ const OptionListItem = ({
       </div>
     </div>
   );
-};
+});
+
+OptionListItem.displayName = 'OptionListItem';
 
 export default OptionListItem;

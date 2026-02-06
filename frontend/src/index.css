@@ -1,15 +1,15 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color: #213547;
-  background-color: #ffffff;
-
+  color: #1F2937;
+  background-color: #F9FAFB;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -18,38 +18,70 @@
 
 a {
   font-weight: 500;
-  color: #2563eb; /* blue-600 */
+  color: #F97316;
   text-decoration: inherit;
 }
 a:hover {
-  color: #1d4ed8; /* blue-700 */
+  color: #EA580C;
 }
 
-/* Tailwind 클래스와 충돌 방지를 위해 기본 버튼 스타일 제거 */
 button {
   cursor: pointer;
 }
 
-button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid #F97316;
+  outline-offset: 2px;
 }
 
 /* 스크롤바 스타일링 */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
+  background: #D1D5DB;
+  border-radius: 100px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #9CA3AF;
+}
+
+/* 셀렉트 박스 기본 스타일 개선 */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* 체크박스 커스텀 */
+input[type="checkbox"] {
+  accent-color: #F97316;
+}
+
+/* 부드러운 전환 기본값 */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 인풋 포커스 개선 */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200/60;
+  }
 }

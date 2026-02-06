@@ -6,7 +6,14 @@ const Layout = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">로딩 중...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="w-10 h-10 border-3 border-primary-200 border-t-primary-500 rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-sm text-gray-500 font-medium">로딩 중...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/common/Layout';
 import SearchBar from '../../components/main/SearchBar';
@@ -13,6 +13,7 @@ import Pagination from '../../components/common/Pagination';
 import { Modal, Button } from '../../components/common';
 import { optionAPI } from '../../services/api';
 import { useToast } from '../../hooks/useToast';
+import { useDeepCompareMemo } from '../../hooks/useDeepCompare';
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -62,8 +63,8 @@ const MainPage = () => {
           minCapacity: parsed.minCapacity || null,
           maxCapacity: parsed.maxCapacity || null,
         };
-      } catch (e) {
-        console.error('필터 상태 복원 실패:', e);
+      } catch {
+        // 필터 상태 복원 실패 시 기본값 사용
       }
     }
 
@@ -79,15 +80,21 @@ const MainPage = () => {
     };
   });
 
+  // 배열 필터의 안정적 참조 (JSON.stringify 대체)
+  const stableBrands = useDeepCompareMemo(filters.brands);
+  const stableBranches = useDeepCompareMemo(filters.branches);
+  const stableCreators = useDeepCompareMemo(filters.creators);
+  const stableCategories = useDeepCompareMemo(filters.categories);
+
   // 옵션 목록 조회
   useEffect(() => {
     fetchOptions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    JSON.stringify(filters.brands),
-    JSON.stringify(filters.branches),
-    JSON.stringify(filters.creators),
-    JSON.stringify(filters.categories),
+    stableBrands,
+    stableBranches,
+    stableCreators,
+    stableCategories,
     filters.search,
     filters.sort,
     filters.refresh,
@@ -102,10 +109,10 @@ const MainPage = () => {
     setCurrentPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    JSON.stringify(filters.brands),
-    JSON.stringify(filters.branches),
-    JSON.stringify(filters.creators),
-    JSON.stringify(filters.categories),
+    stableBrands,
+    stableBranches,
+    stableCreators,
+    stableCategories,
     filters.search,
     filters.sort,
     filters.minCapacity,
@@ -147,33 +154,29 @@ const MainPage = () => {
     }
   };
 
-  const handleToggleSelect = (optionId) => {
+  const handleToggleSelect = useCallback((optionId) => {
     setSelectedOptions((prev) =>
       prev.includes(optionId)
         ? prev.filter((id) => id !== optionId)
         : [...prev, optionId]
     );
-  };
+  }, []);
 
-  const handleViewDetail = (option) => {
-    // If proposal panel is open, close it first (state saved automatically)
-    if (isProposalPanelOpen) {
-      setIsProposalPanelOpen(false);
-    }
+  const handleViewDetail = useCallback((option) => {
+    setIsProposalPanelOpen(false);
     setDetailOption(option);
     setIsDetailOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (option) => {
+  const handleEdit = useCallback((option) => {
     setEditingOption(option);
     setEditModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteRequest = (optionId) => {
-    if (deleteModalOpen || isDeleting) return; // 중복 클릭 방지
+  const handleDeleteRequest = useCallback((optionId) => {
     setDeletingOptionId(optionId);
     setDeleteModalOpen(true);
-  };
+  }, []);
 
   const { success, error, warning } = useToast();
 
@@ -295,7 +298,7 @@ const MainPage = () => {
   };
 
   // 총 페이지 수 계산
-  const totalPages = Math.ceil(totalOptions / itemsPerPage);
+  const totalPages = useMemo(() => Math.ceil(totalOptions / itemsPerPage), [totalOptions, itemsPerPage]);
 
   return (
     <Layout>
