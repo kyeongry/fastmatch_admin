@@ -170,7 +170,7 @@ const ReviewBoard = ({ branchId }) => {
           </div>
         ) : (
           reviews.map((review) => {
-            const reviewId = review._id || review.id;
+            const reviewId = review.id || review._id;
             const isAuthor = user && (user.id === review.author_id || user.id === review.author?.id);
             const isAdmin = user && user.role === 'admin';
             const isEditing = editingId === reviewId;
@@ -183,7 +183,7 @@ const ReviewBoard = ({ branchId }) => {
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
-                      {(review.author?.name || review.author_name || '?')[0]}
+                      {(review.author?.name || review.author_name || '')[0] || '?'}
                     </div>
                     <div>
                       <span className="text-sm font-medium text-gray-900">

@@ -25,7 +25,6 @@ const OptionDetailSlide = ({
   onComplete,
   onReactivate,
   onCancelDeleteRequest,
-  onEdit,
   onDelete,
   onUpdate,
 }) => {
@@ -72,7 +71,9 @@ const OptionDetailSlide = ({
 
   // 권한 확인
   const currentOption = selectedOptionData || option;
-  const isOwner = user && currentOption && user.id === currentOption.creator_id;
+  const currentOptionId = currentOption?.id || currentOption?._id;
+  const currentCreatorId = currentOption?.creator_id || currentOption?.creator?.id;
+  const isOwner = user && currentOption && user.id === currentCreatorId;
   const isAdmin = user && user.role === 'admin';
   const canEdit = user && currentOption?.status !== 'completed' && currentOption?.status !== 'delete_requested';
   const canDelete = (isOwner || isAdmin) && currentOption?.status !== 'completed' && currentOption?.status !== 'delete_requested';
@@ -1046,18 +1047,18 @@ const OptionDetailSlide = ({
               </>
             ) : (
               <>
-                {onCancelDeleteRequest && currentOption?.status === 'delete_requested' && user && user.id === currentOption.creator_id && (
-                  <button onClick={() => { if (window.confirm('삭제 요청을 취소하시겠습니까?')) onCancelDeleteRequest(currentOption.id); }} className="px-4 py-2 bg-orange-100 text-orange-700 font-medium rounded-lg hover:bg-orange-200 transition text-sm">
+                {onCancelDeleteRequest && currentOption?.status === 'delete_requested' && user && user.id === currentCreatorId && (
+                  <button onClick={() => { if (window.confirm('삭제 요청을 취소하시겠습니까?')) onCancelDeleteRequest(currentOptionId); }} className="px-4 py-2 bg-orange-100 text-orange-700 font-medium rounded-lg hover:bg-orange-200 transition text-sm">
                     삭제요청 취소
                   </button>
                 )}
-                {onComplete && currentOption?.status === 'active' && user && (user.id === currentOption.creator_id || user.role === 'admin') && (
-                  <button onClick={() => { if (window.confirm('이 옵션을 거래완료 처리하시겠습니까?\n거래완료 처리 후에는 수정할 수 없습니다.')) onComplete(currentOption.id); }} className="px-4 py-2 bg-green-100 text-green-700 font-medium rounded-lg hover:bg-green-200 transition text-sm">
+                {onComplete && currentOption?.status === 'active' && user && (user.id === currentCreatorId || user.role === 'admin') && (
+                  <button onClick={() => { if (window.confirm('이 옵션을 거래완료 처리하시겠습니까?\n거래완료 처리 후에는 수정할 수 없습니다.')) onComplete(currentOptionId); }} className="px-4 py-2 bg-green-100 text-green-700 font-medium rounded-lg hover:bg-green-200 transition text-sm">
                     거래완료
                   </button>
                 )}
-                {onReactivate && currentOption?.status === 'completed' && user && (user.id === currentOption.creator_id || user.role === 'admin') && (
-                  <button onClick={() => { if (window.confirm('이 옵션을 거래재개 처리하시겠습니까?')) onReactivate(currentOption.id); }} className="px-4 py-2 bg-blue-100 text-blue-700 font-medium rounded-lg hover:bg-blue-200 transition text-sm">
+                {onReactivate && currentOption?.status === 'completed' && user && (user.id === currentCreatorId || user.role === 'admin') && (
+                  <button onClick={() => { if (window.confirm('이 옵션을 거래재개 처리하시겠습니까?')) onReactivate(currentOptionId); }} className="px-4 py-2 bg-blue-100 text-blue-700 font-medium rounded-lg hover:bg-blue-200 transition text-sm">
                     거래재개
                   </button>
                 )}
@@ -1124,7 +1125,7 @@ const OptionDetailSlide = ({
               </button>
             )}
             {canDelete && onDelete && (
-              <button onClick={() => onDelete(currentOption.id)} className="flex-1 px-4 py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition">
+              <button onClick={() => onDelete(currentOptionId)} className="flex-1 px-4 py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition">
                 삭제 요청
               </button>
             )}

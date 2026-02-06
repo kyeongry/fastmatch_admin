@@ -16,7 +16,7 @@ const InfoTable = ({ title, rows, headerRight }) => {
 
     while (i < rows.length) {
       const row = rows[i];
-      if (!row) { i++; continue; }
+      if (!row || typeof row !== 'object') { i++; continue; }
 
       // colSpan이 true이면 한 행에 하나의 항목만 표시
       if (row.colSpan) {

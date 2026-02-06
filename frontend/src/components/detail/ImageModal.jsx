@@ -40,6 +40,7 @@ const ImageModal = ({ selectedImage, gallery = [], initialIndex = 0, onClose }) 
   if (!selectedImage && images.length === 0) return null;
 
   const displayImage = images[currentIndex] || selectedImage;
+  if (!displayImage) return null;
 
   return (
     <>

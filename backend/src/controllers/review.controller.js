@@ -1,5 +1,21 @@
 const ReviewModel = require('../models/review.mongodb');
 
+// 리뷰 데이터 포맷팅 (ObjectId → String 변환)
+const formatReview = (review) => ({
+    id: review._id.toString(),
+    branch_id: review.branch_id.toString(),
+    author_id: review.author_id.toString(),
+    author_name: review.author_name,
+    author: {
+        id: review.author_id.toString(),
+        name: review.author_name,
+    },
+    content: review.content,
+    rating: review.rating,
+    created_at: review.created_at,
+    updated_at: review.updated_at,
+});
+
 const getReviewsByBranch = async (req, res) => {
     try {
         const { branchId } = req.params;
@@ -7,29 +23,27 @@ const getReviewsByBranch = async (req, res) => {
             return res.status(400).json({ success: false, message: '지점 ID가 필요합니다' });
         }
 
-        const reviews = await ReviewModel.findByBranchId(branchId);
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = Math.min(parseInt(req.query.pageSize) || 50, 100);
+        const skip = (page - 1) * pageSize;
+
+        const reviews = await ReviewModel.findByBranchId(branchId, {
+            skip,
+            limit: pageSize,
+            sort: { created_at: -1 },
+        });
         const total = await ReviewModel.countByBranchId(branchId);
 
-        const formattedReviews = reviews.map(review => ({
-            id: review._id.toString(),
-            _id: review._id.toString(),
-            branch_id: review.branch_id.toString(),
-            author_id: review.author_id.toString(),
-            author_name: review.author_name,
-            author: {
-                id: review.author_id.toString(),
-                name: review.author_name,
-            },
-            content: review.content,
-            rating: review.rating,
-            created_at: review.created_at,
-            updated_at: review.updated_at,
-        }));
-
-        res.json({ success: true, reviews: formattedReviews, total });
+        res.json({
+            success: true,
+            reviews: reviews.map(formatReview),
+            total,
+            page,
+            pageSize,
+        });
     } catch (error) {
         console.error('리뷰 조회 실패:', error);
-        res.status(400).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -55,21 +69,12 @@ const createReview = async (req, res) => {
 
         res.status(201).json({
             success: true,
-            review: {
-                id: review._id.toString(),
-                _id: review._id.toString(),
-                branch_id: review.branch_id.toString(),
-                author_id: review.author_id.toString(),
-                author_name: review.author_name,
-                content: review.content,
-                rating: review.rating,
-                created_at: review.created_at,
-            },
+            review: formatReview(review),
             message: '리뷰가 등록되었습니다',
         });
     } catch (error) {
         console.error('리뷰 생성 실패:', error);
-        res.status(400).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -93,10 +98,14 @@ const updateReview = async (req, res) => {
         }
 
         const updated = await ReviewModel.updateById(id, { content: content.trim() });
-        res.json({ success: true, review: updated, message: '리뷰가 수정되었습니다' });
+        res.json({
+            success: true,
+            review: formatReview(updated),
+            message: '리뷰가 수정되었습니다',
+        });
     } catch (error) {
         console.error('리뷰 수정 실패:', error);
-        res.status(400).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -118,7 +127,7 @@ const deleteReview = async (req, res) => {
         res.json({ success: true, message: '리뷰가 삭제되었습니다' });
     } catch (error) {
         console.error('리뷰 삭제 실패:', error);
-        res.status(400).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
