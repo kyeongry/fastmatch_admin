@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { formatPrice, formatCategory1 } from '../../utils/formatters';
-import ImageGallery from './ImageGallery';
 import ReviewBoard from './ReviewBoard';
 
 /**

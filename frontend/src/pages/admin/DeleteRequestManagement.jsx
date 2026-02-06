@@ -23,12 +23,12 @@ const DeleteRequestManagement = () => {
   const fetchDeleteRequests = async () => {
     setLoading(true);
     try {
-      // 삭제요청된 매물만 조회 (status가 pending인 것만)
+      // 삭제요청된 옵션만 조회 (status가 pending인 것만)
       const response = await deleteRequestAPI.getAll({ status: 'pending' });
       console.log('삭제요청 API 응답:', response.data);
       // API 응답: { success: true, requests: [...], total, page, pageSize }
       const requestsArray = response.data?.requests || [];
-      // 옵션이 있는 요청만 필터링 (삭제요청된 매물만)
+      // 옵션이 있는 요청만 필터링 (삭제요청된 옵션만)
       const validRequests = Array.isArray(requestsArray)
         ? requestsArray.filter((req) => req && req.option)
         : [];
@@ -185,7 +185,7 @@ const DeleteRequestManagement = () => {
         {/* 헤더 */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">삭제요청 관리</h1>
-          <p className="text-sm text-gray-500 mt-1">삭제요청된 매물을 검토하고 승인/거부할 수 있습니다</p>
+          <p className="text-sm text-gray-500 mt-1">삭제요청된 옵션을 검토하고 승인/거부할 수 있습니다</p>
         </div>
 
         {/* 삭제요청 목록 */}
@@ -199,7 +199,7 @@ const DeleteRequestManagement = () => {
               columns={columns}
               data={requests}
               loading={loading}
-              emptyMessage="삭제요청된 매물이 없습니다"
+              emptyMessage="삭제요청된 옵션이 없습니다"
             />
           </div>
         )}
@@ -217,7 +217,7 @@ const DeleteRequestManagement = () => {
           <div className="space-y-4">
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
               <p className="text-sm text-amber-800">
-                이 매물을 삭제하시겠습니까? 승인하면 매물이 삭제 상태로 변경됩니다.
+                이 옵션을 삭제하시겠습니까? 승인하면 옵션이 삭제 상태로 변경됩니다.
               </p>
             </div>
             {selectedRequest && (
@@ -275,7 +275,7 @@ const DeleteRequestManagement = () => {
           <div className="space-y-4">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
-                삭제 요청을 거부하면 매물이 활성 상태로 복구됩니다.
+                삭제 요청을 거부하면 옵션이 활성 상태로 복구됩니다.
               </p>
             </div>
             {selectedRequest && (

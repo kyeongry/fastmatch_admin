@@ -6,8 +6,6 @@ import {
   formatPrice,
   formatCategory1,
   formatCategory2,
-  formatMoveInDate,
-  formatContractPeriod,
 } from '../../utils/formatters';
 import { MEMO_MAX_LENGTH } from '../pdf/OptionDetailPage';
 import DetailLeftPanel from '../detail/DetailLeftPanel';

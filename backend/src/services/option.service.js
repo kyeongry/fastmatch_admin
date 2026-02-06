@@ -220,7 +220,13 @@ const getOptionById = async (id) => {
     { $project: { 'creator.password': 0 } }
   ]).toArray();
   if (!option || option.length === 0) throw new Error('옵션을 찾을 수 없습니다');
-  return option[0];
+  const opt = option[0];
+  return {
+    ...opt,
+    id: opt._id.toString(),
+    branch_id: opt.branch_id?.toString(),
+    creator_id: opt.creator_id?.toString(),
+  };
 };
 
 const getMyOptions = async (userId, page = 1, pageSize = 20) => {

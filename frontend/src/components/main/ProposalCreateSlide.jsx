@@ -395,7 +395,7 @@ const ProposalCreateSlide = ({
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-gray-900">
-                    선택한 매물 <span className="text-orange-500">{selectedOptions.length}개</span>
+                    선택한 옵션 <span className="text-orange-500">{selectedOptions.length}개</span>
                   </span>
                 </div>
 
@@ -703,7 +703,7 @@ const ProposalCreateSlide = ({
                     <p className="font-semibold text-gray-600">제안서 생성 안내 사항</p>
                     <ul className="space-y-0.5 list-disc pl-4">
                       <li>조건 수정 및 다운로드 이력이 히스토리에 기록됩니다.</li>
-                      <li>페이지 구성 변경 시, 선택된 모든 매물에 적용됩니다.</li>
+                      <li>페이지 구성 변경 시, 선택된 모든 옵션에 적용됩니다.</li>
                       <li>제안서를 다운로드하는 사용자의 이름과 연락처가 제안서에 노출됩니다.</li>
                       <li>생성된 제안서 파일은 A4 용지 가로(297 × 210mm), 실제 크기 배율은 인쇄에 최적화되어있습니다.</li>
                     </ul>

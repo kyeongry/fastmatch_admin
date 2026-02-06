@@ -258,9 +258,10 @@ const MainPage = () => {
   const handleDetailUpdate = async () => {
     await fetchOptions(); // 목록 새로고침
     // detailOption이 열려있으면 최신 데이터로 업데이트
-    if (detailOption && detailOption.id) {
+    const optionId = detailOption?.id || detailOption?._id;
+    if (detailOption && optionId) {
       try {
-        const response = await optionAPI.getById(detailOption.id);
+        const response = await optionAPI.getById(optionId);
         if (response.data?.option) {
           setDetailOption(response.data.option);
         }

@@ -27,7 +27,7 @@ const ComparisonTablePage = ({ options }) => {
         while (filledChunk.length < 5) filledChunk.push(null);
         return (
           <Page key={pageIndex} size="A4" orientation="landscape" style={styles.page}>
-            <Text style={styles.header}>매물 비교표 ({pageIndex + 1}/{optionChunks.length})</Text>
+            <Text style={styles.header}>옵션 비교표 ({pageIndex + 1}/{optionChunks.length})</Text>
             <View style={styles.table}>
               <View style={styles.tableRow}>
                 <View style={styles.tableColHeader}><Text style={styles.tableCellHeader}>구분</Text></View>
