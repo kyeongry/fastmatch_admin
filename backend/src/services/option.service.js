@@ -1,5 +1,6 @@
 const { getDatabase } = require('../config/mongodb');
 const { ObjectId } = require('mongodb');
+const DeleteRequestModel = require('../models/deleteRequest.mongodb');
 
 // 옵션 목록 조회
 const getOptions = async (filters = {}) => {
@@ -327,13 +328,31 @@ const updateOption = async (id, data, userId, userRole) => {
 };
 
 const requestDeleteOption = async (id, reason, userId, userRole) => {
-    // 기존 로직 유지 (간략화)
     const db = await getDatabase();
     const result = await db.collection('options').findOneAndUpdate(
         { _id: new ObjectId(id) },
         { $set: { status: 'delete_requested', delete_request_reason: reason } },
         { returnDocument: 'after' }
     );
+
+    // delete_requests 컬렉션에 레코드 생성 (삭제요청 관리 페이지에서 조회 가능하도록)
+    try {
+        // 이미 존재하는 요청이 있으면 삭제 후 재생성 (unique index on option_id)
+        const existing = await DeleteRequestModel.findByOptionId(id);
+        if (existing) {
+            await DeleteRequestModel.deleteById(existing._id.toString());
+        }
+        await DeleteRequestModel.create({
+            option_id: id,
+            requester_id: userId,
+            request_reason: reason,
+            status: 'pending',
+            created_at: new Date(),
+        });
+    } catch (err) {
+        console.error('delete_requests 레코드 생성 실패:', err);
+    }
+
     return {
         ...result,
         id: result._id.toString(),
@@ -343,13 +362,23 @@ const requestDeleteOption = async (id, reason, userId, userRole) => {
 };
 
 const cancelDeleteRequest = async (id, userId, userRole) => {
-    // 기존 로직 유지
     const db = await getDatabase();
     const result = await db.collection('options').findOneAndUpdate(
         { _id: new ObjectId(id) },
         { $set: { status: 'active' }, $unset: { delete_request_reason: "" } },
         { returnDocument: 'after' }
     );
+
+    // delete_requests 컬렉션에서 해당 레코드 삭제
+    try {
+        const existing = await DeleteRequestModel.findByOptionId(id);
+        if (existing) {
+            await DeleteRequestModel.deleteById(existing._id.toString());
+        }
+    } catch (err) {
+        console.error('delete_requests 레코드 삭제 실패:', err);
+    }
+
     return {
         ...result,
         id: result._id.toString(),
