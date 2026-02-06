@@ -124,7 +124,7 @@ const ProposalListPage = () => {
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">내 제안서 목록</h1>
                     <button
-                        onClick={() => navigate('/proposals/create')}
+                        onClick={() => navigate('/')}
                         className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
                     >
                         새 제안서 작성
