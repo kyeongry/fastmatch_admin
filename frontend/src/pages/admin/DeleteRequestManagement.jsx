@@ -25,17 +25,12 @@ const DeleteRequestManagement = () => {
     try {
       // 삭제요청된 옵션만 조회 (status가 pending인 것만)
       const response = await deleteRequestAPI.getAll({ status: 'pending' });
-      console.log('삭제요청 API 응답:', response.data);
-      // API 응답: { success: true, requests: [...], total, page, pageSize }
       const requestsArray = response.data?.requests || [];
-      // 옵션이 있는 요청만 필터링 (삭제요청된 옵션만)
       const validRequests = Array.isArray(requestsArray)
         ? requestsArray.filter((req) => req && req.option)
         : [];
       setRequests(validRequests);
     } catch (err) {
-      console.error('삭제요청 목록 조회 실패:', err);
-      console.error('에러 상세:', err.response?.data);
       error(err.response?.data?.message || '삭제요청 목록을 불러오는데 실패했습니다');
       setRequests([]);
     } finally {

@@ -129,13 +129,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setError(null);
     try {
-      console.log('로그인 시도:', email);
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         email,
         password,
       });
-
-      console.log('로그인 응답:', response.data);
       // 수정됨: refreshToken도 함께 받아오도록 변경
       const { token, refreshToken, user } = response.data;
 
@@ -152,10 +149,8 @@ export const AuthProvider = ({ children }) => {
 
       setUser(user);
       setIsAuthenticated(true);
-      console.log('로그인 성공, 토큰 저장 완료');
       return response.data;
     } catch (err) {
-      console.error('로그인 에러:', err);
       const errorMessage = err.response?.data?.message || '로그인에 실패했습니다';
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -175,8 +170,8 @@ export const AuthProvider = ({ children }) => {
           }
         );
       }
-    } catch (err) {
-      console.error('로그아웃 요청 실패:', err);
+    } catch {
+      // 로그아웃 요청 실패 시에도 로컬 정리 진행
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken'); // 로그아웃 시 리프레시 토큰도 삭제

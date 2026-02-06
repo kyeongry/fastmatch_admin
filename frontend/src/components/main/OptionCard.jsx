@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import {
   formatPrice,
@@ -7,52 +8,47 @@ import {
   formatStatus
 } from '../../utils/formatters';
 
-const OptionCard = ({
+const OptionCard = memo(({
   option,
   selected,
   onSelect,
   onView,
 }) => {
-  // 상태에 따른 배지 스타일
   const getStatusBadge = (status) => {
     if (status === 'active') return null;
 
     const styles = {
-      delete_requested: 'bg-red-100 text-red-700',
-      deleted: 'bg-gray-200 text-gray-600',
-      inactive: 'bg-yellow-100 text-yellow-700',
-      completed: 'bg-green-100 text-green-700',
+      delete_requested: 'bg-red-50 text-red-600 border-red-100',
+      deleted: 'bg-gray-100 text-gray-500 border-gray-200',
+      inactive: 'bg-amber-50 text-amber-600 border-amber-100',
+      completed: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     };
 
     return (
-      <span className={`absolute top-3 right-3 px-2 py-1 text-xs font-bold rounded ${styles[status] || 'bg-gray-100'}`}>
+      <span className={`absolute top-3 right-3 px-2 py-0.5 text-[11px] font-semibold rounded-md border ${styles[status] || 'bg-gray-100'}`}>
         {formatStatus(status)}
       </span>
     );
   };
 
-  // 인당 평단가 계산
   const pricePerPerson = option.capacity > 0 ? Math.round(option.monthly_fee / option.capacity) : 0;
 
   return (
     <div
-      className={`relative bg-white border rounded-lg overflow-hidden hover:shadow-lg transition duration-300 flex flex-col h-full cursor-pointer ${selected ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-200'}`}
+      className={`relative bg-white border rounded-xl overflow-hidden hover:shadow-card-hover transition-all duration-200 flex flex-col h-full cursor-pointer group ${selected ? 'border-primary-400 ring-2 ring-primary-100' : 'border-gray-200 hover:border-gray-300'}`}
       onClick={() => onView()}
     >
-      {/* 거래완료 회색 오버레이 */}
       {option.status === 'completed' && (
-        <div className="absolute inset-0 bg-gray-400 bg-opacity-60 z-20 flex items-center justify-center pointer-events-none">
-          <span className="text-white text-2xl font-bold">거래완료</span>
+        <div className="absolute inset-0 bg-gray-500/50 z-20 flex items-center justify-center pointer-events-none rounded-xl">
+          <span className="text-white text-xl font-bold px-4 py-1.5 bg-black/30 rounded-lg backdrop-blur-sm">거래완료</span>
         </div>
       )}
 
-      {/* 상태 배지 */}
       {getStatusBadge(option.status)}
 
-      {/* 카드 본문 */}
-      <div className="flex-1 p-3 sm:p-4 hover:bg-gray-50 transition">
+      <div className="flex-1 p-4">
         {/* 체크박스 + 브랜드 - 지점 */}
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2.5 mb-3">
           <input
             type="checkbox"
             checked={selected}
@@ -61,49 +57,59 @@ const OptionCard = ({
               onSelect(!selected);
             }}
             onClick={(e) => e.stopPropagation()}
-            className="w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 cursor-pointer accent-blue-600 flex-shrink-0"
+            className="w-4 h-4 rounded border-gray-300 cursor-pointer flex-shrink-0"
           />
-          <div className="text-xs sm:text-sm text-gray-600 truncate">
-            <span className="font-medium">{option.branch?.brand?.name}</span>
-            <span className="text-gray-400 mx-1">-</span>
+          <div className="text-xs text-gray-500 truncate">
+            <span className="font-semibold text-gray-700">{option.branch?.brand?.name}</span>
+            <span className="text-gray-300 mx-1">/</span>
             <span>{option.branch?.name}</span>
           </div>
         </div>
 
         {/* 옵션명 */}
-        <h3 className="text-sm sm:text-lg font-bold text-gray-900 mb-2 line-clamp-2">{option.name}</h3>
+        <h3 className="text-sm font-bold text-gray-900 mb-2 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors">{option.name}</h3>
 
-        {/* 카테고리 */}
-        <div className="text-xs text-gray-500 mb-2">
-          <span className="text-gray-700">{formatCategory1(option.category1)}</span>
-          {option.category2 && <span className="text-gray-400 mx-1">/</span>}
-          {option.category2 && <span className="text-gray-700">{formatCategory2(option.category2)}</span>}
-          <span className="ml-2 font-medium text-gray-700 whitespace-nowrap">{option.capacity}인</span>
+        {/* 카테고리 태그 */}
+        <div className="flex items-center gap-1.5 mb-3">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-[11px] font-medium text-gray-600">
+            {formatCategory1(option.category1)}
+          </span>
+          {option.category2 && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-[11px] font-medium text-gray-600">
+              {formatCategory2(option.category2)}
+            </span>
+          )}
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-primary-50 text-[11px] font-semibold text-primary-600">
+            {option.capacity}인
+          </span>
         </div>
 
-        {/* 월사용료 (인당가) */}
-        <div className="text-sm sm:text-base mb-3">
-          <span className="font-semibold text-blue-600">{formatPrice(option.monthly_fee)}</span>
+        {/* 가격 */}
+        <div className="mb-3">
+          <span className="text-base font-bold text-gray-900">{formatPrice(option.monthly_fee)}</span>
+          <span className="text-xs text-gray-400 ml-0.5">원</span>
           {option.capacity > 0 && (
-            <span className="text-xs text-gray-500 ml-1">
+            <span className="text-xs text-gray-400 ml-1.5">
               (인당 {formatPrice(pricePerPerson)})
             </span>
           )}
         </div>
 
-        {/* 등록자 <-> 등록일자 / 수정일자 */}
-        <div className="flex items-center justify-between text-xs text-gray-400">
-          <span>{option.creator?.name || option.creator?.email || '-'}</span>
+        {/* 등록자 / 등록일 */}
+        <div className="flex items-center justify-between text-[11px] text-gray-400 pt-3 border-t border-gray-100">
+          <span className="truncate max-w-[50%]">{option.creator?.name || option.creator?.email || '-'}</span>
           <div className="text-right">
             <div>{formatDate(option.created_at)}</div>
             {option.updated_at && option.updated_at !== option.created_at && (
-              <div className="text-orange-400">수정 {formatDate(option.updated_at)}</div>
+              <div className="text-primary-400">수정 {formatDate(option.updated_at)}</div>
             )}
           </div>
         </div>
       </div>
     </div>
   );
-};
+});
+
+OptionCard.displayName = 'OptionCard';
 
 export default OptionCard;

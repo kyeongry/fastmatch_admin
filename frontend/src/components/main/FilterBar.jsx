@@ -156,8 +156,8 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
       setBrands(brandsRes.data?.brands || []);
       setBranches(branchesRes.data?.branches || []);
       setCreators(creatorsRes.data?.creators || []);
-    } catch (error) {
-      console.error('필터 옵션 로드 실패:', error);
+    } catch {
+      // 필터 옵션 로드 실패 시 빈 상태 유지
     } finally {
       setLoading(false);
     }
