@@ -528,16 +528,8 @@ const OptionDetailSlide = ({
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const currentCount = (editData.floor_plan_urls || []).length;
-    const remaining = 3 - currentCount;
-    if (remaining <= 0) {
-      showError('평면도는 최대 3장까지 첨부할 수 있습니다');
-      return;
-    }
-
-    // 업로드할 파일 목록 (최대 remaining개)
     const filesToUpload = [];
-    for (let i = 0; i < Math.min(files.length, remaining); i++) {
+    for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.size > 10 * 1024 * 1024) {
         showError(`${file.name}: 파일 크기는 10MB 이하여야 합니다`);
@@ -551,9 +543,6 @@ const OptionDetailSlide = ({
     }
 
     if (filesToUpload.length === 0) return;
-    if (files.length > remaining) {
-      warning(`최대 3장까지 가능하여 ${remaining}장만 업로드합니다`);
-    }
 
     setIsUploading(true);
     try {
@@ -1325,7 +1314,6 @@ const OptionDetailSlide = ({
           <section>
             <h3 className="text-xl font-bold text-gray-900 mb-4">
               옵션 평면도
-              {isEditMode && <span className="text-sm font-normal text-gray-400 ml-2">(최대 3장)</span>}
             </h3>
             {isEditMode ? (
               <div className="space-y-3">
@@ -1351,7 +1339,7 @@ const OptionDetailSlide = ({
                 )}
 
                 {/* 추가 업로드 영역 (3장 미만일 때만 표시) */}
-                {(!editData.floor_plan_urls || editData.floor_plan_urls.length < 3) && (
+                {(
                   <div
                     className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:bg-blue-50 transition-colors outline-none cursor-pointer"
                     onClick={(e) => e.currentTarget.focus()}
