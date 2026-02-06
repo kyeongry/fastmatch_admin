@@ -318,7 +318,12 @@ const updateOption = async (id, data, userId, userRole) => {
     { $set: setFields },
     { returnDocument: 'after' }
   );
-  return result;
+  return {
+    ...result,
+    id: result._id.toString(),
+    branch_id: result.branch_id?.toString(),
+    creator_id: result.creator_id?.toString(),
+  };
 };
 
 const requestDeleteOption = async (id, reason, userId, userRole) => {
@@ -329,7 +334,12 @@ const requestDeleteOption = async (id, reason, userId, userRole) => {
         { $set: { status: 'delete_requested', delete_request_reason: reason } },
         { returnDocument: 'after' }
     );
-    return result;
+    return {
+        ...result,
+        id: result._id.toString(),
+        branch_id: result.branch_id?.toString(),
+        creator_id: result.creator_id?.toString(),
+    };
 };
 
 const cancelDeleteRequest = async (id, userId, userRole) => {
@@ -340,7 +350,12 @@ const cancelDeleteRequest = async (id, userId, userRole) => {
         { $set: { status: 'active' }, $unset: { delete_request_reason: "" } },
         { returnDocument: 'after' }
     );
-    return result;
+    return {
+        ...result,
+        id: result._id.toString(),
+        branch_id: result.branch_id?.toString(),
+        creator_id: result.creator_id?.toString(),
+    };
 };
 
 const markAsCompleted = async (id, userId, userRole) => {
@@ -351,7 +366,12 @@ const markAsCompleted = async (id, userId, userRole) => {
         { $set: { status: 'completed' } },
         { returnDocument: 'after' }
     );
-    return result;
+    return {
+        ...result,
+        id: result._id.toString(),
+        branch_id: result.branch_id?.toString(),
+        creator_id: result.creator_id?.toString(),
+    };
 };
 
 const markAsActive = async (id, userId, userRole) => {
@@ -362,7 +382,12 @@ const markAsActive = async (id, userId, userRole) => {
         { $set: { status: 'active' } },
         { returnDocument: 'after' }
     );
-    return result;
+    return {
+        ...result,
+        id: result._id.toString(),
+        branch_id: result.branch_id?.toString(),
+        creator_id: result.creator_id?.toString(),
+    };
 };
 
 module.exports = {

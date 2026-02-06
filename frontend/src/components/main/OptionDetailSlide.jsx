@@ -35,7 +35,7 @@ const OptionDetailSlide = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // ======== 레이아웃 상태 ========
-  const [activeTab, setActiveTab] = useState('option'); // 'option' | 'branch' | 'all'
+  const [activeTab, setActiveTab] = useState('option'); // 'option' | 'all'
   const [selectedOptionData, setSelectedOptionData] = useState(null); // 좌측 패널에서 선택한 옵션
   const [branchOptions, setBranchOptions] = useState([]); // 해당 지점의 모든 옵션
   const [loadingBranchOptions, setLoadingBranchOptions] = useState(false);
