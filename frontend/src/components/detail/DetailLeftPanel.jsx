@@ -63,7 +63,7 @@ const DetailLeftPanel = ({
         <div className="border-b border-gray-200">
           <button
             onClick={() => setShowBranchInfo(!showBranchInfo)}
-            className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition"
+            className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition sticky top-0 z-[5]"
           >
             <h3 className="text-sm font-bold text-gray-900">지점 정보</h3>
             <svg
@@ -212,7 +212,7 @@ const DetailLeftPanel = ({
 
         {/* ======== 옵션 리스트 ======== */}
         <div>
-          <div className="p-3 border-b border-gray-100 bg-gray-50">
+          <div className="p-3 border-b border-gray-100 bg-gray-50 sticky top-0 z-[5]">
             <h4 className="text-sm font-bold text-gray-900">옵션 목록</h4>
           </div>
 
