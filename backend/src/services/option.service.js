@@ -242,7 +242,9 @@ const createOption = async (data, userId) => {
     hvac_type: data.hvac_type || null, parking_type: data.parking_type || null,
     parking_count: data.parking_count || null, parking_cost: data.parking_cost || null,
     parking_note: data.parking_note || null, memo: data.memo || null,
-    floor_plan_url: data.floor_plan_url || null, exclusive_area: data.exclusive_area || null,
+    floor_plan_url: data.floor_plan_url || null,
+    floor_plan_urls: data.floor_plan_urls || (data.floor_plan_url ? [data.floor_plan_url] : []),
+    exclusive_area: data.exclusive_area || null,
     status: 'active', creator_id: new ObjectId(userId),
     created_at: new Date(), updated_at: new Date()
   });

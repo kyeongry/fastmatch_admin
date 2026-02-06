@@ -109,6 +109,7 @@ const OptionDetailSlide = ({
         one_time_fees: option.one_time_fees || [],
         credits: option.credits || [],
         floor_plan_url: option.floor_plan_url || '',
+        floor_plan_urls: option.floor_plan_urls || (option.floor_plan_url ? [option.floor_plan_url] : []),
       };
       setEditData(data);
       setOriginalData(data);
@@ -502,14 +503,27 @@ const OptionDetailSlide = ({
     setEditData(prev => ({ ...prev, [field]: numericValue }));
   };
 
-  // 이미지 삭제 핸들러
+  // 이미지 삭제 핸들러 (단일 - 하위호환)
   const handleRemoveFloorPlan = () => {
     if (window.confirm('평면도 이미지를 삭제하시겠습니까?')) {
       setEditData(prev => ({ ...prev, floor_plan_url: '' }));
     }
   };
 
-  // 이미지 업로드 핸들러
+  // 복수 평면도 삭제 핸들러
+  const handleRemoveFloorPlanAt = (index) => {
+    setEditData(prev => {
+      const urls = [...(prev.floor_plan_urls || [])];
+      urls.splice(index, 1);
+      return {
+        ...prev,
+        floor_plan_urls: urls,
+        floor_plan_url: urls[0] || '',
+      };
+    });
+  };
+
+  // 이미지 업로드 핸들러 (복수 평면도 지원)
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -526,6 +540,12 @@ const OptionDetailSlide = ({
       return;
     }
 
+    // 최대 3장 제한
+    if ((editData.floor_plan_urls || []).length >= 3) {
+      showError('평면도는 최대 3장까지 첨부할 수 있습니다');
+      return;
+    }
+
     setIsUploading(true);
     try {
       const response = await uploadAPI.image(file);
@@ -535,7 +555,14 @@ const OptionDetailSlide = ({
         throw new Error('이미지 URL을 받지 못했습니다');
       }
 
-      setEditData(prev => ({ ...prev, floor_plan_url: imageUrl }));
+      setEditData(prev => {
+        const urls = [...(prev.floor_plan_urls || []), imageUrl];
+        return {
+          ...prev,
+          floor_plan_urls: urls,
+          floor_plan_url: urls[0] || imageUrl,
+        };
+      });
       success('이미지가 업로드되었습니다');
     } catch (err) {
       console.error('이미지 업로드 실패:', err);
@@ -1285,24 +1312,35 @@ const OptionDetailSlide = ({
 
           {/* 옵션 평면도 */}
           <section>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">옵션 평면도</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              옵션 평면도
+              {isEditMode && <span className="text-sm font-normal text-gray-400 ml-2">(최대 3장)</span>}
+            </h3>
             {isEditMode ? (
               <div className="space-y-3">
-                {editData.floor_plan_url ? (
-                  <div className="relative inline-block">
-                    <img
-                      src={editData.floor_plan_url}
-                      alt="옵션 평면도"
-                      className="h-32 w-auto rounded-lg shadow-md object-cover"
-                    />
-                    <button
-                      onClick={handleRemoveFloorPlan}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition shadow-md"
-                    >
-                      ✕
-                    </button>
+                {/* 기존 평면도 이미지들 */}
+                {editData.floor_plan_urls && editData.floor_plan_urls.length > 0 && (
+                  <div className="flex flex-wrap gap-3">
+                    {editData.floor_plan_urls.map((url, idx) => (
+                      <div key={idx} className="relative inline-block">
+                        <img
+                          src={url}
+                          alt={`옵션 평면도 ${idx + 1}`}
+                          className="h-32 w-auto rounded-lg shadow-md object-cover"
+                        />
+                        <button
+                          onClick={() => handleRemoveFloorPlanAt(idx)}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition shadow-md"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ) : (
+                )}
+
+                {/* 추가 업로드 영역 (3장 미만일 때만 표시) */}
+                {(!editData.floor_plan_urls || editData.floor_plan_urls.length < 3) && (
                   <div
                     className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:bg-blue-50 transition-colors outline-none cursor-pointer"
                     onClick={(e) => e.currentTarget.focus()}
@@ -1349,7 +1387,10 @@ const OptionDetailSlide = ({
                         if (item.type === 'text/plain') {
                           item.getAsString((text) => {
                             if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
-                              setEditData(prev => ({ ...prev, floor_plan_url: text.trim() }));
+                              setEditData(prev => {
+                                const urls = [...(prev.floor_plan_urls || []), text.trim()];
+                                return { ...prev, floor_plan_urls: urls, floor_plan_url: urls[0] };
+                              });
                               success('평면도 URL이 설정되었습니다');
                             }
                           });
@@ -1390,18 +1431,24 @@ const OptionDetailSlide = ({
                   </div>
                 )}
               </div>
-            ) : option.floor_plan_url ? (
-              <div className="flex flex-wrap gap-3">
-                <img
-                  src={option.floor_plan_url}
-                  alt="옵션 평면도"
-                  className="h-32 w-auto rounded-lg shadow-md cursor-pointer hover:opacity-80 transition object-cover"
-                  onClick={() => handleImageClick(option.floor_plan_url)}
-                />
-              </div>
-            ) : (
-              <p className="text-gray-400">-</p>
-            )}
+            ) : (() => {
+              const floorPlanUrls = option.floor_plan_urls || (option.floor_plan_url ? [option.floor_plan_url] : []);
+              return floorPlanUrls.length > 0 ? (
+                <div className="flex flex-wrap gap-3">
+                  {floorPlanUrls.map((url, idx) => (
+                    <img
+                      key={idx}
+                      src={url}
+                      alt={`옵션 평면도 ${idx + 1}`}
+                      className="h-32 w-auto rounded-lg shadow-md cursor-pointer hover:opacity-80 transition object-cover"
+                      onClick={() => handleImageClick(url, floorPlanUrls, idx)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400">-</p>
+              );
+            })()}
           </section>
 
           {/* 지점 외부 사진 */}
