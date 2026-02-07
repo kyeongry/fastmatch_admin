@@ -102,15 +102,15 @@ const AdminDashboard = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">관리자 대시보드</h1>
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
+        <h1 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">관리자 대시보드</h1>
 
         {/* 주요 통계 카드 - 클릭 가능 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {/* 총 브랜드 */}
           <Link
             to="/admin/brands"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer"
+            className="bg-white rounded-lg shadow p-4 sm:p-6 hover:shadow-lg transition cursor-pointer"
           >
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-blue-100 rounded-full p-3">
@@ -128,7 +128,7 @@ const AdminDashboard = () => {
           {/* 총 지점 */}
           <Link
             to="/admin/branches"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer"
+            className="bg-white rounded-lg shadow p-4 sm:p-6 hover:shadow-lg transition cursor-pointer"
           >
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-green-100 rounded-full p-3">
@@ -147,7 +147,7 @@ const AdminDashboard = () => {
           {/* 총 옵션 */}
           <Link
             to="/"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer"
+            className="bg-white rounded-lg shadow p-4 sm:p-6 hover:shadow-lg transition cursor-pointer"
           >
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-purple-100 rounded-full p-3">
@@ -165,7 +165,7 @@ const AdminDashboard = () => {
           {/* 활성 사용자 */}
           <Link
             to="/admin/users"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer"
+            className="bg-white rounded-lg shadow p-4 sm:p-6 hover:shadow-lg transition cursor-pointer"
           >
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-yellow-100 rounded-full p-3">
@@ -183,7 +183,7 @@ const AdminDashboard = () => {
           {/* 삭제 요청 */}
           <Link
             to="/admin/delete-requests"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer"
+            className="bg-white rounded-lg shadow p-4 sm:p-6 hover:shadow-lg transition cursor-pointer"
           >
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-red-100 rounded-full p-3">

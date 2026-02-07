@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -17,7 +17,7 @@ const navIcons = {
   ),
 };
 
-const Navigation = () => {
+const Navigation = ({ isOpen, onClose }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,6 +25,26 @@ const Navigation = () => {
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
   const isAdminSection = location.pathname.startsWith('/admin');
+
+  // 페이지 이동 시 모바일 네비게이션 닫기
+  useEffect(() => {
+    onClose?.();
+  }, [location.pathname]);
+
+  // 모바일 네비 열릴 때 스크롤 잠금
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  const handleNavigate = (path) => {
+    navigate(path);
+    onClose?.();
+  };
 
   const mainNavItems = user.role === 'admin'
     ? [
@@ -48,77 +68,113 @@ const Navigation = () => {
     { label: '삭제요청 관리', path: '/admin/delete-requests' },
   ];
 
-  return (
-    <nav className="w-60 bg-white border-r border-gray-100 overflow-y-auto flex-shrink-0">
-      <div className="p-3 pt-5">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-3">메뉴</p>
+  const navContent = (
+    <div className="p-3 pt-5">
+      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-3">메뉴</p>
 
-        <div className="space-y-0.5">
-          {mainNavItems.map((item) => {
-            const active = isActive(item.path) && !isAdminSection;
-            return (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-150 text-[13px] flex items-center gap-2.5 ${
-                  active
-                    ? 'bg-primary-50 text-primary-600 font-semibold'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                }`}
-              >
-                <span className={active ? 'text-primary-500' : 'text-gray-400'}>
-                  {navIcons[item.path] || <span className="w-[18px] h-[18px] block" />}
-                </span>
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {user.role === 'admin' && (
-          <>
-            <div className="my-4 mx-3 border-t border-gray-100" />
-
+      <div className="space-y-0.5">
+        {mainNavItems.map((item) => {
+          const active = isActive(item.path) && !isAdminSection;
+          return (
             <button
-              onClick={() => setIsAdminOpen(!isAdminOpen)}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-150 ${
-                isAdminSection ? 'text-primary-600' : 'text-gray-400 hover:text-gray-600'
+              key={item.path}
+              onClick={() => handleNavigate(item.path)}
+              className={`w-full text-left px-3 py-2.5 lg:py-2 rounded-lg transition-all duration-150 text-sm lg:text-[13px] flex items-center gap-2.5 ${
+                active
+                  ? 'bg-primary-50 text-primary-600 font-semibold'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
               }`}
             >
-              <p className="text-[10px] font-bold uppercase tracking-widest">관리</p>
-              <svg
-                className={`w-3.5 h-3.5 transition-transform duration-200 ${isAdminOpen ? 'rotate-180' : ''}`}
-                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+              <span className={active ? 'text-primary-500' : 'text-gray-400'}>
+                {navIcons[item.path] || <span className="w-[18px] h-[18px] block" />}
+              </span>
+              {item.label}
             </button>
-
-            {isAdminOpen && (
-              <div className="mt-1 space-y-0.5">
-                {adminSubItems.map((item) => {
-                  const active = location.pathname === item.path;
-                  return (
-                    <button
-                      key={item.path}
-                      onClick={() => navigate(item.path)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-150 text-[13px] flex items-center gap-2.5 ${
-                        active
-                          ? 'bg-primary-50 text-primary-600 font-semibold'
-                          : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
-                      }`}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${active ? 'bg-primary-500' : 'bg-gray-300'}`} />
-                      {item.label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </>
-        )}
+          );
+        })}
       </div>
-    </nav>
+
+      {user.role === 'admin' && (
+        <>
+          <div className="my-4 mx-3 border-t border-gray-100" />
+
+          <button
+            onClick={() => setIsAdminOpen(!isAdminOpen)}
+            className={`w-full flex items-center justify-between px-3 py-2.5 lg:py-2 rounded-lg transition-all duration-150 ${
+              isAdminSection ? 'text-primary-600' : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-widest">관리</p>
+            <svg
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${isAdminOpen ? 'rotate-180' : ''}`}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {isAdminOpen && (
+            <div className="mt-1 space-y-0.5">
+              {adminSubItems.map((item) => {
+                const active = location.pathname === item.path;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => handleNavigate(item.path)}
+                    className={`w-full text-left px-3 py-2.5 lg:py-2 rounded-lg transition-all duration-150 text-sm lg:text-[13px] flex items-center gap-2.5 ${
+                      active
+                        ? 'bg-primary-50 text-primary-600 font-semibold'
+                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${active ? 'bg-primary-500' : 'bg-gray-300'}`} />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {/* 모바일 오버레이 */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* 데스크탑: 고정 사이드바 / 모바일: 슬라이드 드로어 */}
+      <nav
+        className={`
+          bg-white border-r border-gray-100 overflow-y-auto flex-shrink-0
+          fixed lg:static inset-y-0 left-0 z-50
+          w-64 lg:w-60
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        {/* 모바일 헤더 */}
+        <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <span className="text-sm font-bold text-gray-900">FASTMATCH</span>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {navContent}
+      </nav>
+    </>
   );
 };
 

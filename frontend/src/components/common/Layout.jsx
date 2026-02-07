@@ -1,9 +1,19 @@
+import { useState, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Header from './Header';
 import Navigation from './Navigation';
 
 const Layout = ({ children }) => {
   const { user, loading } = useAuth();
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  const toggleMobileNav = useCallback(() => {
+    setIsMobileNavOpen((prev) => !prev);
+  }, []);
+
+  const closeMobileNav = useCallback(() => {
+    setIsMobileNavOpen(false);
+  }, []);
 
   if (loading) {
     return (
@@ -18,9 +28,9 @@ const Layout = ({ children }) => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <Header />
+      <Header onToggleMobileNav={toggleMobileNav} isMobileNavOpen={isMobileNavOpen} />
       <div className="flex flex-1 overflow-hidden">
-        {user && <Navigation />}
+        {user && <Navigation isOpen={isMobileNavOpen} onClose={closeMobileNav} />}
         <main className="flex-1 overflow-auto">
           {children}
         </main>

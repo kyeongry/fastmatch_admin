@@ -305,8 +305,9 @@ const MainPage = () => {
       <div className="flex flex-col h-full overflow-hidden bg-gray-50">
         {/* 상단 검색 & 필터 영역 */}
         <div className="bg-white border-b border-gray-200 shadow-sm">
-          {/* [중요 수정] onSearchChange -> onSearch 로 변경되었습니다 */}
-          <SearchBar onSearch={(search) => setFilters({ ...filters, search })} />
+          <div className="px-3 sm:px-4 md:px-6 pt-3">
+            <SearchBar onSearch={(search) => setFilters({ ...filters, search })} />
+          </div>
           <FilterBar
             filters={filters}
             onFilterChange={setFilters}
@@ -319,13 +320,13 @@ const MainPage = () => {
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* 옵션 목록 */}
           <div className="flex-1 overflow-auto">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6">
               {/* 헤더 */}
-              <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-6">
+              <div className="mb-4 sm:mb-6 space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">옵션 목록</h1>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h1 className="text-lg sm:text-2xl font-bold text-gray-900">옵션 목록</h1>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
                       {totalOptions > 0 ? `총 ${totalOptions}개의 옵션` : '조회된 옵션이 없습니다'}
                     </p>
                   </div>
@@ -337,49 +338,50 @@ const MainPage = () => {
                       onChange={(e) => setShowCompleted(e.target.checked)}
                       className="w-4 h-4 rounded border-gray-300 accent-blue-600"
                     />
-                    <span className="text-sm text-gray-700">거래완료 포함</span>
+                    <span className="text-xs sm:text-sm text-gray-700">거래완료 포함</span>
                   </label>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   {/* 뷰 모드 전환 버튼 */}
                   <div className="flex items-center bg-gray-100 rounded-lg p-1">
                     <button
                       onClick={() => handleViewModeChange('grid')}
-                      className={`p-2 rounded-md transition ${
+                      className={`p-1.5 sm:p-2 rounded-md transition ${
                         viewMode === 'grid'
                           ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                       title="바둑판 보기"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                       </svg>
                     </button>
                     <button
                       onClick={() => handleViewModeChange('list')}
-                      className={`p-2 rounded-md transition ${
+                      className={`p-1.5 sm:p-2 rounded-md transition ${
                         viewMode === 'list'
                           ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                       title="목록 보기"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                       </svg>
                     </button>
                   </div>
                   <Button
                     variant="primary"
-                    size="md"
+                    size="sm"
                     onClick={() => setRegisterModalOpen(true)}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-1.5 sm:gap-2 sm:!px-4 sm:!py-2 sm:!text-sm"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    옵션 등록
+                    <span className="hidden sm:inline">옵션 등록</span>
+                    <span className="sm:hidden">등록</span>
                   </Button>
                 </div>
               </div>
@@ -409,7 +411,7 @@ const MainPage = () => {
                   </div>
                 </div>
               ) : viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-6">
                   {filteredOptions.map((option) => (
                     <OptionCard
                       key={option.id}

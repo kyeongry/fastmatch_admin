@@ -1014,21 +1014,21 @@ const OptionDetailSlide = ({
         onClick={handleCloseAttempt}
       />
 
-      {/* 우측 슬라이드 패널 - 확장된 너비 */}
-      <div className="fixed right-0 top-0 h-full w-[1040px] max-w-[95vw] bg-white shadow-2xl flex flex-col z-[100]">
+      {/* 우측 슬라이드 패널 - 모바일 전체화면 / 데스크탑 확장 너비 */}
+      <div className="fixed right-0 top-0 h-full w-full sm:w-[1040px] sm:max-w-[95vw] bg-white shadow-2xl flex flex-col z-[100]">
         {/* 헤더 */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-gray-900">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-10">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate">
               {isEditMode ? '옵션 수정' : (currentOption?.branch?.brand?.name || '')}
             </h2>
             {!isEditMode && currentOption?.branch?.name && (
-              <span className="text-lg text-gray-700 font-semibold">
+              <span className="text-sm sm:text-lg text-gray-700 font-semibold truncate hidden sm:inline">
                 {currentOption.branch.name}
               </span>
             )}
             {!isEditMode && currentOption?.branch?.address && (
-              <span className="text-sm text-gray-500">
+              <span className="text-xs sm:text-sm text-gray-500 hidden md:inline truncate">
                 {currentOption.branch.address}
               </span>
             )}
