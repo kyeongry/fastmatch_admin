@@ -246,7 +246,7 @@ const BrandManagement = () => {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="예: 패스트파이브"
                 autoFocus
               />
@@ -259,7 +259,7 @@ const BrandManagement = () => {
                 type="text"
                 value={formData.alias}
                 onChange={(e) => setFormData({ ...formData, alias: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="예: F (알파벳 한 글자)"
               />
             </div>
@@ -271,7 +271,7 @@ const BrandManagement = () => {
                 type="email"
                 value={formData.default_email}
                 onChange={(e) => setFormData({ ...formData, default_email: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="담당자가 없을 때 사용할 이메일"
               />
               <p className="text-xs text-gray-500 mt-1">담당자가 지정되지 않은 경우 이 이메일로 제안요청이 발송됩니다.</p>
@@ -283,7 +283,7 @@ const BrandManagement = () => {
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="active">활성</option>
                 <option value="inactive">비활성</option>
@@ -299,7 +299,7 @@ const BrandManagement = () => {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition"
                 disabled={submitting}
               >
                 {isEditMode ? '수정' : '등록'}

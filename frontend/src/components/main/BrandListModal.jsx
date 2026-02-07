@@ -83,7 +83,7 @@ const BrandListModal = ({ isOpen, onClose, onFilterChange }) => {
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition"
           >
             적용
           </button>

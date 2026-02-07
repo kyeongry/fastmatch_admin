@@ -97,7 +97,7 @@ const TermsStep = () => {
                 type="text"
                 value={formatCurrency(contract.terms.deposit)}
                 onChange={(e) => handleCurrencyChange('terms.deposit', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 pr-8"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 pr-8"
               />
               <span className="absolute right-3 top-2 text-gray-500">원</span>
             </div>
@@ -109,7 +109,7 @@ const TermsStep = () => {
                 type="text"
                 value={formatCurrency(contract.terms.monthlyRent)}
                 onChange={(e) => handleCurrencyChange('terms.monthlyRent', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 pr-8"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 pr-8"
               />
               <span className="absolute right-3 top-2 text-gray-500">원</span>
             </div>
@@ -120,7 +120,7 @@ const TermsStep = () => {
               <select
                 value={contract.terms.rentPayDay}
                 onChange={(e) => updateNestedContract('terms.rentPayDay', parseInt(e.target.value))}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               >
                 {[...Array(28)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
@@ -142,7 +142,7 @@ const TermsStep = () => {
             <select
               value={paymentCount}
               onChange={(e) => handlePaymentCountChange(parseInt(e.target.value))}
-              className="px-3 py-1 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-1 border rounded-lg focus:ring-2 focus:ring-primary-500"
             >
               <option value={2}>2회 (계약금, 잔금)</option>
               <option value={3}>3회 (계약금, 중도금, 잔금)</option>
@@ -161,7 +161,7 @@ const TermsStep = () => {
                   <select
                     value={payment.type || ''}
                     onChange={(e) => updatePayment(index, 'type', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">선택</option>
                     <option value="preliminary">가계약금</option>
@@ -177,7 +177,7 @@ const TermsStep = () => {
                       type="text"
                       value={formatCurrency(payment.amount)}
                       onChange={(e) => updatePayment(index, 'amount', e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 pr-8"
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 pr-8"
                     />
                     <span className="absolute right-3 top-2 text-gray-500">원</span>
                   </div>
@@ -188,7 +188,7 @@ const TermsStep = () => {
                     type="date"
                     value={payment.date ? payment.date.split('T')[0] : ''}
                     onChange={(e) => updatePayment(index, 'date', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
                 <div>
@@ -198,7 +198,7 @@ const TermsStep = () => {
                     value={payment.recipient || ''}
                     onChange={(e) => updatePayment(index, 'recipient', e.target.value)}
                     placeholder="임대인"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
               </div>
@@ -238,7 +238,7 @@ const TermsStep = () => {
                 updateNestedContract('terms.contractPeriod.startDate', e.target.value);
                 setTimeout(calculateEndDate, 100);
               }}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -249,7 +249,7 @@ const TermsStep = () => {
                 updateNestedContract('terms.contractPeriod.months', parseInt(e.target.value));
                 setTimeout(calculateEndDate, 100);
               }}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             >
               <option value={12}>12개월 (1년)</option>
               <option value={24}>24개월 (2년)</option>
@@ -263,7 +263,7 @@ const TermsStep = () => {
               type="date"
               value={contract.terms.contractPeriod.endDate?.split('T')[0] || ''}
               onChange={(e) => updateNestedContract('terms.contractPeriod.endDate', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div className="flex items-end">
@@ -275,7 +275,7 @@ const TermsStep = () => {
                   updateNestedContract('terms.contractPeriod.includeFirstDay', e.target.checked);
                   setTimeout(calculateEndDate, 100);
                 }}
-                className="w-4 h-4 text-blue-600 rounded"
+                className="w-4 h-4 text-primary-600 rounded"
               />
               <span className="text-sm text-gray-700">초일 산입</span>
             </label>
@@ -298,7 +298,7 @@ const TermsStep = () => {
           <select
             value={contract.clauses.overdueCount}
             onChange={(e) => updateNestedContract('clauses.overdueCount', parseInt(e.target.value))}
-            className="w-32 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-32 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
           >
             {[1, 2, 3, 4, 5].map((n) => (
               <option key={n} value={n}>
@@ -320,7 +320,7 @@ const TermsStep = () => {
             type="date"
             value={contract.clauses.deliveryDate?.split('T')[0] || ''}
             onChange={(e) => updateNestedContract('clauses.deliveryDate', e.target.value)}
-            className="w-48 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-48 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
           />
           <p className="text-xs text-gray-500 mt-1">
             미입력 시 계약일자로 자동 설정됩니다
@@ -339,7 +339,7 @@ const TermsStep = () => {
               step="0.1"
               value={contract.brokerage.rate}
               onChange={(e) => updateNestedContract('brokerage.rate', parseFloat(e.target.value) || 0.9)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
             <p className="text-xs text-gray-500 mt-1">업무용: 0.9% 이내</p>
           </div>
@@ -362,7 +362,7 @@ const TermsStep = () => {
                 type="text"
                 value={formatCurrency(contract.brokerage.expense)}
                 onChange={(e) => handleCurrencyChange('brokerage.expense', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 pr-8"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 pr-8"
               />
               <span className="absolute right-3 top-2 text-gray-500">원</span>
             </div>
@@ -387,7 +387,7 @@ const TermsStep = () => {
               type="checkbox"
               checked={contract.brokerage.isNegotiated}
               onChange={(e) => updateNestedContract('brokerage.isNegotiated', e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded"
+              className="w-4 h-4 text-primary-600 rounded"
             />
             <span className="text-sm text-gray-700">협의 금액으로 변경</span>
           </label>
@@ -397,7 +397,7 @@ const TermsStep = () => {
               value={contract.brokerage.negotiatedNote}
               onChange={(e) => updateNestedContract('brokerage.negotiatedNote', e.target.value)}
               placeholder="협의 내용 입력"
-              className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           )}
         </div>

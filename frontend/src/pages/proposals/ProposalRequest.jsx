@@ -368,7 +368,7 @@ const ProposalRequest = () => {
                   key={brand.id}
                   className={`flex items-center p-3 border rounded-lg cursor-pointer transition ${
                     formData.selected_brands.includes(brand.id)
-                      ? 'border-blue-500 bg-blue-50'
+                      ? 'border-primary-500 bg-blue-50'
                       : 'border-gray-300 hover:border-blue-300'
                   }`}
                 >
@@ -404,7 +404,7 @@ const ProposalRequest = () => {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+              className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-400"
             >
               {loading ? '발송 중...' : '제안 요청 발송'}
             </button>
@@ -425,7 +425,7 @@ const ProposalRequest = () => {
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => navigate('/proposals/requests')}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
               >
                 제안 요청 관리
               </button>

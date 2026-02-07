@@ -352,7 +352,7 @@ const OptionRegister = () => {
 
               {/* 1. 브랜드/지점 선택 */}
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-blue-500">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-primary-500">
                   1. 브랜드 & 지점
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -369,7 +369,7 @@ const OptionRegister = () => {
                       onBlur={() => setTimeout(() => setShowBrandDropdown(false), 200)}
                       onKeyDown={handleBrandKeyDown}
                       placeholder="브랜드를 검색하세요"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                     />
                     {showBrandDropdown && filteredBrands.length > 0 && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -400,7 +400,7 @@ const OptionRegister = () => {
                       onKeyDown={handleBranchKeyDown}
                       placeholder={!formData.brand_id ? "브랜드를 먼저 선택해주세요" : "지점을 검색하세요"}
                       disabled={!formData.brand_id}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
                     />
                     {showBranchDropdown && filteredBranches.length > 0 && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -423,7 +423,7 @@ const OptionRegister = () => {
 
               {/* 2. 기본 정보 */}
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-blue-500">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-primary-500">
                   2. 기본 정보
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -433,7 +433,7 @@ const OptionRegister = () => {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       placeholder="옵션명을 입력해주세요"
                     />
                   </div>
@@ -449,7 +449,7 @@ const OptionRegister = () => {
                           category2: newCategory1 === 'exclusive_floor' ? '' : formData.category2
                         });
                       }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                     >
                       <option value="exclusive_floor">전용층</option>
                       <option value="connected_floor">연층</option>
@@ -465,7 +465,7 @@ const OptionRegister = () => {
                       value={formData.category2}
                       onChange={(e) => setFormData({ ...formData, category2: e.target.value })}
                       disabled={formData.category1 === 'exclusive_floor'}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                     >
                       <option value="">선택 안 함</option>
                       <option value="window_side">창측</option>
@@ -482,7 +482,7 @@ const OptionRegister = () => {
                       min="1"
                       value={formData.capacity}
                       onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 1 })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
                 </div>
@@ -490,7 +490,7 @@ const OptionRegister = () => {
 
               {/* 3. 가격 정보 */}
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-blue-500">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-primary-500">
                   3. 가격 정보
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -503,7 +503,7 @@ const OptionRegister = () => {
                         const numericValue = parseNumberInput(e.target.value);
                         setFormData({ ...formData, monthly_fee: numericValue ? parseInt(numericValue) : 0 });
                       }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       placeholder="월사용료를 입력해주세요"
                     />
                   </div>
@@ -516,7 +516,7 @@ const OptionRegister = () => {
                         const numericValue = parseNumberInput(e.target.value);
                         setFormData({ ...formData, deposit: numericValue ? parseInt(numericValue) : 0 });
                       }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       placeholder="보증금을 입력해주세요"
                     />
                   </div>
@@ -529,7 +529,7 @@ const OptionRegister = () => {
                         const numericValue = parseNumberInput(e.target.value);
                         setFormData({ ...formData, list_price: numericValue });
                       }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       placeholder="정가를 입력해주세요"
                     />
                   </div>
@@ -558,7 +558,7 @@ const OptionRegister = () => {
                       <select
                         value={newFee.type}
                         onChange={(e) => setNewFee({ ...newFee, type: e.target.value, customType: '' })}
-                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                       >
                         <option value="">종류 선택</option>
                         <option value="셋업비">셋업비</option>
@@ -572,7 +572,7 @@ const OptionRegister = () => {
                           value={newFee.customType}
                           onChange={(e) => setNewFee({ ...newFee, customType: e.target.value })}
                           placeholder="종류 입력"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                         />
                       )}
                       <input
@@ -583,12 +583,12 @@ const OptionRegister = () => {
                           setNewFee({ ...newFee, amount: numericValue });
                         }}
                         placeholder="금액"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                       />
                       <button
                         type="button"
                         onClick={handleAddFee}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition font-medium"
+                        className="px-4 py-2 bg-primary-500 text-white rounded-lg text-sm hover:bg-primary-500 transition font-medium"
                       >
                         추가
                       </button>
@@ -599,7 +599,7 @@ const OptionRegister = () => {
 
               {/* 4. 계약 정보 */}
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-blue-500">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-primary-500">
                   4. 계약 정보
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -608,7 +608,7 @@ const OptionRegister = () => {
                     <select
                       value={formData.move_in_date_type}
                       onChange={(e) => setFormData({ ...formData, move_in_date_type: e.target.value, move_in_date_value: '' })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-3"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 mb-3"
                     >
                       <option value="immediate">즉시입주</option>
                       <option value="negotiable">협의필요</option>
@@ -620,7 +620,7 @@ const OptionRegister = () => {
                         value={formData.move_in_date_value}
                         onChange={(e) => setFormData({ ...formData, move_in_date_value: e.target.value })}
                         placeholder="예: 2025년 1월 1일"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       />
                     )}
                   </div>
@@ -629,7 +629,7 @@ const OptionRegister = () => {
                     <select
                       value={formData.contract_period_type}
                       onChange={(e) => setFormData({ ...formData, contract_period_type: e.target.value, contract_period_value: '' })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-3"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 mb-3"
                     >
                       <option value="six_months">6개월</option>
                       <option value="twelve_months">12개월</option>
@@ -641,7 +641,7 @@ const OptionRegister = () => {
                         value={formData.contract_period_value}
                         onChange={(e) => setFormData({ ...formData, contract_period_value: e.target.value })}
                         placeholder="예: 24개월"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       />
                     )}
                   </div>
@@ -650,7 +650,7 @@ const OptionRegister = () => {
 
               {/* 5. 추가 정보 */}
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-blue-500">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-primary-500">
                   5. 추가 정보
                 </h2>
                 <div className="space-y-6">
@@ -659,7 +659,7 @@ const OptionRegister = () => {
                     <textarea
                       value={formData.office_info}
                       onChange={(e) => setFormData({ ...formData, office_info: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       rows="3"
                       placeholder="오피스 정보를 입력해주세요"
                     />
@@ -723,7 +723,7 @@ const OptionRegister = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition disabled:bg-gray-400 disabled:cursor-not-allowed text-lg"
+                className="px-8 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition disabled:bg-gray-400 disabled:cursor-not-allowed text-lg"
               >
                 {loading ? '등록 중...' : '✓ 옵션 등록'}
               </button>
@@ -810,7 +810,7 @@ const OptionRegister = () => {
               <select
                 value={formData.hvac_type}
                 onChange={(e) => setFormData({ ...formData, hvac_type: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
               >
                 <option value="central">중앙냉난방</option>
                 <option value="individual">개별냉난방</option>
@@ -836,7 +836,7 @@ const OptionRegister = () => {
                 <select
                   value={formData.parking_type}
                   onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">선택하세요</option>
                   <option value="self_parking">자주식</option>
@@ -903,7 +903,7 @@ const OptionRegister = () => {
                     ...formData,
                     exclusive_area: { ...formData.exclusive_area, unit: e.target.value }
                   })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="sqm">제곱미터 (㎡)</option>
                   <option value="pyeong">평</option>
@@ -921,7 +921,7 @@ const OptionRegister = () => {
                     ...formData,
                     exclusive_area: { ...formData.exclusive_area, value: e.target.value }
                   })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   placeholder={`전용면적을 입력하세요 (예: ${formData.exclusive_area.unit === 'sqm' ? '85.5' : '25.8'})`}
                 />
               </div>
@@ -1180,7 +1180,7 @@ const OptionRegister = () => {
                 <textarea
                   value={formData.memo}
                   onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   rows="4"
                   placeholder="추가 메모를 입력해주세요"
                 />
@@ -1209,7 +1209,7 @@ const OptionRegister = () => {
                 setNewCredit({ type: 'monthly', amount: '', note: '', customName: '', unit: '크레딧' });
               }}
               disabled={activeSection === 'credit' && (newCredit.amount || newCredit.customName || newCredit.note)}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               확인
             </button>

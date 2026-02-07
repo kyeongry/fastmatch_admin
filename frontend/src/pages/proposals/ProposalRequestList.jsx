@@ -49,7 +49,7 @@ const ProposalRequestList = () => {
           <h1 className="text-3xl font-bold">제안 요청 관리</h1>
           <button
             onClick={() => navigate('/proposals/request')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
           >
             + 새 제안 요청
           </button>
@@ -64,7 +64,7 @@ const ProposalRequestList = () => {
             <p className="text-gray-500 mb-4">제안 요청이 없습니다</p>
             <button
               onClick={() => navigate('/proposals/request')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
             >
               첫 제안 요청 생성하기
             </button>

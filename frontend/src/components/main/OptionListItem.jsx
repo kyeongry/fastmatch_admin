@@ -45,7 +45,7 @@ const OptionListItem = memo(({
   return (
     <div
       className={`relative bg-white border rounded-lg overflow-hidden hover:shadow-md transition duration-200 ${
-        selected ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-200'
+        selected ? 'border-primary-500 ring-1 ring-primary-500' : 'border-gray-200'
       } ${option.status === 'completed' ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start sm:items-center">
@@ -58,7 +58,7 @@ const OptionListItem = memo(({
               e.stopPropagation();
               onSelect(!selected);
             }}
-            className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-blue-600"
+            className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-primary-500"
           />
         </div>
 
@@ -74,7 +74,7 @@ const OptionListItem = memo(({
               <span className="mx-1 text-gray-300">/</span>
               <span>{option.branch?.name}</span>
             </div>
-            <div className="text-xs font-semibold text-blue-600 flex-shrink-0 ml-2">
+            <div className="text-xs font-semibold text-primary-600 flex-shrink-0 ml-2">
               {formatPrice(option.monthly_fee)}
             </div>
           </div>
@@ -124,7 +124,7 @@ const OptionListItem = memo(({
 
           {/* 데스크탑: 가격 정보 */}
           <div className="hidden sm:block w-32 lg:w-40 flex-shrink-0 text-right">
-            <div className="text-sm font-semibold text-blue-600">
+            <div className="text-sm font-semibold text-primary-600">
               {formatPrice(option.monthly_fee)}
             </div>
             <div className="text-xs text-gray-500">

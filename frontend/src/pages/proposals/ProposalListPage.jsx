@@ -125,7 +125,7 @@ const ProposalListPage = () => {
                     <h1 className="text-2xl font-bold text-gray-900">내 제안서 목록</h1>
                     <button
                         onClick={() => navigate('/')}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                        className="bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 transition-colors"
                     >
                         새 제안서 작성
                     </button>
@@ -162,7 +162,7 @@ const ProposalListPage = () => {
                                 setPageSize(Number(e.target.value));
                                 setPage(1);
                             }}
-                            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                         >
                             <option value={10}>10개</option>
                             <option value={20}>20개</option>
@@ -174,7 +174,7 @@ const ProposalListPage = () => {
 
                 {loading ? (
                     <div className="flex justify-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
                     </div>
                 ) : (
                     <>
@@ -336,7 +336,7 @@ const ProposalListPage = () => {
                                         onClick={() => setPage(pageNum)}
                                         className={`px-4 py-2 text-sm font-medium border ${
                                             page === pageNum
-                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                ? 'bg-primary-500 text-white border-primary-500'
                                                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                                         }`}
                                     >

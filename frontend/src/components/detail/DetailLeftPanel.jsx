@@ -13,6 +13,7 @@ const DetailLeftPanel = ({
   onSelectOption,
   loadingOptions,
   onImageClick,
+  isMobileInline = false,
 }) => {
   const [showBranchInfo, setShowBranchInfo] = useState(true);
   const [showReviewBoard, setShowReviewBoard] = useState(false);
@@ -56,9 +57,12 @@ const DetailLeftPanel = ({
   const kakaoMapUrl = getKakaoMapUrl();
 
   return (
-    <div className="w-[320px] min-w-[320px] border-r border-gray-200 bg-white flex flex-col h-full">
+    <div className={isMobileInline
+      ? 'w-full bg-white rounded-xl border border-gray-200 flex flex-col'
+      : 'w-[320px] min-w-[320px] border-r border-gray-200 bg-white flex flex-col h-full'
+    }>
       {/* 전체 스크롤 영역 */}
-      <div className="flex-1 overflow-y-auto">
+      <div className={isMobileInline ? '' : 'flex-1 overflow-y-auto'}>
         {/* ======== 지점 정보 섹션 ======== */}
         <div className="border-b border-gray-200">
           <button

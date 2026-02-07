@@ -461,10 +461,10 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
         title={initialData ? "옵션 수정" : "신규 옵션 등록"}
         size="5xl"
       >
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-8">
           {/* 1. 브랜드/지점 선택 */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">
+            <h2 className="text-sm sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 pb-2 border-b-2 border-primary-500">
               1. 브랜드 & 지점
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -481,7 +481,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                   onBlur={() => setTimeout(() => setShowBrandDropdown(false), 200)}
                   onKeyDown={handleBrandKeyDown}
                   placeholder="브랜드를 검색하세요"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
                 {showBrandDropdown && filteredBrands.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -512,7 +512,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                   onKeyDown={handleBranchKeyDown}
                   placeholder={!formData.brand_id ? "브랜드를 먼저 선택해주세요" : "지점을 검색하세요"}
                   disabled={!formData.brand_id}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
                 />
                 {showBranchDropdown && filteredBranches.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -535,7 +535,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
 
           {/* 2. 기본 정보 */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">
+            <h2 className="text-sm sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 pb-2 border-b-2 border-primary-500">
               2. 기본 정보
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -545,7 +545,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   placeholder="옵션명을 입력해주세요"
                 />
               </div>
@@ -561,7 +561,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       category2: newCategory1 === 'exclusive_floor' ? '' : formData.category2
                     });
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="exclusive_floor">전용층</option>
                   <option value="connected_floor">연층</option>
@@ -577,7 +577,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                   value={formData.category2}
                   onChange={(e) => setFormData({ ...formData, category2: e.target.value })}
                   disabled={formData.category1 === 'exclusive_floor'}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                 >
                   <option value="">선택 안 함</option>
                   <option value="window_side">창측</option>
@@ -594,7 +594,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                   min="1"
                   value={formData.capacity}
                   onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 1 })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
@@ -602,7 +602,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
 
           {/* 3. 가격 정보 */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">
+            <h2 className="text-sm sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 pb-2 border-b-2 border-primary-500">
               3. 가격 정보
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -615,7 +615,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     const numericValue = parseNumberInput(e.target.value);
                     setFormData({ ...formData, monthly_fee: numericValue ? parseInt(numericValue) : 0 });
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   placeholder="월사용료를 입력해주세요"
                 />
               </div>
@@ -628,7 +628,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     const numericValue = parseNumberInput(e.target.value);
                     setFormData({ ...formData, deposit: numericValue ? parseInt(numericValue) : 0 });
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   placeholder="보증금을 입력해주세요"
                 />
               </div>
@@ -641,7 +641,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     const numericValue = parseNumberInput(e.target.value);
                     setFormData({ ...formData, list_price: numericValue });
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   placeholder="정가를 입력해주세요"
                 />
               </div>
@@ -670,7 +670,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                   <select
                     value={newFee.type}
                     onChange={(e) => setNewFee({ ...newFee, type: e.target.value, customType: '' })}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">종류 선택</option>
                     <option value="셋업비">셋업비</option>
@@ -684,7 +684,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       value={newFee.customType}
                       onChange={(e) => setNewFee({ ...newFee, customType: e.target.value })}
                       placeholder="종류 입력"
-                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                     />
                   )}
                   <input
@@ -695,12 +695,12 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       setNewFee({ ...newFee, amount: numericValue });
                     }}
                     placeholder="금액"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                   />
                   <button
                     type="button"
                     onClick={handleAddFee}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition font-medium"
+                    className="px-4 py-2 bg-primary-500 text-white rounded-lg text-sm hover:bg-primary-600 transition font-medium"
                   >
                     추가
                   </button>
@@ -711,7 +711,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
 
           {/* 4. 계약 정보 */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">
+            <h2 className="text-sm sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 pb-2 border-b-2 border-primary-500">
               4. 계약 정보
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -720,7 +720,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                 <select
                   value={formData.move_in_date_type}
                   onChange={(e) => setFormData({ ...formData, move_in_date_type: e.target.value, move_in_date_value: '' })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 mb-2"
                 >
                   <option value="immediate">즉시입주</option>
                   <option value="negotiable">협의필요</option>
@@ -732,7 +732,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     value={formData.move_in_date_value}
                     onChange={(e) => setFormData({ ...formData, move_in_date_value: e.target.value })}
                     placeholder="예: 2025년 1월 1일"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   />
                 )}
               </div>
@@ -741,7 +741,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                 <select
                   value={formData.contract_period_type}
                   onChange={(e) => setFormData({ ...formData, contract_period_type: e.target.value, contract_period_value: '' })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 mb-2"
                 >
                   <option value="six_months">6개월</option>
                   <option value="twelve_months">12개월</option>
@@ -753,7 +753,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     value={formData.contract_period_value}
                     onChange={(e) => setFormData({ ...formData, contract_period_value: e.target.value })}
                     placeholder="예: 24개월"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   />
                 )}
               </div>
@@ -762,13 +762,13 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
 
           {/* 5. 추가 정보 (선택입력사항) */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">
-              5. 추가정보 <span className="text-base font-normal text-gray-500">(선택입력사항)</span>
+            <h2 className="text-sm sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 pb-2 border-b-2 border-primary-500">
+              5. 추가정보 <span className="text-xs sm:text-base font-normal text-gray-500">(선택)</span>
             </h2>
             <div className="space-y-4">
               {/* 전용면적 */}
-              <div className="flex items-center gap-4">
-                <label className="w-24 text-sm font-medium text-gray-700 shrink-0">전용면적:</label>
+              <div className="flex items-center gap-2 sm:gap-4">
+                <label className="w-16 sm:w-24 text-xs sm:text-sm font-medium text-gray-700 shrink-0">전용면적:</label>
                 <div className="flex gap-2">
                   <input
                     type="number"
@@ -778,7 +778,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       ...formData,
                       exclusive_area: { ...formData.exclusive_area, value: e.target.value }
                     })}
-                    className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                     placeholder=""
                   />
                   <select
@@ -787,7 +787,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       ...formData,
                       exclusive_area: { ...formData.exclusive_area, unit: e.target.value }
                     })}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="pyeong">평</option>
                     <option value="sqm">㎡</option>
@@ -796,12 +796,12 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
               </div>
 
               {/* 냉난방 */}
-              <div className="flex items-center gap-4">
-                <label className="w-24 text-sm font-medium text-gray-700 shrink-0">냉난방:</label>
+              <div className="flex items-center gap-2 sm:gap-4">
+                <label className="w-16 sm:w-24 text-xs sm:text-sm font-medium text-gray-700 shrink-0">냉난방:</label>
                 <select
                   value={formData.hvac_type}
                   onChange={(e) => setFormData({ ...formData, hvac_type: e.target.value })}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">선택</option>
                   <option value="central">중앙냉난방</option>
@@ -810,13 +810,13 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
               </div>
 
               {/* 주차 */}
-              <div className="flex items-start gap-4">
-                <label className="w-24 text-sm font-medium text-gray-700 shrink-0 pt-2">주차:</label>
+              <div className="flex items-start gap-2 sm:gap-4">
+                <label className="w-16 sm:w-24 text-xs sm:text-sm font-medium text-gray-700 shrink-0 pt-2">주차:</label>
                 <div className="flex-1 space-y-2">
                   <select
                     value={formData.parking_type}
                     onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">선택</option>
                     <option value="self_parking">자주식</option>
@@ -869,14 +869,14 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
               </div>
 
               {/* 크레딧 */}
-              <div className="flex items-start gap-4">
-                <label className="w-24 text-sm font-medium text-gray-700 shrink-0 pt-2">크레딧:</label>
-                <div className="flex-1 space-y-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">크레딧:</label>
+                <div className="space-y-2">
                   {/* 등록된 크레딧 목록 */}
                   {formData.credits.length > 0 && (
                     <div className="space-y-2 mb-3">
                       {formData.credits.map((credit, index) => (
-                        <div key={index} className="flex items-center gap-2 px-3 py-2 bg-yellow-50 rounded-lg text-sm">
+                        <div key={index} className="flex items-center gap-2 px-3 py-2 bg-primary-50 border border-primary-100 rounded-lg text-xs sm:text-sm">
                           <span className="flex-1">
                             {credit.type === 'other'
                               ? `${credit.customName || '기타'} : 월 ${credit.amount.toLocaleString()} ${credit.unit || '크레딧'} 제공`
@@ -887,7 +887,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                           <button
                             type="button"
                             onClick={() => handleRemoveCredit(index)}
-                            className="text-red-500 hover:text-red-700 text-xs"
+                            className="text-red-500 hover:text-red-700 text-xs flex-shrink-0"
                           >
                             삭제
                           </button>
@@ -895,65 +895,64 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                       ))}
                     </div>
                   )}
-                  {/* 새 크레딧 추가 입력 */}
-                  <div className="flex gap-2 items-center flex-wrap">
+                  {/* 새 크레딧 추가 입력 - 모바일: 2행 그리드 */}
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 items-center">
                     <select
                       value={newCredit.type}
                       onChange={(e) => setNewCredit({ ...newCredit, type: e.target.value })}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                     >
                       <option value="monthly">크레딧</option>
                       <option value="printing">프린팅</option>
                       <option value="meeting_room">미팅룸</option>
                       <option value="other">기타</option>
                     </select>
-                    {/* 기타 선택 시 명칭 입력 */}
                     {newCredit.type === 'other' && (
                       <input
                         type="text"
                         value={newCredit.customName}
                         onChange={(e) => setNewCredit({ ...newCredit, customName: e.target.value })}
                         placeholder="명칭"
-                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                       />
                     )}
-                    <input
-                      type="number"
-                      value={newCredit.amount}
-                      onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
-                      className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                      placeholder="수량"
-                    />
-                    {/* 기타 선택 시 단위 입력 */}
-                    {newCredit.type === 'other' ? (
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="number"
+                        value={newCredit.amount}
+                        onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
+                        className="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                        placeholder="수량"
+                      />
+                      {newCredit.type !== 'other' && (
+                        <span className="text-xs text-gray-500 whitespace-nowrap">크레딧</span>
+                      )}
+                    </div>
+                    {newCredit.type === 'other' && (
                       <input
                         type="text"
                         value={newCredit.unit}
                         onChange={(e) => setNewCredit({ ...newCredit, unit: e.target.value })}
                         placeholder="단위"
-                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                       />
-                    ) : (
-                      <span className="text-sm text-gray-600">크레딧</span>
                     )}
-                    <div className="relative flex-1 min-w-[100px]">
-                      <input
-                        type="text"
-                        value={newCredit.note}
-                        onChange={(e) => {
-                          if (e.target.value.length <= TEXT_MAX_LENGTH) {
-                            setNewCredit({ ...newCredit, note: e.target.value });
-                          }
-                        }}
-                        maxLength={TEXT_MAX_LENGTH}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                        placeholder={`메모(${newCredit.note?.length || 0}/${TEXT_MAX_LENGTH}자)`}
-                      />
-                    </div>
+                    <input
+                      type="text"
+                      value={newCredit.note}
+                      onChange={(e) => {
+                        if (e.target.value.length <= TEXT_MAX_LENGTH) {
+                          setNewCredit({ ...newCredit, note: e.target.value });
+                        }
+                      }}
+                      maxLength={TEXT_MAX_LENGTH}
+                      className="col-span-2 sm:col-span-1 sm:flex-1 sm:min-w-[100px] px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                      placeholder={`메모`}
+                    />
                     <button
                       type="button"
                       onClick={handleAddCredit}
-                      className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium text-sm"
+                      className="col-span-2 sm:col-span-1 sm:w-auto px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-medium text-sm"
                     >
                       추가
                     </button>
@@ -962,12 +961,12 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
               </div>
 
               {/* 오피스정보 */}
-              <div className="flex items-start gap-4">
-                <label className="w-24 text-sm font-medium text-gray-700 shrink-0 pt-2">오피스정보:</label>
+              <div className="flex items-start gap-2 sm:gap-4">
+                <label className="w-16 sm:w-24 text-xs sm:text-sm font-medium text-gray-700 shrink-0 pt-2">오피스정보:</label>
                 <textarea
                   value={formData.office_info}
                   onChange={(e) => setFormData({ ...formData, office_info: e.target.value })}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                   rows="2"
                   placeholder="예: 8층 5인실 창측 전용호실 / 전용면적 3.6평"
                 />
@@ -1033,7 +1032,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="px-8 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {loading ? (initialData ? '수정 중...' : '등록 중...') : (initialData ? '옵션 수정' : '옵션 등록')}
             </button>
@@ -1043,10 +1042,13 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
 
       {/* 기타 옵션 추가 서브 모달 */}
       {showOtherInfoModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[110]">
-          <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-[110]">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sm:hidden flex justify-center pt-2">
+              <div className="w-10 h-1 rounded-full bg-gray-300" />
+            </div>
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
                 기타 정보
               </h2>
               <button
@@ -1060,7 +1062,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               {/* 옵션 버튼들 */}
               {!activeSection && (
                 <div className="grid grid-cols-2 gap-3">
@@ -1249,7 +1251,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                         }
                       }}
                       maxLength={TEXT_MAX_LENGTH}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       rows="4"
                       placeholder="추가 메모를 입력해주세요"
                     />
@@ -1265,7 +1267,7 @@ const OptionRegisterModal = ({ isOpen, onClose, onSuccess, initialData = null })
                     setShowOtherInfoModal(false);
                     setActiveSection(null);
                   }}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                  className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-medium"
                 >
                   확인
                 </button>
