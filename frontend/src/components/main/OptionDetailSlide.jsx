@@ -1015,9 +1015,9 @@ const OptionDetailSlide = ({
       />
 
       {/* 우측 슬라이드 패널 - 확장된 너비 */}
-      <div className="fixed right-0 top-0 h-full w-[1040px] max-w-[95vw] bg-white shadow-2xl flex flex-col z-[100]">
+      <div className="fixed right-0 top-0 h-full w-[1040px] max-w-[95vw] bg-white shadow-2xl flex flex-col z-[100] overflow-hidden">
         {/* 헤더 */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+        <div className="flex-shrink-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-gray-900">
               {isEditMode ? '옵션 수정' : (currentOption?.branch?.brand?.name || '')}
