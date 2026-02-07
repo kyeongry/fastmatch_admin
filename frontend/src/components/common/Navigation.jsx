@@ -60,7 +60,6 @@ const Navigation = ({ isOpen, onClose }) => {
       ];
 
   const adminSubItems = [
-    { label: '대시보드', path: '/admin' },
     { label: '브랜드 관리', path: '/admin/brands' },
     { label: '매니저 관리', path: '/admin/managers' },
     { label: '지점 관리', path: '/admin/branches' },

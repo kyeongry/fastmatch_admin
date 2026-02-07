@@ -34,7 +34,7 @@ const LeaseCreatePage = lazy(() => import('./pages/lease/LeaseCreatePage'));
 import { LeaseContractProvider } from './context/LeaseContractContext';
 
 // Admin Pages (lazy)
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+// AdminDashboard removed - no longer used
 const BrandManagement = lazy(() => import('./pages/admin/BrandManagement'));
 const ManagerManagement = lazy(() => import('./pages/admin/ManagerManagement'));
 const BranchManagement = lazy(() => import('./pages/admin/BranchManagement'));
@@ -98,7 +98,7 @@ function App() {
 
             {/* Admin Routes */}
             <Route element={<AdminRoute />}>
-              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin" element={<Navigate to="/admin/brands" replace />} />
               <Route path="/admin/brands" element={<BrandManagement />} />
               <Route path="/admin/managers" element={<ManagerManagement />} />
               <Route path="/admin/branches" element={<BranchManagement />} />

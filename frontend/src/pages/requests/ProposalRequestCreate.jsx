@@ -18,7 +18,7 @@ const ProposalRequestCreate = () => {
         preferred_capacity: '',
         move_in_date: '',
         move_in_period: 'early',
-        lease_period: '6',
+        lease_period: '12',
         lease_period_custom: '',
         additional_info: '',
         selected_brands: []
@@ -31,7 +31,10 @@ const ProposalRequestCreate = () => {
     const fetchBrands = async () => {
         try {
             const response = await brandAPI.getAll();
-            setBrands(response.data.brands || response.data || []);
+            const allBrands = response.data.brands || response.data || [];
+            // 지점 수 내림차순 정렬
+            allBrands.sort((a, b) => (b.branches_count || 0) - (a.branches_count || 0));
+            setBrands(allBrands);
         } catch (error) {
             console.error('브랜드 조회 실패:', error);
             alert('브랜드 목록을 불러오는데 실패했습니다');
