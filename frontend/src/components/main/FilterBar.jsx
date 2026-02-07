@@ -93,8 +93,15 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
       items = CATEGORY1_OPTIONS;
     }
 
-    // 가나다순 정렬 (카테고리는 고정 순서 유지)
-    if (activeFilterType !== 'categories') {
+    // 정렬: 브랜드는 지점 수 내림차순, 그 외는 가나다순 (카테고리는 고정 순서 유지)
+    if (activeFilterType === 'brands') {
+      items = [...items].sort((a, b) => {
+        const countA = a.branches_count || 0;
+        const countB = b.branches_count || 0;
+        if (countB !== countA) return countB - countA;
+        return (a.name || '').localeCompare(b.name || '', 'ko-KR');
+      });
+    } else if (activeFilterType !== 'categories') {
       items = [...items].sort((a, b) => {
         const nameA = a.name || '';
         const nameB = b.name || '';
