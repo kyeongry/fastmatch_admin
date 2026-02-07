@@ -185,7 +185,7 @@ export const uploadAPI = {
   pdf: (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    return api.post('/upload/pdf', formData, {
+    return api.post('/upload/image', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
@@ -224,7 +224,10 @@ export const externalAPI = {
 // ============ Admin API ============
 export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
-  getStatistics: () => api.get('/admin/statistics'),
+  getMonthlyStats: (months) => api.get('/admin/stats/monthly', { params: { months } }),
+  getBrandStats: () => api.get('/admin/stats/brands'),
+  getOptionStats: () => api.get('/admin/stats/options'),
+  getProposalStats: () => api.get('/admin/stats/proposals'),
   getActivities: () => api.get('/admin/activities'),
   getUsageStats: () => api.get('/admin/usage'),
   // 사용자 관리
