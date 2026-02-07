@@ -147,7 +147,7 @@ const MyOptionsPage = () => {
                     <h1 className="text-2xl font-bold">내가 등록한 옵션</h1>
                     <button
                         onClick={() => navigate('/options/register')}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                        className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-medium"
                     >
                         + 새 옵션 등록
                     </button>
@@ -155,7 +155,7 @@ const MyOptionsPage = () => {
 
                 {loading ? (
                     <div className="flex justify-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
                     </div>
                 ) : options.length === 0 ? (
                     <div className="text-center py-20 bg-gray-50 rounded-lg border border-gray-200">
@@ -163,7 +163,7 @@ const MyOptionsPage = () => {
                         <p className="text-gray-600 mb-4">등록한 옵션이 없습니다</p>
                         <button
                             onClick={() => navigate('/options/register')}
-                            className="text-blue-600 hover:underline font-medium"
+                            className="text-primary-600 hover:underline font-medium"
                         >
                             첫 번째 옵션을 등록해보세요
                         </button>

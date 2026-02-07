@@ -52,7 +52,7 @@ const PropertyStep = () => {
 
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 transition-colors"
+          className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary-500 transition-colors"
         >
           <input
             ref={fileInputRef}
@@ -93,7 +93,7 @@ const PropertyStep = () => {
           value={contract.property.address}
           onChange={(e) => updateNestedContract('property.address', e.target.value)}
           placeholder="등기부등본에서 추출된 주소가 표시됩니다"
-          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         />
         <p className="text-xs text-gray-500 mt-1">
           등기부등본의 주소가 그대로 사용됩니다
@@ -110,7 +110,7 @@ const PropertyStep = () => {
               type="text"
               value={contract.property.land.category}
               onChange={(e) => updateNestedContract('property.land.category', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -120,7 +120,7 @@ const PropertyStep = () => {
               step="0.01"
               value={contract.property.land.area || ''}
               onChange={(e) => handleNumberChange('property.land.area', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -129,7 +129,7 @@ const PropertyStep = () => {
               type="text"
               value={contract.property.land.rightType}
               onChange={(e) => updateNestedContract('property.land.rightType', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -139,7 +139,7 @@ const PropertyStep = () => {
               value={contract.property.land.rightRatio}
               onChange={(e) => updateNestedContract('property.land.rightRatio', e.target.value)}
               placeholder="예: 1439.34분의 187.51"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
         </div>
@@ -155,7 +155,7 @@ const PropertyStep = () => {
               type="text"
               value={contract.property.building.structure}
               onChange={(e) => updateNestedContract('property.building.structure', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -163,7 +163,7 @@ const PropertyStep = () => {
             <select
               value={contract.property.building.usage}
               onChange={(e) => updateNestedContract('property.building.usage', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             >
               <option value="">선택</option>
               <option value="업무시설">업무시설</option>
@@ -180,7 +180,7 @@ const PropertyStep = () => {
               step="0.01"
               value={contract.property.building.totalArea || ''}
               onChange={(e) => handleNumberChange('property.building.totalArea', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -190,7 +190,7 @@ const PropertyStep = () => {
               value={contract.property.building.leaseFloor}
               onChange={(e) => updateNestedContract('property.building.leaseFloor', e.target.value)}
               placeholder="예: 5층"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -200,7 +200,7 @@ const PropertyStep = () => {
               step="0.01"
               value={contract.property.building.leaseArea || ''}
               onChange={(e) => handleNumberChange('property.building.leaseArea', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -210,7 +210,7 @@ const PropertyStep = () => {
               value={contract.property.building.completionYear || ''}
               onChange={(e) => handleNumberChange('property.building.completionYear', e.target.value)}
               placeholder="예: 2020"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -218,7 +218,7 @@ const PropertyStep = () => {
             <select
               value={contract.property.building.direction}
               onChange={(e) => updateNestedContract('property.building.direction', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             >
               <option value="">선택</option>
               <option value="동향">동향</option>
@@ -241,7 +241,7 @@ const PropertyStep = () => {
                 type="checkbox"
                 checked={contract.property.building.seismicDesign}
                 onChange={(e) => updateNestedContract('property.building.seismicDesign', e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded"
+                className="w-4 h-4 text-primary-600 rounded"
               />
               <span className="text-sm font-medium text-gray-700">내진설계 적용</span>
             </label>
@@ -251,7 +251,7 @@ const PropertyStep = () => {
                 value={contract.property.building.seismicCapacity}
                 onChange={(e) => updateNestedContract('property.building.seismicCapacity', e.target.value)}
                 placeholder="내진능력 (예: VII-1)"
-                className="w-full mt-2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full mt-2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             )}
           </div>
@@ -271,7 +271,7 @@ const PropertyStep = () => {
                 onChange={(e) => updateNestedContract('property.building.violationContent', e.target.value)}
                 placeholder="위반내용 입력"
                 rows={2}
-                className="w-full mt-2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full mt-2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             )}
           </div>

@@ -995,7 +995,7 @@ const BranchManagement = () => {
                     }
                   }}
                   disabled={searchingSubway}
-                  className="px-3 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
+                  className="px-3 py-2 bg-primary-500 text-white text-sm rounded-lg hover:bg-primary-500 disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   {searchingSubway ? '검색중...' : '재검색'}
                 </button>
@@ -1018,7 +1018,7 @@ const BranchManagement = () => {
                       <div className="text-xs text-gray-500">
                         거리: {subway.distance ? `${(subway.distance / 1000).toFixed(2)}km` : '-'}
                         {subway.isLongDistance ? (
-                          <span className="text-blue-600"> (대중교통 약 {Math.round(subway.transitTime)}분)</span>
+                          <span className="text-primary-600"> (대중교통 약 {Math.round(subway.transitTime)}분)</span>
                         ) : (
                           subway.walkingTime && <span> (도보 약 {Math.round(subway.walkingTime)}분)</span>
                         )}
@@ -1031,7 +1031,7 @@ const BranchManagement = () => {
             {!branch.latitude || !branch.longitude ? (
               <p className="mt-1 text-xs text-gray-500">주소를 선택하면 자동으로 검색됩니다</p>
             ) : subwaySearchMessage ? (
-              <p className={`mt-1 text-xs ${branch.nearest_subway ? 'text-blue-600' : 'text-amber-600'}`}>
+              <p className={`mt-1 text-xs ${branch.nearest_subway ? 'text-primary-600' : 'text-amber-600'}`}>
                 {subwaySearchMessage}
               </p>
             ) : subwaySearchResults.length === 0 && !searchingSubway && !branch.nearest_subway ? (
@@ -1322,7 +1322,7 @@ const BranchManagement = () => {
               사용승인일(연도)
               <span className="text-xs text-gray-500 ml-2">(건축물대장 API)</span>
               {loadingBuildingInfo && (
-                <span className="ml-2 text-xs text-blue-600">조회 중...</span>
+                <span className="ml-2 text-xs text-primary-600">조회 중...</span>
               )}
             </label>
             <input

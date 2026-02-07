@@ -212,9 +212,9 @@ const VerifyEmail = () => {
 
           {/* 진행 단계 표시 */}
           <div className="flex gap-2 mb-6">
-            <div className={`h-1 flex-1 rounded ${step >= 1 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-            <div className={`h-1 flex-1 rounded ${step >= 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-            <div className={`h-1 flex-1 rounded ${step >= 3 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+            <div className={`h-1 flex-1 rounded ${step >= 1 ? 'bg-primary-500' : 'bg-gray-300'}`}></div>
+            <div className={`h-1 flex-1 rounded ${step >= 2 ? 'bg-primary-500' : 'bg-gray-300'}`}></div>
+            <div className={`h-1 flex-1 rounded ${step >= 3 ? 'bg-primary-500' : 'bg-gray-300'}`}></div>
           </div>
 
           {error && (
@@ -242,7 +242,7 @@ const VerifyEmail = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@company.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                   disabled={isLoading}
                 />
               </div>
@@ -250,7 +250,7 @@ const VerifyEmail = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+                className="w-full mt-6 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
               >
                 {isLoading ? '발송 중...' : '인증 코드 발송'}
               </button>
@@ -283,7 +283,7 @@ const VerifyEmail = () => {
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="6자리 숫자"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                   disabled={isLoading || resendLoading}
                   maxLength="6"
                 />
@@ -302,7 +302,7 @@ const VerifyEmail = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+                  className="flex-1 mt-6 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
                 >
                   {isLoading ? '검증 중...' : '다음'}
                 </button>
@@ -315,7 +315,7 @@ const VerifyEmail = () => {
                   type="button"
                   onClick={handleResend}
                   disabled={resendLoading || isLoading}
-                  className="w-full py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 disabled:opacity-50 font-semibold rounded-lg transition duration-200"
+                  className="w-full py-2 border border-primary-500 text-primary-600 hover:bg-blue-50 disabled:opacity-50 font-semibold rounded-lg transition duration-200"
                 >
                   {resendLoading ? '재발송 중...' : '인증 코드 재발송'}
                 </button>
@@ -349,7 +349,7 @@ const VerifyEmail = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="홍길동"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                   disabled={isLoading}
                 />
               </div>
@@ -364,7 +364,7 @@ const VerifyEmail = () => {
                   value={nameEn}
                   onChange={(e) => setNameEn(e.target.value)}
                   placeholder="Hong Gildong"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                   disabled={isLoading}
                 />
               </div>
@@ -379,7 +379,7 @@ const VerifyEmail = () => {
                   value={position}
                   onChange={(e) => setPosition(e.target.value)}
                   placeholder="대리"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                   disabled={isLoading}
                 />
               </div>
@@ -394,7 +394,7 @@ const VerifyEmail = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="010-1234-5678"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                   disabled={isLoading}
                 />
               </div>
@@ -409,7 +409,7 @@ const VerifyEmail = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="최소 6자 이상"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                   disabled={isLoading}
                 />
               </div>
@@ -424,7 +424,7 @@ const VerifyEmail = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="비밀번호를 다시 입력해주세요"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                   disabled={isLoading}
                 />
               </div>
@@ -441,7 +441,7 @@ const VerifyEmail = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+                  className="flex-1 mt-6 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
                 >
                   {isLoading ? '가입 중...' : '회원가입'}
                 </button>
@@ -453,7 +453,7 @@ const VerifyEmail = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600 text-sm">
               이미 계정이 있으신가요?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+              <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold">
                 로그인
               </Link>
             </p>

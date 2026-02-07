@@ -50,7 +50,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
       <div className="flex justify-between items-center mb-4">
         <h4 className="font-medium">
           {typeLabel} {index + 1}
-          {party.isRepresentative && <span className="text-blue-600 text-sm ml-2">(대표)</span>}
+          {party.isRepresentative && <span className="text-primary-600 text-sm ml-2">(대표)</span>}
         </h4>
         {canRemove && (
           <button
@@ -71,7 +71,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
               type="radio"
               checked={party.type === 'business'}
               onChange={() => onUpdate(index, { ...party, type: 'business' })}
-              className="w-4 h-4 text-blue-600"
+              className="w-4 h-4 text-primary-600"
             />
             <span className="text-sm">법인/사업자</span>
           </label>
@@ -80,7 +80,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
               type="radio"
               checked={party.type === 'individual'}
               onChange={() => onUpdate(index, { ...party, type: 'individual' })}
-              className="w-4 h-4 text-blue-600"
+              className="w-4 h-4 text-primary-600"
             />
             <span className="text-sm">개인</span>
           </label>
@@ -116,7 +116,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
             type="text"
             value={party.name}
             onChange={(e) => onUpdate(index, { ...party, name: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
           />
         </div>
         <div>
@@ -128,7 +128,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
             value={party.idNumber}
             onChange={(e) => onUpdate(index, { ...party, idNumber: e.target.value })}
             placeholder={party.type === 'business' ? '000-00-00000' : '000000'}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
@@ -141,7 +141,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
                 value={party.corpRegNumber}
                 onChange={(e) => onUpdate(index, { ...party, corpRegNumber: e.target.value })}
                 placeholder="(법인인 경우)"
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             </div>
             <div>
@@ -150,7 +150,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
                 type="text"
                 value={party.representative}
                 onChange={(e) => onUpdate(index, { ...party, representative: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </>
@@ -162,7 +162,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
             type="text"
             value={party.address}
             onChange={(e) => onUpdate(index, { ...party, address: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
@@ -173,7 +173,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
             value={party.phone}
             onChange={(e) => onUpdate(index, { ...party, phone: e.target.value })}
             placeholder="010-0000-0000"
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
@@ -182,7 +182,7 @@ const PartyForm = ({ party, index, type, onUpdate, onRemove, canRemove }) => {
           <select
             value={party.role}
             onChange={(e) => onUpdate(index, { ...party, role: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
           >
             <option value="owner">소유자/본인</option>
             <option value="agent">대리인</option>
@@ -217,7 +217,7 @@ const PartiesStep = () => {
           <h2 className="text-lg font-semibold">임대인 (건물주)</h2>
           <button
             onClick={() => addParty('lessors')}
-            className="px-3 py-1 text-sm border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
+            className="px-3 py-1 text-sm border border-primary-500 text-primary-600 rounded-lg hover:bg-blue-50"
           >
             + 임대인 추가
           </button>
@@ -245,7 +245,7 @@ const PartiesStep = () => {
           <h2 className="text-lg font-semibold">임차인 (세입자)</h2>
           <button
             onClick={() => addParty('lessees')}
-            className="px-3 py-1 text-sm border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
+            className="px-3 py-1 text-sm border border-primary-500 text-primary-600 rounded-lg hover:bg-blue-50"
           >
             + 임차인 추가
           </button>
@@ -282,7 +282,7 @@ const PartiesStep = () => {
                 },
               })
             }
-            className="w-4 h-4 text-blue-600 rounded"
+            className="w-4 h-4 text-primary-600 rounded"
           />
           <label htmlFor="jointBrokerage" className="text-lg font-semibold cursor-pointer">
             공동중개
@@ -304,7 +304,7 @@ const PartiesStep = () => {
                     },
                   })
                 }
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             </div>
             <div>
@@ -320,7 +320,7 @@ const PartiesStep = () => {
                     },
                   })
                 }
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             </div>
             <div className="col-span-2">
@@ -336,7 +336,7 @@ const PartiesStep = () => {
                     },
                   })
                 }
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             </div>
             <div>
@@ -352,7 +352,7 @@ const PartiesStep = () => {
                     },
                   })
                 }
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             </div>
             <div>
@@ -368,7 +368,7 @@ const PartiesStep = () => {
                     },
                   })
                 }
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </div>

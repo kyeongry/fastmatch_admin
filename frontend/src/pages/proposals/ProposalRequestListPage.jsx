@@ -59,7 +59,7 @@ const ProposalRequestListPage = () => {
                     <h1 className="text-2xl font-bold">제안 요청 관리</h1>
                     <button
                         onClick={() => navigate('/proposals/request')}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                        className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-medium"
                     >
                         + 새 제안 요청
                     </button>
@@ -67,7 +67,7 @@ const ProposalRequestListPage = () => {
 
                 {loading ? (
                     <div className="flex justify-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
                     </div>
                 ) : requests.length === 0 ? (
                     <div className="text-center py-20 bg-gray-50 rounded-lg border border-gray-200">
@@ -75,7 +75,7 @@ const ProposalRequestListPage = () => {
                         <p className="text-gray-600 mb-4">제안 요청 내역이 없습니다</p>
                         <button
                             onClick={() => navigate('/proposals/request')}
-                            className="text-blue-600 hover:underline font-medium"
+                            className="text-primary-600 hover:underline font-medium"
                         >
                             첫 번째 제안 요청을 보내보세요
                         </button>
@@ -102,7 +102,7 @@ const ProposalRequestListPage = () => {
                                         <td className="px-6 py-4">
                                             <button
                                                 onClick={() => navigate(`/proposals/requests/${req.id}`)}
-                                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
                                             >
                                                 상세보기
                                             </button>

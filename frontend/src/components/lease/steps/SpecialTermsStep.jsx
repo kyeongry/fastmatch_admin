@@ -92,7 +92,7 @@ const SpecialTermsStep = () => {
               key={term.title}
               className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
                 contract.specialTerms.standardTerms.includes(term.title)
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-primary-500 bg-blue-50'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -100,7 +100,7 @@ const SpecialTermsStep = () => {
                 type="checkbox"
                 checked={contract.specialTerms.standardTerms.includes(term.title)}
                 onChange={() => toggleStandardTerm(term.title)}
-                className="w-5 h-5 mt-0.5 text-blue-600 rounded"
+                className="w-5 h-5 mt-0.5 text-primary-600 rounded"
               />
               <div className="flex-1">
                 <span className="font-medium text-gray-900">{term.title}</span>
@@ -127,7 +127,7 @@ const SpecialTermsStep = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                 activeTab === tab.id
-                  ? 'border-blue-600 text-blue-600'
+                  ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -146,12 +146,12 @@ const SpecialTermsStep = () => {
                 onChange={(e) => setSearchKeyword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="키워드로 특약 검색 (예: 원상복구, 인테리어, 보증금)"
-                className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
               <button
                 onClick={handleSearch}
                 disabled={isLoading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
               >
                 {isLoading ? '검색 중...' : '검색'}
               </button>
@@ -167,7 +167,7 @@ const SpecialTermsStep = () => {
                       <span className="font-medium">{term.title}</span>
                       <button
                         onClick={() => handleAddTerm(term, 'existing')}
-                        className="text-blue-600 hover:text-blue-800 text-sm"
+                        className="text-primary-600 hover:text-primary-700 text-sm"
                       >
                         + 추가
                       </button>
@@ -201,7 +201,7 @@ const SpecialTermsStep = () => {
                 onChange={(e) => setAiSituation(e.target.value)}
                 placeholder="특약이 필요한 상황을 설명해주세요. 예: 임차인이 인테리어 공사를 원하는 경우, 반려동물 동반 입주, 주차 공간 추가 배정 등"
                 rows={3}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             </div>
             <button
@@ -251,7 +251,7 @@ const SpecialTermsStep = () => {
                     <span className="font-medium text-blue-800">중립 버전 (권장)</span>
                     <button
                       onClick={() => handleAddTerm(generatedTerms.neutral, 'ai')}
-                      className="text-blue-600 hover:text-blue-800 text-sm"
+                      className="text-primary-600 hover:text-primary-700 text-sm"
                     >
                       + 추가
                     </button>
@@ -271,7 +271,7 @@ const SpecialTermsStep = () => {
               onChange={(e) => setManualTerm(e.target.value)}
               placeholder="특약 내용을 직접 입력하세요"
               rows={4}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 mb-4"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 mb-4"
             />
             <button
               onClick={handleAddManual}
@@ -333,7 +333,7 @@ const SpecialTermsStep = () => {
                 },
               })
             }
-            className="w-5 h-5 text-blue-600 rounded"
+            className="w-5 h-5 text-primary-600 rounded"
           />
           <div>
             <span className="font-medium text-gray-900">특약사항 별지 사용</span>

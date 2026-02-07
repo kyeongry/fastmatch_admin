@@ -183,7 +183,7 @@ const ProposalCreate = () => {
         return (
             <Layout>
                 <div className="flex justify-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
                 </div>
             </Layout>
         );
@@ -202,7 +202,7 @@ const ProposalCreate = () => {
                         type="text"
                         value={proposalName}
                         onChange={(e) => setProposalName(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                     />
                 </div>
 
@@ -213,7 +213,7 @@ const ProposalCreate = () => {
                             <span className="text-sm text-gray-500">정렬:</span>
                             <select
                                 onChange={(e) => e.target.value && handleSort(e.target.value)}
-                                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                                 defaultValue=""
                             >
                                 <option value="" disabled>정렬 기준</option>
@@ -239,7 +239,7 @@ const ProposalCreate = () => {
                             onDrop={(e) => handleDrop(e, index)}
                             className={`bg-white border rounded-lg p-4 flex items-center gap-4 shadow-sm transition-all ${
                                 dragOverIndex === index
-                                    ? 'border-blue-500 border-2 bg-blue-50'
+                                    ? 'border-primary-500 border-2 bg-blue-50'
                                     : 'border-gray-200'
                             } ${draggedIndex === index ? 'opacity-50' : ''}`}
                         >
@@ -251,7 +251,7 @@ const ProposalCreate = () => {
                             </div>
 
                             {/* 순서 번호 */}
-                            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold shrink-0">
+                            <div className="w-8 h-8 bg-blue-100 text-primary-600 rounded-full flex items-center justify-center font-bold shrink-0">
                                 {index + 1}
                             </div>
 
@@ -283,7 +283,7 @@ const ProposalCreate = () => {
 
                             {/* 가격 */}
                             <div className="text-right shrink-0">
-                                <div className="font-semibold text-blue-600">
+                                <div className="font-semibold text-primary-600">
                                     {new Intl.NumberFormat('ko-KR').format(option.monthly_fee)}원/월
                                 </div>
                                 <div className="text-xs text-gray-500">
@@ -321,7 +321,7 @@ const ProposalCreate = () => {
                     <button
                         onClick={handleCreate}
                         disabled={loading || selectedOptions.length === 0}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? 'PDF 생성 중...' : '제안서 생성하기'}
                     </button>

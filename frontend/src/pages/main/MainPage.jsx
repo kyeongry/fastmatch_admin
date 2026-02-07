@@ -336,7 +336,7 @@ const MainPage = () => {
                       type="checkbox"
                       checked={showCompleted}
                       onChange={(e) => setShowCompleted(e.target.checked)}
-                      className="w-4 h-4 rounded border-gray-300 accent-blue-600"
+                      className="w-4 h-4 rounded border-gray-300 accent-primary-500"
                     />
                     <span className="text-xs sm:text-sm text-gray-700">거래완료 포함</span>
                   </label>
@@ -348,7 +348,7 @@ const MainPage = () => {
                       onClick={() => handleViewModeChange('grid')}
                       className={`p-1.5 sm:p-2 rounded-md transition ${
                         viewMode === 'grid'
-                          ? 'bg-white text-blue-600 shadow-sm'
+                          ? 'bg-white text-primary-600 shadow-sm'
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                       title="바둑판 보기"
@@ -361,7 +361,7 @@ const MainPage = () => {
                       onClick={() => handleViewModeChange('list')}
                       className={`p-1.5 sm:p-2 rounded-md transition ${
                         viewMode === 'list'
-                          ? 'bg-white text-blue-600 shadow-sm'
+                          ? 'bg-white text-primary-600 shadow-sm'
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                       title="목록 보기"

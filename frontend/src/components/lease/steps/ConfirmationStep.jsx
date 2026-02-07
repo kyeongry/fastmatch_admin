@@ -16,7 +16,7 @@ const ConfirmationStep = () => {
         <p className="text-sm text-blue-800">
           <strong>비주거용 건축물 확인설명서</strong> [별지 제20호의2서식]
         </p>
-        <p className="text-xs text-blue-600 mt-1">
+        <p className="text-xs text-primary-600 mt-1">
           * 표시 항목은 필수입력 항목입니다. 가능한 모든 항목을 입력해 주세요.
         </p>
       </div>
@@ -32,7 +32,7 @@ const ConfirmationStep = () => {
               value={confirmation.actualLandUse}
               onChange={(e) => handleChange('actualLandUse', e.target.value)}
               placeholder="예: 대지"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
@@ -42,7 +42,7 @@ const ConfirmationStep = () => {
               value={confirmation.actualBuildingUse}
               onChange={(e) => handleChange('actualBuildingUse', e.target.value)}
               placeholder="예: 사무실"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
         </div>
@@ -64,7 +64,7 @@ const ConfirmationStep = () => {
                 name="privateRental"
                 checked={confirmation.privateRental.type === option.value}
                 onChange={() => handleChange('privateRental.type', option.value)}
-                className="w-4 h-4 text-blue-600"
+                className="w-4 h-4 text-primary-600"
               />
               <span className="text-sm">{option.label}</span>
             </label>
@@ -76,7 +76,7 @@ const ConfirmationStep = () => {
               value={confirmation.privateRental.otherType}
               onChange={(e) => handleChange('privateRental.otherType', e.target.value)}
               placeholder="기타 유형 입력"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 mt-2"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 mt-2"
             />
           )}
 
@@ -89,7 +89,7 @@ const ConfirmationStep = () => {
                   value={confirmation.privateRental.obligationPeriod}
                   onChange={(e) => handleChange('privateRental.obligationPeriod', e.target.value)}
                   placeholder="예: 8년"
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
               </div>
               <div>
@@ -98,7 +98,7 @@ const ConfirmationStep = () => {
                   type="date"
                   value={confirmation.privateRental.startDate?.split('T')[0] || ''}
                   onChange={(e) => handleChange('privateRental.startDate', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
@@ -121,7 +121,7 @@ const ConfirmationStep = () => {
                 name="renewalRight"
                 checked={confirmation.renewalRight.status === option.value}
                 onChange={() => handleChange('renewalRight.status', option.value)}
-                className="w-4 h-4 text-blue-600"
+                className="w-4 h-4 text-primary-600"
               />
               <span className="text-sm">{option.label}</span>
             </label>
@@ -133,7 +133,7 @@ const ConfirmationStep = () => {
                 type="checkbox"
                 checked={confirmation.renewalRight.hasDocument}
                 onChange={(e) => handleChange('renewalRight.hasDocument', e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded"
+                className="w-4 h-4 text-primary-600 rounded"
               />
               <span className="text-sm text-gray-600">관련 서류 확인됨</span>
             </label>
@@ -156,7 +156,7 @@ const ConfirmationStep = () => {
                   type="number"
                   value={confirmation.location.road.width1 || ''}
                   onChange={(e) => handleChange('location.road.width1', parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
                 <span className="text-sm text-gray-500">m</span>
               </div>
@@ -168,7 +168,7 @@ const ConfirmationStep = () => {
                   type="number"
                   value={confirmation.location.road.width2 || ''}
                   onChange={(e) => handleChange('location.road.width2', parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
                 <span className="text-sm text-gray-500">m</span>
               </div>
@@ -178,7 +178,7 @@ const ConfirmationStep = () => {
               <select
                 value={confirmation.location.road.paved ? 'paved' : 'unpaved'}
                 onChange={(e) => handleChange('location.road.paved', e.target.value === 'paved')}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               >
                 <option value="paved">포장</option>
                 <option value="unpaved">비포장</option>
@@ -201,7 +201,7 @@ const ConfirmationStep = () => {
                   name="accessibility"
                   checked={confirmation.location.accessibility === option.value}
                   onChange={() => handleChange('location.accessibility', option.value)}
-                  className="w-4 h-4 text-blue-600"
+                  className="w-4 h-4 text-primary-600"
                 />
                 <span className="text-sm">{option.label}</span>
               </label>
@@ -313,7 +313,7 @@ const ConfirmationStep = () => {
                   name="parking"
                   checked={confirmation.location.parking === option.value}
                   onChange={() => handleChange('location.parking', option.value)}
-                  className="w-4 h-4 text-blue-600"
+                  className="w-4 h-4 text-primary-600"
                 />
                 <span className="text-sm">{option.label}</span>
               </label>
@@ -340,7 +340,7 @@ const ConfirmationStep = () => {
               type="checkbox"
               checked={confirmation.management.security}
               onChange={(e) => handleChange('management.security', e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded"
+              className="w-4 h-4 text-primary-600 rounded"
             />
             <span className="text-sm">경비실 있음</span>
           </label>
@@ -359,7 +359,7 @@ const ConfirmationStep = () => {
                     name="managementType"
                     checked={confirmation.management.type === option.value}
                     onChange={() => handleChange('management.type', option.value)}
-                    className="w-4 h-4 text-blue-600"
+                    className="w-4 h-4 text-primary-600"
                   />
                   <span className="text-sm">{option.label}</span>
                 </label>
@@ -386,7 +386,7 @@ const ConfirmationStep = () => {
           onChange={(e) => handleChange('actualRights', e.target.value)}
           placeholder="공시되지 않은 권리관계가 있는 경우 입력 (예: 선순위 임차인 정보 등)"
           rows={3}
-          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
         />
       </div>
 
@@ -449,7 +449,7 @@ const ConfirmationStep = () => {
               type="checkbox"
               checked={confirmation.facilities.electricity.normal}
               onChange={(e) => handleChange('facilities.electricity.normal', e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded"
+              className="w-4 h-4 text-primary-600 rounded"
             />
             <span className="text-sm">정상</span>
           </label>
@@ -479,7 +479,7 @@ const ConfirmationStep = () => {
                   type="checkbox"
                   checked={confirmation.facilities.fire.firePlug.exists}
                   onChange={(e) => handleChange('facilities.fire.firePlug.exists', e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded"
+                  className="w-4 h-4 text-primary-600 rounded"
                 />
                 <span className="text-sm font-medium">소화전 있음</span>
               </label>
@@ -499,7 +499,7 @@ const ConfirmationStep = () => {
                   type="checkbox"
                   checked={confirmation.facilities.fire.emergencyBell.exists}
                   onChange={(e) => handleChange('facilities.fire.emergencyBell.exists', e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded"
+                  className="w-4 h-4 text-primary-600 rounded"
                 />
                 <span className="text-sm font-medium">비상벨 있음</span>
               </label>
@@ -581,7 +581,7 @@ const ConfirmationStep = () => {
                 type="checkbox"
                 checked={confirmation.facilities.elevator.exists}
                 onChange={(e) => handleChange('facilities.elevator.exists', e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded"
+                className="w-4 h-4 text-primary-600 rounded"
               />
               <span className="text-sm">승강기 있음</span>
             </label>
@@ -605,7 +605,7 @@ const ConfirmationStep = () => {
               type="checkbox"
               checked={confirmation.facilities.drainage.normal}
               onChange={(e) => handleChange('facilities.drainage.normal', e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded"
+              className="w-4 h-4 text-primary-600 rounded"
             />
             <span className="text-sm">정상</span>
           </label>
@@ -698,7 +698,7 @@ const ConfirmationStep = () => {
                   name="floorStatus"
                   checked={confirmation.interior.floor === option.value}
                   onChange={() => handleChange('interior.floor', option.value)}
-                  className="w-4 h-4 text-blue-600"
+                  className="w-4 h-4 text-primary-600"
                 />
                 <span className="text-sm">{option.label}</span>
               </label>

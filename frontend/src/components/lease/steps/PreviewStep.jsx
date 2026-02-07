@@ -49,7 +49,7 @@ const PreviewStep = () => {
   const InfoRow = ({ label, value, highlight }) => (
     <div className="flex py-2 border-b last:border-0">
       <span className="w-1/3 text-gray-600 text-sm">{label}</span>
-      <span className={`w-2/3 text-sm ${highlight ? 'font-semibold text-blue-600' : 'text-gray-900'}`}>
+      <span className={`w-2/3 text-sm ${highlight ? 'font-semibold text-primary-600' : 'text-gray-900'}`}>
         {value || '-'}
       </span>
     </div>
@@ -154,7 +154,7 @@ const PreviewStep = () => {
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="p-4 bg-blue-50 rounded-lg text-center">
             <p className="text-sm text-gray-600 mb-1">보증금</p>
-            <p className="text-2xl font-bold text-blue-600">
+            <p className="text-2xl font-bold text-primary-600">
               {formatCurrency(contract.terms.deposit)}
             </p>
           </div>

@@ -536,6 +536,7 @@ const OptionDetailSlide = ({
   // ======== 편집 가능한 필드 렌더링 ========
   const renderEditableField = (label, field, type = 'text', options = null) => {
     const value = editData[field];
+    const labelCls = "text-gray-600 w-20 sm:w-32 text-xs sm:text-sm flex-shrink-0";
 
     if (!isEditMode) {
       let displayValue = value;
@@ -548,8 +549,8 @@ const OptionDetailSlide = ({
 
       return (
         <div className="flex">
-          <span className="text-gray-600 w-32">{label}:</span>
-          <span className="font-semibold flex-1">{displayValue || '-'}</span>
+          <span className={labelCls}>{label}:</span>
+          <span className="font-semibold flex-1 text-sm">{displayValue || '-'}</span>
         </div>
       );
     }
@@ -557,11 +558,11 @@ const OptionDetailSlide = ({
     if (options) {
       return (
         <div className="flex items-center">
-          <span className="text-gray-600 w-32">{label}:</span>
+          <span className={labelCls}>{label}:</span>
           <select
             value={value || ''}
             onChange={(e) => handleInputChange(field, e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
           >
             <option value="">선택</option>
             {options.map(opt => (
@@ -575,11 +576,11 @@ const OptionDetailSlide = ({
     if (type === 'textarea') {
       return (
         <div className="flex">
-          <span className="text-gray-600 w-32">{label}:</span>
+          <span className={labelCls}>{label}:</span>
           <textarea
             value={value || ''}
             onChange={(e) => handleInputChange(field, e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[80px]"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[80px] text-sm"
           />
         </div>
       );
@@ -588,16 +589,16 @@ const OptionDetailSlide = ({
     if (type === 'price') {
       return (
         <div className="flex items-center">
-          <span className="text-gray-600 w-32">{label}:</span>
+          <span className={labelCls}>{label}:</span>
           <div className="flex-1 relative">
             <input
               type="text"
               value={formatNumberWithComma(value)}
               onChange={(e) => handlePriceInputChange(field, e.target.value)}
-              className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
               placeholder="0"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">원</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">원</span>
           </div>
         </div>
       );
@@ -605,12 +606,12 @@ const OptionDetailSlide = ({
 
     return (
       <div className="flex items-center">
-        <span className="text-gray-600 w-32">{label}:</span>
+        <span className={labelCls}>{label}:</span>
         <input
           type={type}
           value={value || ''}
           onChange={(e) => handleInputChange(field, e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
         />
       </div>
     );
@@ -680,14 +681,14 @@ const OptionDetailSlide = ({
 
   // ======== 수정 폼 렌더링 ========
   const renderEditForm = () => (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* 지점 정보 */}
       <section>
-        <h3 className="text-xl font-bold text-gray-900 mb-4">지점 정보</h3>
+        <h3 className="text-base sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">지점 정보</h3>
         <div className="space-y-3">
           {/* 브랜드 선택 */}
           <div className="flex items-start">
-            <span className="text-gray-600 w-32 pt-2">브랜드:</span>
+            <span className="text-gray-600 w-20 sm:w-32 pt-2 text-xs sm:text-sm flex-shrink-0">브랜드:</span>
             <div className="flex-1 relative">
               <input
                 type="text"
@@ -713,7 +714,7 @@ const OptionDetailSlide = ({
           </div>
           {/* 지점 선택 */}
           <div className="flex items-start">
-            <span className="text-gray-600 w-32 pt-2">지점명:</span>
+            <span className="text-gray-600 w-20 sm:w-32 pt-2 text-xs sm:text-sm flex-shrink-0">지점명:</span>
             <div className="flex-1 relative">
               <input
                 type="text"
@@ -741,12 +742,12 @@ const OptionDetailSlide = ({
           </div>
           {/* 주소/지하철 */}
           <div className="flex">
-            <span className="text-gray-600 w-32">주소:</span>
-            <span className="font-semibold flex-1">{displayBranch?.address || '-'}</span>
+            <span className="text-gray-600 w-20 sm:w-32 text-xs sm:text-sm flex-shrink-0">주소:</span>
+            <span className="font-semibold flex-1 text-sm">{displayBranch?.address || '-'}</span>
           </div>
           {displayBranch?.nearest_subway && (
             <div className="flex">
-              <span className="text-gray-600 w-32">지하철역:</span>
+              <span className="text-gray-600 w-20 sm:w-32 text-xs sm:text-sm flex-shrink-0">지하철역:</span>
               <span className="font-semibold flex-1">
                 {displayBranch.nearest_subway} ({displayBranch.is_transit || displayBranch.walking_distance > 15 ? '대중교통' : '도보'} {displayBranch.is_transit ? (displayBranch.transit_distance || displayBranch.walking_distance) : displayBranch.walking_distance}분)
               </span>
@@ -757,7 +758,7 @@ const OptionDetailSlide = ({
 
       {/* 옵션 기본 정보 */}
       <section>
-        <h3 className="text-xl font-bold text-gray-900 mb-4">옵션 정보</h3>
+        <h3 className="text-base sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">옵션 정보</h3>
         <div className="space-y-3">
           {renderEditableField('옵션명', 'name')}
           {renderEditableField('분류1', 'category1', 'select', category1Options)}
@@ -768,7 +769,7 @@ const OptionDetailSlide = ({
 
       {/* 가격 정보 */}
       <section>
-        <h3 className="text-xl font-bold text-gray-900 mb-4">가격 정보</h3>
+        <h3 className="text-base sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">가격 정보</h3>
         <div className="space-y-3">
           {renderEditableField('월사용료', 'monthly_fee', 'price')}
           {renderEditableField('보증금', 'deposit', 'price')}
@@ -776,7 +777,7 @@ const OptionDetailSlide = ({
 
           {/* 일회성 비용 */}
           <div className="mt-4">
-            <span className="text-gray-600 font-medium block mb-3">일회성 비용:</span>
+            <span className="text-gray-600 font-medium block mb-3 text-xs sm:text-sm">일회성 비용:</span>
             <div className="space-y-2 mb-3">
               {editData.one_time_fees && editData.one_time_fees.length > 0 ? (
                 editData.one_time_fees.map((fee, index) => (
@@ -801,7 +802,7 @@ const OptionDetailSlide = ({
                 <input type="text" value={newFee.customType} onChange={(e) => setNewFee({ ...newFee, customType: e.target.value })} placeholder="종류 입력" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" />
               )}
               <input type="text" value={formatNumberWithComma(newFee.amount)} onChange={(e) => { const numericValue = e.target.value.replace(/[^0-9]/g, ''); setNewFee({ ...newFee, amount: numericValue }); }} placeholder="금액" className="flex-1 min-w-[100px] px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" />
-              <button type="button" onClick={handleAddFee} className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition font-medium">추가</button>
+              <button type="button" onClick={handleAddFee} className="px-4 py-2 bg-primary-500 text-white rounded-lg text-sm hover:bg-primary-600 transition font-medium">추가</button>
             </div>
           </div>
         </div>
@@ -809,10 +810,10 @@ const OptionDetailSlide = ({
 
       {/* 계약 정보 */}
       <section>
-        <h3 className="text-xl font-bold text-gray-900 mb-4">계약 정보</h3>
+        <h3 className="text-base sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">계약 정보</h3>
         <div className="space-y-3">
           <div className="flex items-center">
-            <span className="text-gray-600 w-32">입주가능일:</span>
+            <span className="text-gray-600 w-20 sm:w-32 text-xs sm:text-sm flex-shrink-0">입주가능일:</span>
             <div className="flex-1 flex gap-2">
               <select value={editData.move_in_date_type || 'immediate'} onChange={(e) => handleInputChange('move_in_date_type', e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                 {moveInDateOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
@@ -823,7 +824,7 @@ const OptionDetailSlide = ({
             </div>
           </div>
           <div className="flex items-center">
-            <span className="text-gray-600 w-32">계약기간:</span>
+            <span className="text-gray-600 w-20 sm:w-32 text-xs sm:text-sm flex-shrink-0">계약기간:</span>
             <div className="flex-1 flex gap-2">
               <select value={editData.contract_period_type || 'twelve_months'} onChange={(e) => handleInputChange('contract_period_type', e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                 {contractPeriodOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
@@ -838,11 +839,11 @@ const OptionDetailSlide = ({
 
       {/* 추가 정보 */}
       <section>
-        <h3 className="text-xl font-bold text-gray-900 mb-4">추가정보 (선택입력사항)</h3>
+        <h3 className="text-base sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">추가정보 <span className="text-xs sm:text-base font-normal text-gray-500">(선택)</span></h3>
         <div className="space-y-3">
           {/* 전용면적 */}
           <div className="flex">
-            <span className="text-gray-600 w-32">전용면적:</span>
+            <span className="text-gray-600 w-20 sm:w-32 text-xs sm:text-sm flex-shrink-0">전용면적:</span>
             <div className="flex gap-2 items-center">
               <input type="number" step="0.01" value={editData.exclusive_area?.value || ''} onChange={(e) => setEditData(prev => ({ ...prev, exclusive_area: { ...prev.exclusive_area, value: e.target.value } }))} className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="면적" />
               <select value={editData.exclusive_area?.unit || 'pyeong'} onChange={(e) => setEditData(prev => ({ ...prev, exclusive_area: { ...prev.exclusive_area, unit: e.target.value } }))} className="px-2 py-2 border border-gray-300 rounded-lg text-sm">
@@ -856,7 +857,7 @@ const OptionDetailSlide = ({
           {renderEditableField('주차', 'parking_type', 'select', parkingOptions)}
 
           {editData.parking_type && (
-            <div className="pl-32 space-y-2">
+            <div className="pl-20 sm:pl-32 space-y-2">
               <div className="flex gap-2">
                 <input type="number" placeholder="대수" value={editData.parking_count || ''} onChange={(e) => handleInputChange('parking_count', e.target.value)} className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm" />
                 <span className="self-center text-sm text-gray-600">대</span>
@@ -874,7 +875,7 @@ const OptionDetailSlide = ({
 
           {/* 크레딧 */}
           <div className="flex">
-            <span className="text-gray-600 w-32">크레딧:</span>
+            <span className="text-gray-600 w-20 sm:w-32 text-xs sm:text-sm flex-shrink-0">크레딧:</span>
             <div className="flex-1">
               <div className="space-y-2">
                 {editData.credits && editData.credits.length > 0 && (
@@ -920,7 +921,7 @@ const OptionDetailSlide = ({
 
           {/* 기타 메모 */}
           <div className="flex">
-            <span className="text-gray-600 w-32">기타 메모:</span>
+            <span className="text-gray-600 w-20 sm:w-32 text-xs sm:text-sm flex-shrink-0">기타 메모:</span>
             <div className="flex-1">
               <textarea value={editData.memo || ''} onChange={(e) => { if (e.target.value.length <= TEXT_MAX_LENGTH) handleInputChange('memo', e.target.value); }} maxLength={TEXT_MAX_LENGTH} placeholder="메모를 입력하세요..." className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[80px]" />
               <span className="text-xs text-gray-400">{editData.memo?.length || 0}/{TEXT_MAX_LENGTH}자</span>
@@ -931,7 +932,7 @@ const OptionDetailSlide = ({
 
       {/* 옵션 평면도 */}
       <section>
-        <h3 className="text-xl font-bold text-gray-900 mb-4">옵션 평면도</h3>
+        <h3 className="text-base sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">옵션 평면도</h3>
         <div className="space-y-3">
           {editData.floor_plan_urls && editData.floor_plan_urls.length > 0 && (
             <div className="flex flex-wrap gap-3">
@@ -944,13 +945,13 @@ const OptionDetailSlide = ({
             </div>
           )}
           <div
-            className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:bg-blue-50 transition-colors outline-none cursor-pointer"
+            className="p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 focus:border-primary-500 focus:bg-blue-50 transition-colors outline-none cursor-pointer"
             onClick={(e) => e.currentTarget.focus()}
-            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.add('border-blue-500', 'bg-blue-50'); }}
-            onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50'); }}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.add('border-primary-500', 'bg-blue-50'); }}
+            onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('border-primary-500', 'bg-blue-50'); }}
             onDrop={async (e) => {
               e.preventDefault(); e.stopPropagation();
-              e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
+              e.currentTarget.classList.remove('border-primary-500', 'bg-blue-50');
               const files = e.dataTransfer.files;
               if (files && files.length > 0) {
                 const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
@@ -1069,34 +1070,36 @@ const OptionDetailSlide = ({
           </div>
         </div>
 
-        {/* 본문 - 좌측 패널 + 중앙 컨텐츠 */}
-        <div className="flex-1 flex overflow-hidden">
-          {/* 좌측 패널 */}
-          <DetailLeftPanel
-            branch={displayBranch}
-            branchOptions={branchOptions}
-            selectedOptionId={currentOption?.id || currentOption?._id}
-            onSelectOption={handleSelectOption}
-            loadingOptions={loadingBranchOptions}
-            onImageClick={handleImageClick}
-          />
+        {/* 본문 - 좌측 패널 + 중앙 컨텐츠 (모바일: 세로 배치) */}
+        <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
+          {/* 좌측 패널 - 모바일에서는 숨기고 하단에 표시 */}
+          <div className="hidden sm:block">
+            <DetailLeftPanel
+              branch={displayBranch}
+              branchOptions={branchOptions}
+              selectedOptionId={currentOption?.id || currentOption?._id}
+              onSelectOption={handleSelectOption}
+              loadingOptions={loadingBranchOptions}
+              onImageClick={handleImageClick}
+            />
+          </div>
 
           {/* 중앙 컨텐츠 */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* 탭 네비게이션 */}
             {!isEditMode && (
-              <div className="border-b border-gray-200 bg-white px-6">
-                <nav className="flex gap-6">
+              <div className="border-b border-gray-200 bg-white px-3 sm:px-6">
+                <nav className="flex gap-3 sm:gap-6">
                   {[
                     { key: 'option', label: '옵션 정보' },
-                    { key: 'all', label: '전체 공실 한 번에 보기' },
+                    { key: 'all', label: '전체 공실 보기' },
                   ].map((tab) => (
                     <button
                       key={tab.key}
                       onClick={() => setActiveTab(tab.key)}
-                      className={`py-3 text-sm font-medium border-b-2 transition ${
+                      className={`py-3 text-xs sm:text-sm font-medium border-b-2 transition whitespace-nowrap ${
                         activeTab === tab.key
-                          ? 'border-orange-500 text-orange-600'
+                          ? 'border-primary-500 text-primary-600'
                           : 'border-transparent text-gray-500 hover:text-gray-700'
                       }`}
                     >
@@ -1108,8 +1111,22 @@ const OptionDetailSlide = ({
             )}
 
             {/* 탭 콘텐츠 (스크롤) */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6">
               {renderTabContent()}
+
+              {/* 모바일: 지점 정보를 옵션 정보 하단에 표시 */}
+              <div className="sm:hidden mt-6">
+                <DetailLeftPanel
+                  branch={displayBranch}
+                  branchOptions={branchOptions}
+                  selectedOptionId={currentOption?.id || currentOption?._id}
+                  onSelectOption={handleSelectOption}
+                  loadingOptions={loadingBranchOptions}
+                  onImageClick={handleImageClick}
+                  isMobileInline
+                />
+              </div>
+
               <div className="pb-20" />
             </div>
           </div>
@@ -1117,14 +1134,14 @@ const OptionDetailSlide = ({
 
         {/* 푸터 - 수정/삭제 버튼 */}
         {!isEditMode && (canEdit || canDelete) && (
-          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-8 py-4 flex gap-3">
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-3 sm:px-8 py-3 sm:py-4 flex gap-2 sm:gap-3 safe-area-bottom">
             {canEdit && (
-              <button onClick={handleStartEdit} className="flex-1 px-4 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition">
+              <button onClick={handleStartEdit} className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 transition text-sm sm:text-base">
                 수정
               </button>
             )}
             {canDelete && onDelete && (
-              <button onClick={() => onDelete(currentOptionId)} className="flex-1 px-4 py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition">
+              <button onClick={() => onDelete(currentOptionId)} className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition text-sm sm:text-base">
                 삭제 요청
               </button>
             )}

@@ -302,7 +302,7 @@ const OptionEdit = () => {
                   onBlur={() => setTimeout(() => setShowBrandDropdown(false), 200)}
                   onKeyDown={handleBrandKeyDown}
                   placeholder="브랜드를 검색하세요"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
                 {showBrandDropdown && filteredBrands.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -334,7 +334,7 @@ const OptionEdit = () => {
                   onKeyDown={handleBranchKeyDown}
                   placeholder={!formData.brand_id ? "브랜드를 먼저 선택해주세요" : "지점을 검색하세요"}
                   disabled={!formData.brand_id}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
                 />
                 {showBranchDropdown && filteredBranches.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -365,7 +365,7 @@ const OptionEdit = () => {
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
@@ -480,7 +480,7 @@ const OptionEdit = () => {
               />
               <button
                 onClick={handleAddFee}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                className="px-4 py-2 bg-primary-500 text-white rounded-lg text-sm hover:bg-primary-600"
               >
                 추가
               </button>
@@ -589,7 +589,7 @@ const OptionEdit = () => {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition"
+              className="flex-1 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 transition"
             >
               {submitting ? '수정 중...' : '수정'}
             </button>

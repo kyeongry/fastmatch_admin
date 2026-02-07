@@ -96,7 +96,7 @@ const Register = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@smatch.kr"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                 disabled={isLoading}
               />
               <p className="mt-1 text-sm text-gray-500">@smatch.kr 도메인만 가입 가능합니다</p>
@@ -106,7 +106,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+              className="w-full mt-6 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
             >
               {isLoading ? '인증 코드 발송 중...' : '인증 코드 발송'}
             </button>
@@ -116,7 +116,7 @@ const Register = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600 text-sm">
               이미 계정이 있으신가요?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+              <Link to="/login" className="text-primary-600 hover:text-blue-700 font-semibold">
                 로그인
               </Link>
             </p>

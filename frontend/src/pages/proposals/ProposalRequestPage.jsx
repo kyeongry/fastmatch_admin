@@ -102,7 +102,7 @@ const ProposalRequestPage = () => {
                                     name="company_name"
                                     value={formData.company_name}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     placeholder="(주)패스트매치"
                                 />
                             </div>
@@ -113,7 +113,7 @@ const ProposalRequestPage = () => {
                                     name="contact_name"
                                     value={formData.contact_name}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     placeholder="홍길동"
                                 />
                             </div>
@@ -124,7 +124,7 @@ const ProposalRequestPage = () => {
                                     name="contact_position"
                                     value={formData.contact_position}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     placeholder="매니저"
                                 />
                             </div>
@@ -135,7 +135,7 @@ const ProposalRequestPage = () => {
                                     name="contact_phone"
                                     value={formData.contact_phone}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     placeholder="010-1234-5678"
                                 />
                             </div>
@@ -146,7 +146,7 @@ const ProposalRequestPage = () => {
                                     name="contact_email"
                                     value={formData.contact_email}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     placeholder="email@example.com"
                                 />
                             </div>
@@ -164,7 +164,7 @@ const ProposalRequestPage = () => {
                                     name="preferred_subway"
                                     value={formData.preferred_subway}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     placeholder="강남역, 역삼역"
                                 />
                             </div>
@@ -175,7 +175,7 @@ const ProposalRequestPage = () => {
                                     name="actual_users"
                                     value={formData.actual_users}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     placeholder="10"
                                 />
                             </div>
@@ -186,7 +186,7 @@ const ProposalRequestPage = () => {
                                     name="preferred_capacity"
                                     value={formData.preferred_capacity}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     placeholder="12 (미입력시 실사용 인원 기준)"
                                 />
                             </div>
@@ -196,7 +196,7 @@ const ProposalRequestPage = () => {
                                     name="lease_period"
                                     value={formData.lease_period}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                 >
                                     <option value="6">6개월</option>
                                     <option value="12">12개월</option>
@@ -210,7 +210,7 @@ const ProposalRequestPage = () => {
                                     name="move_in_date"
                                     value={formData.move_in_date}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                 />
                             </div>
                             <div>
@@ -219,7 +219,7 @@ const ProposalRequestPage = () => {
                                     name="move_in_period"
                                     value={formData.move_in_period}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                 >
                                     <option value="early">초 (1~10일)</option>
                                     <option value="mid">중 (11~20일)</option>
@@ -234,7 +234,7 @@ const ProposalRequestPage = () => {
                                     value={formData.additional_info}
                                     onChange={handleChange}
                                     rows="3"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     placeholder="회의실 필수, 창측 선호 등"
                                 ></textarea>
                             </div>
@@ -252,7 +252,7 @@ const ProposalRequestPage = () => {
                                     className={`
                     cursor-pointer p-3 rounded-lg border text-center transition
                     ${formData.selected_brands.includes(brand.id)
-                                            ? 'bg-blue-50 border-blue-500 text-blue-700 ring-1 ring-blue-500'
+                                            ? 'bg-blue-50 border-primary-500 text-blue-700 ring-1 ring-primary-500'
                                             : 'bg-white border-gray-200 hover:bg-gray-50'}
                   `}
                                 >
@@ -279,8 +279,8 @@ const ProposalRequestPage = () => {
                             type="submit"
                             disabled={loading}
                             className={`
-                px-6 py-3 bg-blue-600 text-white rounded-lg font-medium transition shadow-sm
-                ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'}
+                px-6 py-3 bg-primary-500 text-white rounded-lg font-medium transition shadow-sm
+                ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary-600'}
               `}
                         >
                             {loading ? '발송 중...' : '제안 요청 보내기'}

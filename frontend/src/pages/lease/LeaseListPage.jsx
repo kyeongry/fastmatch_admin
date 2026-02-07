@@ -75,7 +75,7 @@ const LeaseListPage = () => {
         </div>
         <Link
           to="/lease/create"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
         >
           + 새 계약서 작성
         </Link>
@@ -93,7 +93,7 @@ const LeaseListPage = () => {
             onClick={() => setFilter(item.value)}
             className={`px-4 py-2 rounded-lg text-sm transition-colors ${
               filter === item.value
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary-500 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -112,7 +112,7 @@ const LeaseListPage = () => {
       {/* 로딩 */}
       {isLoading ? (
         <div className="text-center py-12">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+          <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto"></div>
           <p className="mt-2 text-gray-600">불러오는 중...</p>
         </div>
       ) : contracts.length === 0 ? (
@@ -120,7 +120,7 @@ const LeaseListPage = () => {
           <p className="text-gray-500">작성된 계약서가 없습니다</p>
           <Link
             to="/lease/create"
-            className="inline-block mt-4 text-blue-600 hover:underline"
+            className="inline-block mt-4 text-primary-600 hover:underline"
           >
             새 계약서 작성하기
           </Link>
@@ -163,7 +163,7 @@ const LeaseListPage = () => {
                   <td className="px-4 py-3">
                     <Link
                       to={`/lease/${contract._id}`}
-                      className="text-blue-600 hover:underline font-mono text-sm"
+                      className="text-primary-600 hover:underline font-mono text-sm"
                     >
                       {contract.contractNumber}
                     </Link>
@@ -195,7 +195,7 @@ const LeaseListPage = () => {
                       {contract.status === 'draft' && (
                         <Link
                           to={`/lease/edit/${contract._id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
+                          className="text-primary-600 hover:text-primary-700 text-sm"
                         >
                           수정
                         </Link>
