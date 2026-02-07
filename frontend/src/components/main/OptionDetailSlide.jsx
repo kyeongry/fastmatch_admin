@@ -181,6 +181,24 @@ const OptionDetailSlide = ({
     }
   }, [editData, originalData, isEditMode]);
 
+  // 브라우저 뒤로가기 시 패널 닫기 처리
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // 패널 열릴 때 히스토리 스택에 state push
+    window.history.pushState({ optionPanel: true }, '');
+
+    const handlePopState = () => {
+      // 뒤로가기 시 패널 닫기 (히스토리는 이미 pop됨)
+      onClose();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isOpen, onClose]);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -214,7 +232,7 @@ const OptionDetailSlide = ({
         } else if (isEditMode) {
           handleCancelEdit();
         } else {
-          onClose();
+          handleCloseAttempt();
         }
       }
     };
@@ -378,18 +396,19 @@ const OptionDetailSlide = ({
   };
 
   // ======== 닫기/수정 핸들러 ========
+  // UI에서 닫을 때 history.back()으로 pushState를 정리 → popstate → onClose
   const handleCloseAttempt = useCallback(() => {
     if (isEditMode && hasChanges) {
       if (window.confirm('변경사항이 있습니다. 저장하지 않고 닫으시겠습니까?')) {
         setIsEditMode(false);
         setEditData(originalData);
-        onClose();
+        window.history.back();
       }
     } else {
       if (isEditMode) setIsEditMode(false);
-      onClose();
+      window.history.back();
     }
-  }, [isEditMode, hasChanges, originalData, onClose]);
+  }, [isEditMode, hasChanges, originalData]);
 
   if (!isOpen || !option) return null;
 
