@@ -48,9 +48,9 @@ const OptionListItem = memo(({
         selected ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-200'
       } ${option.status === 'completed' ? 'opacity-60' : ''}`}
     >
-      <div className="flex items-center">
+      <div className="flex items-start sm:items-center">
         {/* 체크박스 */}
-        <div className="pl-4 pr-2 py-4 flex-shrink-0">
+        <div className="pl-3 sm:pl-4 pr-2 py-3 sm:py-4 flex-shrink-0">
           <input
             type="checkbox"
             checked={selected}
@@ -65,10 +65,40 @@ const OptionListItem = memo(({
         {/* 메인 콘텐츠 - 클릭 시 상세 보기 */}
         <div
           onClick={() => onView()}
-          className="flex-1 flex items-center gap-4 py-3 pr-4 cursor-pointer hover:bg-gray-50 transition min-w-0"
+          className="flex-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-2.5 sm:py-3 pr-3 sm:pr-4 cursor-pointer hover:bg-gray-50 transition min-w-0"
         >
-          {/* 브랜드/지점 */}
-          <div className="w-32 lg:w-40 flex-shrink-0">
+          {/* 모바일: 한 줄에 브랜드/지점 + 가격 */}
+          <div className="flex items-center justify-between sm:hidden">
+            <div className="text-xs text-gray-500 truncate">
+              <span className="font-medium text-gray-700">{option.branch?.brand?.name}</span>
+              <span className="mx-1 text-gray-300">/</span>
+              <span>{option.branch?.name}</span>
+            </div>
+            <div className="text-xs font-semibold text-blue-600 flex-shrink-0 ml-2">
+              {formatPrice(option.monthly_fee)}
+            </div>
+          </div>
+
+          {/* 모바일: 옵션명 + 상태 */}
+          <div className="flex items-center gap-1.5 sm:hidden">
+            <h3 className="text-sm font-semibold text-gray-900 truncate">{option.name}</h3>
+            {getStatusBadge(option.status)}
+          </div>
+
+          {/* 모바일: 카테고리 + 인원 */}
+          <div className="text-[11px] text-gray-500 sm:hidden">
+            {formatCategory1(option.category1)}
+            {option.category2 && ` / ${formatCategory2(option.category2)}`}
+            <span className="ml-1.5 font-medium">{option.capacity}인</span>
+            {option.capacity > 0 && (
+              <span className="ml-1.5 text-gray-400">
+                (인당 {formatPrice(Math.round(option.monthly_fee / option.capacity))})
+              </span>
+            )}
+          </div>
+
+          {/* 데스크탑: 브랜드/지점 */}
+          <div className="hidden sm:block w-32 lg:w-40 flex-shrink-0">
             <div className="text-sm font-medium text-gray-900 truncate">
               {option.branch?.brand?.name}
             </div>
@@ -77,8 +107,8 @@ const OptionListItem = memo(({
             </div>
           </div>
 
-          {/* 옵션명 & 카테고리 */}
-          <div className="flex-1 min-w-0">
+          {/* 데스크탑: 옵션명 & 카테고리 */}
+          <div className="hidden sm:block flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-gray-900 truncate">
                 {option.name}
@@ -92,8 +122,8 @@ const OptionListItem = memo(({
             </div>
           </div>
 
-          {/* 가격 정보 */}
-          <div className="w-32 lg:w-40 flex-shrink-0 text-right">
+          {/* 데스크탑: 가격 정보 */}
+          <div className="hidden sm:block w-32 lg:w-40 flex-shrink-0 text-right">
             <div className="text-sm font-semibold text-blue-600">
               {formatPrice(option.monthly_fee)}
             </div>

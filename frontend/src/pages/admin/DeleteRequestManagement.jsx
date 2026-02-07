@@ -176,10 +176,10 @@ const DeleteRequestManagement = () => {
 
   return (
     <Layout>
-      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      <div className="p-3 sm:p-6 md:p-8 max-w-7xl mx-auto">
         {/* 헤더 */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">삭제요청 관리</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">삭제요청 관리</h1>
           <p className="text-sm text-gray-500 mt-1">삭제요청된 옵션을 검토하고 승인/거부할 수 있습니다</p>
         </div>
 

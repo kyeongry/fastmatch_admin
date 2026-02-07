@@ -190,11 +190,11 @@ const BrandManagement = () => {
 
   return (
     <Layout>
-      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      <div className="p-3 sm:p-6 md:p-8 max-w-7xl mx-auto">
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">브랜드 관리</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">브랜드 관리</h1>
             <p className="text-sm text-gray-500 mt-1">브랜드를 추가하고 관리할 수 있습니다</p>
           </div>
           <Button

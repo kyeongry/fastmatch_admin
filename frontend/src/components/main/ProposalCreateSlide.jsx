@@ -359,11 +359,10 @@ const ProposalCreateSlide = ({
       />
 
       {/* Sliding Panel */}
-      <div className="fixed right-0 top-0 h-full bg-white shadow-2xl flex flex-col z-[85] transition-transform duration-300"
-        style={{ width: 'calc(100% - 320px)', minWidth: '700px' }}
+      <div className="fixed right-0 top-0 h-full w-full sm:w-[calc(100%-320px)] sm:min-w-[700px] bg-white shadow-2xl flex flex-col z-[85] transition-transform duration-300"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <button
               onClick={handleClose}

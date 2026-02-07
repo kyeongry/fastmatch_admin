@@ -85,3 +85,35 @@ input:focus, textarea:focus, select:focus {
     @apply bg-white/80 backdrop-blur-sm border border-gray-200/60;
   }
 }
+
+/* 모바일 최적화 */
+@media (max-width: 640px) {
+  /* 모바일에서 스크롤바 숨김 */
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  }
+
+  /* 모바일에서 input 줌 방지 (iOS) */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* iOS safe area 지원 */
+.safe-area-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  /* 터치 타겟 최소 크기 보장 */
+  button, a, [role="button"] {
+    min-height: 36px;
+  }
+}

@@ -348,16 +348,20 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
   };
 
   return (
-    <div className="px-4 md:px-8 py-3 md:py-4 bg-white border-b border-gray-200">
-      <div className="flex items-center gap-3 flex-wrap">
+    <div className="px-3 sm:px-4 md:px-8 py-2.5 md:py-4 bg-white border-b border-gray-200">
+      {/* 첫 번째 줄: 필터 버튼, 새로고침, 정렬 */}
+      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
         <div className="relative" ref={filterDropdownRef}>
           <button
             onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition text-sm md:text-base flex items-center gap-2"
+            className="px-3 sm:px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition text-sm flex items-center gap-1.5 sm:gap-2"
           >
-            필터
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <span className="hidden sm:inline">필터</span>
             <svg
-              className={`w-4 h-4 transition-transform ${showFilterDropdown ? 'rotate-180' : ''}`}
+              className={`w-3.5 h-3.5 transition-transform ${showFilterDropdown ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -411,7 +415,7 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
               </button>
             </div>
 
-            <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+            <div className="absolute top-full left-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
               {loading ? (
                 <div className="p-4 text-center text-gray-500">로딩 중...</div>
               ) : (
@@ -429,7 +433,7 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
                     />
                   </div>
 
-                  <div className="p-2 max-h-96 overflow-y-auto">
+                  <div className="p-2 max-h-64 sm:max-h-96 overflow-y-auto">
                     {filteredItems.length === 0 ? (
                       <p className="text-xs text-gray-500 text-center py-4">
                         {searchText ? '검색 결과가 없습니다' : '항목이 없습니다'}
@@ -437,23 +441,21 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
                     ) : (
                       <div className="space-y-1">
                         {filteredItems.map((item, index) => (
-                          // [수정 포인트 1] 영역 클릭 시 선택되도록 div로 감싸고 onClick 처리
                           <div
                             key={item.id}
-                            className={`flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition ${
+                            className={`flex items-center gap-2 px-3 py-2.5 sm:py-2 rounded cursor-pointer transition ${
                               index === selectedIndex ? 'bg-primary-100' : 'hover:bg-gray-50'
                             }`}
                             onClick={(e) => {
-                              e.preventDefault(); // 기본 동작 방지
-                              e.stopPropagation(); // 이벤트 전파 방지 (안전 장치)
-                              handleItemSelect(item); // 선택 실행
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleItemSelect(item);
                             }}
                           >
                             <input
                               type="checkbox"
                               checked={filters[activeFilterType]?.includes(item.id) || false}
                               readOnly
-                              // [핵심] pointer-events-none: 체크박스를 클릭해도 부모 div가 클릭된 것으로 처리됨
                               className="w-4 h-4 text-primary-500 rounded pointer-events-none"
                             />
                             <div className="flex-1 pointer-events-none">
@@ -486,8 +488,8 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
           </svg>
         </button>
 
-        <div className="flex items-center gap-2 ml-2">
-          <span className="text-sm text-gray-600 whitespace-nowrap">인원 범위:</span>
+        <div className="hidden sm:flex items-center gap-2 ml-2">
+          <span className="text-sm text-gray-600 whitespace-nowrap">인원:</span>
           <div className="relative">
             <input
               type="number"
@@ -495,7 +497,7 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
               onChange={(e) => setMinCapacity(e.target.value)}
               placeholder="최소"
               min="1"
-              className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center"
+              className="w-16 sm:w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center"
             />
             {minCapacity && (
               <button
@@ -516,7 +518,7 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
               onChange={(e) => setMaxCapacity(e.target.value)}
               placeholder="최대"
               min="1"
-              className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center"
+              className="w-16 sm:w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center"
             />
             {maxCapacity && (
               <button
@@ -531,102 +533,132 @@ const FilterBar = ({ filters, onFilterChange, pageSize, onPageSizeChange }) => {
           </div>
         </div>
 
-        {hasFilters && (
-          <>
-            {(filters.brands || []).map((brandId) => (
-              <div
-                key={`brand-${brandId}`}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs md:text-sm hover:bg-blue-200 transition"
-              >
-                <span>{brandNames[brandId] || brandId.substring(0, 8)}</span>
-                <button
-                  onClick={() => handleRemoveFilter('brands', brandId)}
-                  className="text-blue-700 hover:text-blue-900 font-bold"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-
-            {(filters.branches || []).map((branchId) => (
-              <div
-                key={`branch-${branchId}`}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs md:text-sm hover:bg-green-200 transition"
-              >
-                <span>{branchNames[branchId] || branchId.substring(0, 8)}</span>
-                <button
-                  onClick={() => handleRemoveFilter('branches', branchId)}
-                  className="text-green-700 hover:text-green-900 font-bold"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-
-            {(filters.creators || []).map((creatorId) => (
-              <div
-                key={`creator-${creatorId}`}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs md:text-sm hover:bg-purple-200 transition"
-              >
-                <span>{creatorNames[creatorId] || creatorId.substring(0, 8)}</span>
-                <button
-                  onClick={() => handleRemoveFilter('creators', creatorId)}
-                  className="text-purple-700 hover:text-purple-900 font-bold"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-
-            {(filters.categories || []).map((categoryId) => (
-              <div
-                key={`category-${categoryId}`}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs md:text-sm hover:bg-orange-200 transition"
-              >
-                <span>{formatCategory1(categoryId)}</span>
-                <button
-                  onClick={() => handleRemoveFilter('categories', categoryId)}
-                  className="text-orange-700 hover:text-orange-900 font-bold"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </>
-        )}
-
-        <div className="ml-auto flex items-center gap-2 md:gap-4">
-          <label className="text-gray-700 font-medium text-sm md:text-base whitespace-nowrap">정렬:</label>
+        <div className="ml-auto flex items-center gap-2">
           <select
             value={sortBy}
             onChange={(e) => handleSortChange(e.target.value)}
-            className="px-3 py-2 text-sm md:text-base border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
+            className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
           >
             <option value="latest">최신순</option>
             <option value="oldest">오래된순</option>
             <option value="recently_updated">업데이트순</option>
             <option value="price_low">가격 낮은순</option>
             <option value="price_high">가격 높은순</option>
-            <option value="price_per_person_low">인당 평단가 낮은순</option>
-            <option value="price_per_person_high">인당 평단가 높은순</option>
+            <option value="price_per_person_low">인당단가↓</option>
+            <option value="price_per_person_high">인당단가↑</option>
           </select>
 
           {onPageSizeChange && (
-            <div className="flex items-center gap-2 ml-2 md:ml-4">
-              <label className="text-gray-700 font-medium text-sm md:text-base whitespace-nowrap">표시:</label>
-              <select
-                value={pageSize}
-                onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                className="px-3 py-2 text-sm md:text-base border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
-              >
-                <option value={20}>20개</option>
-                <option value={50}>50개</option>
-                <option value={100}>100개</option>
-              </select>
-            </div>
+            <select
+              value={pageSize}
+              onChange={(e) => onPageSizeChange(Number(e.target.value))}
+              className="hidden sm:block px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
+            >
+              <option value={20}>20개</option>
+              <option value={50}>50개</option>
+              <option value={100}>100개</option>
+            </select>
           )}
         </div>
       </div>
+
+      {/* 모바일 인원 범위 (sm 이하에서만 표시) */}
+      <div className="sm:hidden flex items-center gap-2 mt-2">
+        <span className="text-xs text-gray-600 whitespace-nowrap">인원:</span>
+        <input
+          type="number"
+          value={minCapacity}
+          onChange={(e) => setMinCapacity(e.target.value)}
+          placeholder="최소"
+          min="1"
+          className="w-16 px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center"
+        />
+        <span className="text-gray-400 text-xs">~</span>
+        <input
+          type="number"
+          value={maxCapacity}
+          onChange={(e) => setMaxCapacity(e.target.value)}
+          placeholder="최대"
+          min="1"
+          className="w-16 px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center"
+        />
+        {onPageSizeChange && (
+          <select
+            value={pageSize}
+            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+            className="ml-auto px-2 py-1.5 text-xs border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
+          >
+            <option value={20}>20개</option>
+            <option value={50}>50개</option>
+            <option value={100}>100개</option>
+          </select>
+        )}
+      </div>
+
+      {/* 활성 필터 태그 */}
+      {hasFilters && (
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mt-2">
+          {(filters.brands || []).map((brandId) => (
+            <div
+              key={`brand-${brandId}`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full text-xs hover:bg-blue-200 transition"
+            >
+              <span className="max-w-[100px] truncate">{brandNames[brandId] || brandId.substring(0, 8)}</span>
+              <button
+                onClick={() => handleRemoveFilter('brands', brandId)}
+                className="text-blue-700 hover:text-blue-900 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          {(filters.branches || []).map((branchId) => (
+            <div
+              key={`branch-${branchId}`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs hover:bg-green-200 transition"
+            >
+              <span className="max-w-[100px] truncate">{branchNames[branchId] || branchId.substring(0, 8)}</span>
+              <button
+                onClick={() => handleRemoveFilter('branches', branchId)}
+                className="text-green-700 hover:text-green-900 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          {(filters.creators || []).map((creatorId) => (
+            <div
+              key={`creator-${creatorId}`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-100 text-purple-700 rounded-full text-xs hover:bg-purple-200 transition"
+            >
+              <span className="max-w-[100px] truncate">{creatorNames[creatorId] || creatorId.substring(0, 8)}</span>
+              <button
+                onClick={() => handleRemoveFilter('creators', creatorId)}
+                className="text-purple-700 hover:text-purple-900 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          {(filters.categories || []).map((categoryId) => (
+            <div
+              key={`category-${categoryId}`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-100 text-orange-700 rounded-full text-xs hover:bg-orange-200 transition"
+            >
+              <span>{formatCategory1(categoryId)}</span>
+              <button
+                onClick={() => handleRemoveFilter('categories', categoryId)}
+                className="text-orange-700 hover:text-orange-900 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

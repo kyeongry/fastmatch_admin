@@ -227,11 +227,11 @@ const UserManagement = () => {
 
   return (
     <Layout>
-      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      <div className="p-3 sm:p-6 md:p-8 max-w-7xl mx-auto">
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">사용자 관리</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">사용자 관리</h1>
             <p className="text-sm text-gray-500 mt-1">
               회원가입한 사용자를 관리하고 권한을 부여할 수 있습니다
             </p>
@@ -319,7 +319,7 @@ const UserManagement = () => {
               {/* 기본 정보 */}
               <div className="bg-gray-50 rounded-lg p-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">기본 정보</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-gray-500">이름</p>
                     <p className="font-medium">{selectedUser.name || '-'}</p>
@@ -344,7 +344,7 @@ const UserManagement = () => {
               {/* 계정 정보 */}
               <div className="bg-gray-50 rounded-lg p-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">계정 정보</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-gray-500">가입일</p>
                     <p className="font-medium">{formatDate(selectedUser.created_at)}</p>

@@ -46,19 +46,24 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md', preventClose = f
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-[100] p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-[2px] flex items-end sm:items-center justify-center z-[100] sm:p-4"
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
       <div
-        className={`bg-white rounded-2xl shadow-modal w-full mx-auto ${sizeClasses[size]} max-h-[90vh] overflow-y-auto animate-fadeIn`}
+        className={`bg-white sm:rounded-2xl rounded-t-2xl shadow-modal w-full mx-auto ${sizeClasses[size]} max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-fadeIn`}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* 모바일 드래그 핸들 */}
+        <div className="sm:hidden flex justify-center pt-2 pb-0">
+          <div className="w-10 h-1 rounded-full bg-gray-300" />
+        </div>
+
         {/* 헤더 */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900">{title}</h2>
           <button
             onClick={handleClose}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
@@ -70,7 +75,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md', preventClose = f
         </div>
 
         {/* 본문 */}
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-6">{children}</div>
       </div>
     </div>
   );
