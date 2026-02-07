@@ -16,7 +16,7 @@ const DetailLeftPanel = ({
   isMobileInline = false,
 }) => {
   const [showBranchInfo, setShowBranchInfo] = useState(true);
-  const [showReviewBoard, setShowReviewBoard] = useState(false);
+  const [showReviewBoard, setShowReviewBoard] = useState(true);
 
   const branchId = branch?.id || branch?._id;
 
