@@ -17,7 +17,6 @@ const ReviewBoard = ({ branchId, compact = false }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newReview, setNewReview] = useState('');
-  const [rating, setRating] = useState(5);
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editContent, setEditContent] = useState('');
@@ -51,11 +50,9 @@ const ReviewBoard = ({ branchId, compact = false }) => {
       await reviewAPI.create({
         branch_id: branchId,
         content: newReview.trim(),
-        rating,
       });
       success('리뷰가 등록되었습니다');
       setNewReview('');
-      setRating(5);
       fetchReviews();
     } catch (err) {
       console.error('리뷰 등록 실패:', err);
@@ -96,41 +93,12 @@ const ReviewBoard = ({ branchId, compact = false }) => {
     }
   };
 
-  const renderStars = (count, interactive = false, onChange = null) => {
-    return (
-      <div className="flex gap-0.5">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            disabled={!interactive}
-            onClick={() => interactive && onChange && onChange(star)}
-            className={`${interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'} transition`}
-          >
-            <svg
-              className={`${compact ? 'w-3.5 h-3.5' : 'w-5 h-5'} ${star <= count ? 'text-yellow-400' : 'text-gray-300'}`}
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-          </button>
-        ))}
-      </div>
-    );
-  };
-
   return (
     <div>
       {!compact && <h3 className="text-lg font-bold text-gray-900 mb-4">지점 리뷰</h3>}
 
       {/* 리뷰 작성 폼 */}
       <div className={`bg-white border border-gray-200 rounded-lg ${compact ? 'p-2 mb-2' : 'p-4 mb-4'}`}>
-        <div className={`flex items-center gap-2 ${compact ? 'mb-2' : 'gap-3 mb-3'}`}>
-          <span className={`font-medium text-gray-700 ${compact ? 'text-xs' : 'text-sm'}`}>평점:</span>
-          {renderStars(rating, true, setRating)}
-          <span className={`text-gray-500 ${compact ? 'text-xs' : 'text-sm'}`}>{rating}점</span>
-        </div>
         <div className="relative">
           <textarea
             value={newReview}
@@ -192,14 +160,11 @@ const ReviewBoard = ({ branchId, compact = false }) => {
                       <span className={`font-medium text-gray-900 ${compact ? 'text-xs' : 'text-sm'}`}>
                         {review.author?.name || review.author_name || '익명'}
                       </span>
-                      <div className="flex items-center gap-1">
-                        {renderStars(review.rating)}
-                        {review.created_at && (
-                          <span className="text-xs text-gray-400">
-                            {compact ? new Date(review.created_at).toLocaleDateString('ko-KR') : formatDateTime(review.created_at)}
-                          </span>
-                        )}
-                      </div>
+                      {review.created_at && (
+                        <div className="text-xs text-gray-400">
+                          {compact ? new Date(review.created_at).toLocaleDateString('ko-KR') : formatDateTime(review.created_at)}
+                        </div>
+                      )}
                     </div>
                   </div>
 

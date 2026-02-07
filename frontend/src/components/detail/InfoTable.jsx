@@ -1,6 +1,6 @@
 /**
  * InfoTable - 구조화된 키-값 테이블 컴포넌트
- * 상세 정보를 2열 테이블 형태로 표시
+ * PC: 2열 테이블 형태, 모바일: 세로 카드 레이아웃
  *
  * @param {string} title - 섹션 제목
  * @param {Array<{label: string, value: any, highlight?: boolean, colSpan?: boolean}>} rows - 테이블 행 데이터
@@ -9,8 +9,8 @@
 const InfoTable = ({ title, rows, headerRight }) => {
   if (!rows || rows.length === 0) return null;
 
-  // 2열 레이아웃: rows를 2개씩 짝지어 렌더링
-  const renderRows = () => {
+  // PC용 2열 레이아웃
+  const renderDesktopRows = () => {
     const result = [];
     let i = 0;
 
@@ -18,7 +18,6 @@ const InfoTable = ({ title, rows, headerRight }) => {
       const row = rows[i];
       if (!row || typeof row !== 'object') { i++; continue; }
 
-      // colSpan이 true이면 한 행에 하나의 항목만 표시
       if (row.colSpan) {
         result.push(
           <tr key={i} className="border-b border-gray-100">
@@ -69,13 +68,30 @@ const InfoTable = ({ title, rows, headerRight }) => {
     <div className="mb-6">
       {title && (
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+          <h3 className="text-base sm:text-lg font-bold text-gray-900">{title}</h3>
           {headerRight && <div>{headerRight}</div>}
         </div>
       )}
-      <table className="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
+
+      {/* 모바일: 세로 카드 레이아웃 */}
+      <div className="sm:hidden border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100">
+        {rows.map((row, idx) => {
+          if (!row || typeof row !== 'object') return null;
+          return (
+            <div key={idx} className="px-4 py-3">
+              <div className="text-xs text-gray-500 font-medium mb-1">{row.label}</div>
+              <div className={`text-sm ${row.highlight ? 'text-orange-600 font-semibold' : 'text-gray-900'} whitespace-pre-wrap`}>
+                {row.value || '-'}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* PC: 2열 테이블 레이아웃 */}
+      <table className="hidden sm:table w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
         <tbody>
-          {renderRows()}
+          {renderDesktopRows()}
         </tbody>
       </table>
     </div>
