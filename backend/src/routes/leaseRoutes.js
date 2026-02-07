@@ -45,6 +45,9 @@ router.get('/location/transit', leaseController.getTransitInfo);
 // 특약 관리 (STEP 4)
 // ============================================
 
+// 기본 특약 목록 조회
+router.get('/special-terms/defaults', leaseController.getDefaultTerms);
+
 // 특약 검색 (키워드 기반)
 router.get('/special-terms', leaseController.searchSpecialTerms);
 
@@ -79,8 +82,14 @@ router.put('/contracts/:id', leaseController.updateContract);
 // 계약서 삭제
 router.delete('/contracts/:id', leaseController.deleteContract);
 
+// 계약서 완료 처리
+router.post('/contracts/:id/complete', leaseController.completeContract);
+
 // PDF 생성
 router.post('/contracts/:id/pdf', leaseController.generatePdf);
+
+// PDF 다운로드 (GET)
+router.get('/contracts/:id/pdf', leaseController.generatePdf);
 
 // ============================================
 // 관리자 기능

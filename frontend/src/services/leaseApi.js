@@ -27,7 +27,7 @@ export const buildingLedgerAPI = {
 export const specialTermsAPI = {
   // 키워드로 특약 검색
   search: (keyword) =>
-    api.get('/lease/special-terms/search', { params: { keyword } }),
+    api.get('/lease/special-terms', { params: { keyword } }),
 
   // AI 특약 생성 (3가지 버전)
   generate: (situation, context = {}) =>

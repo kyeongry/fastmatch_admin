@@ -430,6 +430,48 @@ const leaseController = {
   },
 
   /**
+   * 계약서 완료 처리 (상태 변경 + PDF 생성)
+   */
+  async completeContract(req, res) {
+    try {
+      const db = await getDatabase();
+      const { id } = req.params;
+
+      const contract = await db.collection('leaseContracts').findOne({
+        _id: new ObjectId(id)
+      });
+
+      if (!contract) {
+        return res.status(404).json({ error: '계약서를 찾을 수 없습니다.' });
+      }
+
+      // 상태를 completed로 변경
+      await db.collection('leaseContracts').updateOne(
+        { _id: new ObjectId(id) },
+        {
+          $set: {
+            status: 'completed',
+            completedAt: new Date(),
+            updatedAt: new Date()
+          }
+        }
+      );
+
+      // TODO: PDF 생성 서비스 연동
+      res.json({
+        success: true,
+        data: {
+          status: 'completed',
+          pdfUrl: null
+        }
+      });
+    } catch (error) {
+      console.error('계약서 완료 처리 오류:', error);
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  /**
    * PDF 생성
    */
   async generatePdf(req, res) {
@@ -552,6 +594,27 @@ const leaseController = {
       res.json({ success: true });
     } catch (error) {
       console.error('공제증서 활성화 오류:', error);
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  /**
+   * 기본 특약 목록 조회
+   */
+  async getDefaultTerms(req, res) {
+    try {
+      const db = await getDatabase();
+      const terms = await db.collection('specialTerms')
+        .find({ source: 'manual', isActive: true })
+        .sort({ category: 1, title: 1 })
+        .toArray();
+
+      res.json({
+        success: true,
+        data: terms
+      });
+    } catch (error) {
+      console.error('기본 특약 조회 오류:', error);
       res.status(500).json({ error: error.message });
     }
   },

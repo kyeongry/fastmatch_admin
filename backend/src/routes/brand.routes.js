@@ -11,6 +11,13 @@ router.get('/', authMiddleware, brandController.getAllBrands);
 // POST /api/brands - 브랜드 생성 (인증 + 관리자 필수)
 router.post('/', authMiddleware, adminMiddleware, brandController.createBrand);
 
+// POST /api/brands/check-duplicate - 중복 확인 (인증 + 관리자 필수)
+router.post('/check-duplicate', authMiddleware, adminMiddleware, brandController.checkDuplicate);
+
+// GET /api/brands/available-for-addition - 추가 가능 브랜드 (인증 필수)
+// 주의: /:id 보다 먼저 정의해야 라우트 충돌 방지
+router.get('/available-for-addition', authMiddleware, brandController.getAvailableBrandsForAddition);
+
 // GET /api/brands/:id - 브랜드 상세 (인증 필수)
 router.get('/:id', authMiddleware, brandController.getBrandById);
 
@@ -19,11 +26,5 @@ router.put('/:id', authMiddleware, adminMiddleware, brandController.updateBrand)
 
 // DELETE /api/brands/:id - 브랜드 삭제 (인증 + 관리자 필수)
 router.delete('/:id', authMiddleware, adminMiddleware, brandController.deleteBrand);
-
-// POST /api/brands/check-duplicate - 중복 확인 (인증 + 관리자 필수)
-router.post('/check-duplicate', authMiddleware, adminMiddleware, brandController.checkDuplicate);
-
-// GET /api/brands/available-for-addition - 추가 가능 브랜드 (인증 필수)
-router.get('/available-for-addition', authMiddleware, brandController.getAvailableBrandsForAddition);
 
 module.exports = router;
