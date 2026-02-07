@@ -382,10 +382,6 @@ const MyOptionsPage = () => {
                                             selected={false}
                                             onSelect={() => { }}
                                             onView={() => handleView(option)}
-                                            onEdit={() => handleEdit(option)}
-                                            onDelete={() => handleDeleteRequest(option.id)}
-                                            onComplete={() => handleComplete(option.id)}
-                                            onReactivate={() => handleReactivate(option.id)}
                                         />
                                     ))}
                                 </div>
